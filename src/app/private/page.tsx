@@ -11,9 +11,9 @@ export default async function PrivatePage() {
   }
 
   return (
-    <main>
+    <div>
       <h1>Hello, Clarise.</h1>
       <p>Just kidding, hey {data.user.email}</p>
-    </main>
+    </div>
   )
 }
