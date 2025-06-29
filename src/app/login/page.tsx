@@ -1,14 +1,24 @@
-import { login, signup } from './actions'
+"use client";
+import { useState } from "react";
+import LoginForm from "./LoginForm";
+import SignupForm from "../signup/SignupForm";
+import classes from "./login.module.css";
 
 export default function LoginPage() {
+  const [showSignup, setShowSignup] = useState(false);
+
   return (
-    <form>
-      <label htmlFor="email">Email:</label>
-      <input id="email" name="email" type="email" required />
-      <label htmlFor="password">Password:</label>
-      <input id="password" name="password" type="password" required />
-      <button formAction={login}>Log in</button>
-      <button formAction={signup}>Sign up</button>
-    </form>
-  )
+    <div className={classes.login_container}>
+      {!showSignup ? (
+        <div>
+          <LoginForm />
+          <button type="button" onClick={() => setShowSignup(true)}>
+            New user?
+          </button>
+        </div>
+      ) : (
+        <SignupForm/>
+      )}
+    </div>
+  );
 }
