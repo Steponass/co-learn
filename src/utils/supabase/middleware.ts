@@ -47,7 +47,9 @@ export async function updateSession(request: NextRequest) {
   pathname.startsWith('/login') ||
   pathname.startsWith('/signup') ||
   pathname.startsWith('/auth') ||
-  pathname.startsWith('/resetpassword')
+  pathname.startsWith('/resetpassword') ||
+  pathname.startsWith('/updatepassword')
+  
 
 // Skip role check on public paths
 if (isPublicPath) {
