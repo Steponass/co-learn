@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
 
-export async function login(formData: FormData) {
+export async function login(previousState: unknown, formData: FormData) {
   const supabase = await createClient()
 
   // type-casting here for convenience
@@ -18,39 +18,34 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/error')
+    return { error: error.message }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  return {
+    message: 'Login successful! Redirecting to your dashboard...',
+    redirectTo: '/dashboard',
+    delay: 2000,
+  }
 }
 
-export async function signup(_prevState: unknown, formData: FormData) {
+export async function signup(previousState: unknown, formData: FormData) {
   const supabase = await createClient()
 
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const role = formData.get('role') as string
 
-  // Sign up user (do not include role)
-  const { data, error } = await supabase.auth.signUp({ email, password })
+  const { error } = await supabase.auth.signUp({ email, password })
 
   if (error) {
     return { error: error.message }
   }
 
-  // Insert role into 'profiles' table
-  const userId = data.user?.id
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .insert([{ id: userId, email, role }])
-
-  if (profileError) {
-    return { error: profileError.message }
+  // Return both message and redirect target
+  return {
+    message: 'Signup successful! Please check your email to confirm your account.',
+    redirectTo: '/login',
+    delay: 3000,
   }
-
-  revalidatePath('/', 'layout')
-  redirect('/')
 }
 
 export async function signOut() {

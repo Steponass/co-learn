@@ -1,24 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import LoginForm from "./LoginForm";
-import SignupForm from "../signup/SignupForm";
 import classes from "./login.module.css";
 
 export default function LoginPage() {
-  const [showSignup, setShowSignup] = useState(false);
+  const router = useRouter();
 
   return (
     <div className={classes.login_container}>
-      {!showSignup ? (
-        <div>
-          <LoginForm />
-          <button type="button" onClick={() => setShowSignup(true)}>
-            New user?
-          </button>
-        </div>
-      ) : (
-        <SignupForm/>
-      )}
+      <LoginForm />
+      <button type="button" onClick={() => router.push("/signup")}>
+        New user?
+      </button>
     </div>
   );
 }

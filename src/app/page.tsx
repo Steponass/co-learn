@@ -6,6 +6,7 @@ export default function HomePage() {
           <h1>Home? I have no home.</h1>
           <h2>Hunted, despised.</h2>
           <h3>Living like an animal!</h3>
+          
     </div>
   );
 }
