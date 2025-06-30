@@ -33,14 +33,28 @@ export async function signup(previousState: unknown, formData: FormData) {
 
   const email = formData.get('email') as string
   const password = formData.get('password') as string
+  const role = formData.get('role') as 'participant' | 'facilitator'
 
-  const { error } = await supabase.auth.signUp({ email, password })
+  if (!email || !password || !role) {
+    return { error: 'Missing required fields.' }
+  }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        user_role: role, 
+      },
+      // The below might fuck up where user is redirected after clicking confirm signup button in email
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    },
+  })
 
   if (error) {
     return { error: error.message }
   }
 
-  // Return both message and redirect target
   return {
     message: 'Signup successful! Please check your email to confirm your account.',
     redirectTo: '/login',

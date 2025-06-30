@@ -46,7 +46,8 @@ export async function updateSession(request: NextRequest) {
   const isPublicPath =
   pathname.startsWith('/login') ||
   pathname.startsWith('/signup') ||
-  pathname.startsWith('/auth')
+  pathname.startsWith('/auth') ||
+  pathname.startsWith('/resetpassword')
 
 // Skip role check on public paths
 if (isPublicPath) {
@@ -77,11 +78,7 @@ if (!token || !userRole) {
   url.pathname = '/unauthorized'
   return NextResponse.redirect(url)
 }
-  // Debug logs
-  console.log('[Middleware] Token:', token)
-  console.log('[Middleware] Decoded role:', userRole)
-  console.log('[Middleware] User:', user)
-  console.log('[Middleware] Pathname:', pathname)
+
 
 // IF ABOVE DON'T WORK, TRY THIS OG WITHOUT DEFINED TYPES
   // let userRole: string | undefined

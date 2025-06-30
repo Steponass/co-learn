@@ -12,6 +12,9 @@ export default function LoginPage() {
       <button type="button" onClick={() => router.push("/signup")}>
         New user?
       </button>
+      <button type="button" onClick={() => router.push("/resetpassword")}>
+        I forgot me passwerd
+      </button>
     </div>
   );
 }

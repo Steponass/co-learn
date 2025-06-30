@@ -45,7 +45,7 @@ export default function SignupForm() {
               type="radio"
               name="role"
               value="facilitator"
-              // required
+              required
             />
             Facilitator
           </label>
@@ -54,8 +54,8 @@ export default function SignupForm() {
             <input
               type="radio"
               name="role"
-              value="learner"
-              // required
+              value="participant"
+              required
             />
             Participant
           </label>
@@ -64,6 +64,9 @@ export default function SignupForm() {
         {formData?.message && <p style={{ color: "green" }}>{formData?.message}</p>}
         <button disabled={isPending}>Sign up</button>
       </form>
+      <button type="button" onClick={() => router.push("/login")}>
+  Back to Log in
+</button>
     </div>
   );
 }
