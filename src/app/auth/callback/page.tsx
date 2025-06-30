@@ -1,20 +1,12 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+// Looks unnecessary? Iz to separate server vs client component
+
+import { Suspense } from "react";
+import AuthCallbackInner from "./AuthCallbackInner";
 
 export default function AuthCallbackPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const supabase = createClient();
-    // This will trigger Supabase to set the session cookie if the URL has the right params
-    supabase.auth.getSession().then(() => {
-      // After session is set, redirect to updatepassword
-      router.replace("/updatepassword");
-    });
-  }, [router, searchParams]);
-
-  return <p>Processing authentication...</p>;
+  return (
+    <Suspense fallback={<p>Processing authentication...</p>}>
+      <AuthCallbackInner />
+    </Suspense>
+  );
 }
