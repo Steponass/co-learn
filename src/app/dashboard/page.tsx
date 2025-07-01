@@ -10,13 +10,23 @@ export default async function DashboardPage() {
 
   if (role === "admin")
     return <AdminDashboard userEmail={user.email ?? ""} name={name ?? ""} />;
+  
   if (role === "facilitator")
     return (
-      <FacilitatorDashboard userEmail={user.email ?? ""} name={name ?? ""} />
+      <FacilitatorDashboard
+        userEmail={user.email ?? ""}
+        name={name ?? ""}
+        facilitatorId={user.id}
+      />
     );
+
   if (role === "participant")
     return (
-      <ParticipantDashboard userEmail={user.email ?? ""} name={name ?? ""} />
+      <ParticipantDashboard
+        userEmail={user.email ?? ""}
+        name={name ?? ""}
+        participantId={user.id}
+      />
     );
 
   return <p>Unknown role.</p>;
