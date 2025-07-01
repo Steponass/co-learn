@@ -1,12 +1,23 @@
-import { getUserWithRole } from '@/utils/supabase/getUserWithRole'
-import ClientDashboard from './ClientDashboard'
+import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
+import AdminDashboard from "./AdminDashboard";
+import FacilitatorDashboard from "./FacilitatorDashboard";
+import ParticipantDashboard from "./ParticipantDashboard";
 
 export default async function DashboardPage() {
-  const { user, role } = await getUserWithRole()
+  const { user, role, name } = await getUserWithRole();
 
-  if (!user) return <p>Please log in.</p>
+  if (!user) return <p>Please log in.</p>;
 
-  return (
-    <ClientDashboard userEmail={user.email ?? ''} role={role} />
-  )
+  if (role === "admin")
+    return <AdminDashboard userEmail={user.email ?? ""} name={name ?? ""} />;
+  if (role === "facilitator")
+    return (
+      <FacilitatorDashboard userEmail={user.email ?? ""} name={name ?? ""} />
+    );
+  if (role === "participant")
+    return (
+      <ParticipantDashboard userEmail={user.email ?? ""} name={name ?? ""} />
+    );
+
+  return <p>Unknown role.</p>;
 }

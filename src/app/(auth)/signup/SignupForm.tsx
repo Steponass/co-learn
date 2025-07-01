@@ -23,6 +23,14 @@ export default function SignupForm() {
       <h1>Sign Up</h1>
       <form action={formAction}>
         <div>
+          <label htmlFor="name">Name:</label>
+          <input 
+          id="name" 
+          name="name" 
+          type="text" 
+          required />
+        </div>
+        <div>
           <label htmlFor="email">Email:</label>
           <input 
           id="email" 

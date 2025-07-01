@@ -1,7 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtDecode } from 'jwt-decode'
-import { isAllowed } from './role-check'
+import { jwtDecode } from "jwt-decode";
+import { isAllowed } from "./role-check";
+
+type DecodedJWT = {
+  user_role?: string;
+  user_metadata?: { user_role?: string };
+};
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -18,7 +23,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({request});
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
@@ -35,54 +40,51 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   const {
     data: { session },
-  } = await supabase.auth.getSession()
+  } = await supabase.auth.getSession();
 
-  const pathname = request.nextUrl.pathname
+  const pathname = request.nextUrl.pathname;
 
   const isPublicPath =
-  pathname.startsWith('/login') ||
-  pathname.startsWith('/signup') ||
-  pathname.startsWith('/auth') ||
-  pathname.startsWith('/resetpassword') ||
-  pathname.startsWith('/updatepassword')
-  
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/resetpassword") ||
+    pathname.startsWith("/updatepassword");
 
-// Skip role check on public paths
-if (isPublicPath) {
-  return supabaseResponse
-}
+  // Skip role check on public paths
+  if (isPublicPath) {
+    return supabaseResponse;
+  }
 
-//  Redirect if not logged in
+  //  Redirect if not logged in
   if (!user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
 
-
-// Decode the user_role claim if token exists
-const token = session?.access_token
-let userRole: string | undefined
-if (token) {
-  try {
-    const decoded = jwtDecode<{ user_role?: string }>(token)
-    userRole = decoded.user_role
-  } catch (err) {
-    console.error('[Middleware] Failed to decode JWT:', err)
+  // Decode the user_role claim if token exists
+  const token = session?.access_token;
+  let userRole: string | undefined;
+  if (token) {
+    try {
+      const decoded = jwtDecode<DecodedJWT>(token);
+      userRole = decoded.user_role || decoded.user_metadata?.user_role;
+    } catch (err) {
+      console.error("[Middleware] Failed to decode JWT:", err);
+    }
   }
-}
-if (!token || !userRole) {
-  const url = request.nextUrl.clone()
-  url.pathname = '/unauthorized'
-  return NextResponse.redirect(url)
-}
+  if (!token || !userRole) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/unauthorized";
+    return NextResponse.redirect(url);
+  }
 
-
-// IF ABOVE DON'T WORK, TRY THIS OG WITHOUT DEFINED TYPES
+  // IF ABOVE DON'T WORK, TRY THIS OG WITHOUT DEFINED TYPES
   // let userRole: string | undefined
   // if (token) {
   //   try {
@@ -93,14 +95,13 @@ if (!token || !userRole) {
   //   }
   // }
 
+  // Role-based redirects
 
-// Role-based redirects
-
-// Use the role guard helper
-if (!isAllowed(userRole, pathname)) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/unauthorized'
-    return NextResponse.redirect(url)
+  // Use the role guard helper
+  if (!isAllowed(userRole, pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/unauthorized";
+    return NextResponse.redirect(url);
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

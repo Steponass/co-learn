@@ -1,6 +1,7 @@
 import classes from "./Header.module.css";
 import { signOut } from "@/app/(auth)/login/actions";
 import { createClient } from "@/utils/supabase/server";
+import Link from "next/link";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -10,7 +11,9 @@ export default async function Header() {
 
   return (
     <header className={classes.header}>
-      <h1>Co-Learn</h1>
+      <Link href="/"><h1>Co-Learn</h1></Link>
+
+
       {user && (
         <form action={signOut}>
           <button type="submit">Sign Out</button>

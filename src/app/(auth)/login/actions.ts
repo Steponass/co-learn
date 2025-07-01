@@ -31,6 +31,7 @@ export async function login(previousState: unknown, formData: FormData) {
 export async function signup(previousState: unknown, formData: FormData) {
   const supabase = await createClient();
 
+  const name = formData.get('name') as string
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const role = formData.get("role") as "participant" | "facilitator";
@@ -44,7 +45,9 @@ export async function signup(previousState: unknown, formData: FormData) {
     password,
     options: {
       data: {
-        user_role: role,
+        user_role: 
+        role, 
+        name,
       },
       // The below might fuck up where user is redirected after clicking confirm signup button in email
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
