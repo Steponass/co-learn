@@ -1,5 +1,5 @@
 import classes from "./Header.module.css";
-import { signOut } from "@/app/login/actions";
+import { signOut } from "@/app/(auth)/login/actions";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function Header() {
