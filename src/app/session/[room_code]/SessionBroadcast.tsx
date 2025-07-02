@@ -60,7 +60,12 @@ export default function SessionBroadcast({
 
     // Listen for chat messages
     channel.on("broadcast", { event: "chat" }, ({ payload }) => {
-      setMessages((prev) => [...prev, payload as ChatMessage]);
+      setMessages((prev) => {
+        const msg = payload as ChatMessage;
+        // Only add if not already present
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
     });
 
     return () => {
@@ -80,7 +85,9 @@ export default function SessionBroadcast({
       timestamp: Date.now(),
     };
     channelRef.current.send({ type: "broadcast", event: "chat", payload: msg });
-    setInput("");
+// Optimistically add the message to your own chat
+setMessages((prev) => [...prev, msg]);
+setInput("");
   };
 
   return (
