@@ -125,3 +125,19 @@ export async function getParticipantSessions(participantId: string) {
   console.log("[getParticipantSessions]", data, error);
   return { data, error };
 }
+
+// Participant cancels their booking
+export async function cancelBooking(session_id: string, participant_id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("session_participants")
+    .delete()
+    .eq("session_id", session_id)
+    .eq("participant_id", participant_id);
+
+  if (error) {
+    console.error("[cancelBooking] Error:", error.message);
+    return { error: error.message };
+  }
+  return { message: "Booking cancelled" };
+}
