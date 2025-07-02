@@ -75,6 +75,15 @@ export default function ParticipantSessionList({
           <button
             style={{ marginLeft: 8 }}
             onClick={() => {
+              const url = `/session/${row.sessions.room_code}`;
+              window.open(url, "_blank", "noopener,noreferrer");
+            }}
+          >
+            Join Session
+          </button>
+          <button
+            style={{ marginLeft: 8 }}
+            onClick={() => {
               if (
                 window.confirm("Sure you want to cancel this sesh?")
               ) {

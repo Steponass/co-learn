@@ -99,6 +99,8 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
     id,
     start_time,
     end_time,
+    room_code,
+    time_zone,
     session_participants (
       participant_id,
       user_info!fk_participant_user_info (

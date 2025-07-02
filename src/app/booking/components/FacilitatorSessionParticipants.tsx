@@ -22,6 +22,7 @@ export default function FacilitatorSessionParticipants({
         const sessionsWithRoomCode: SessionWithParticipants[] = res.data.map(
           (session: unknown) => {
             const s = session as Partial<SessionWithParticipants>;
+            console.log("Session object:", s);
             return {
               id: s.id ?? "",
               start_time: s.start_time ?? "",
@@ -68,6 +69,16 @@ export default function FacilitatorSessionParticipants({
                 ({session.time_zone ?? "UTC"})
               </span>
             </strong>
+            <button
+              style={{ marginLeft: 8 }}
+              onClick={() => {
+                const url = `/session/${session.room_code}`;
+                console.log("Opening session room:", url);
+                window.open(url, "_blank", "noopener,noreferrer");
+              }}
+            >
+              Start Session
+            </button>
             <ul>
               {session.session_participants.map((sp) => (
                 <li key={sp.participant_id}>
