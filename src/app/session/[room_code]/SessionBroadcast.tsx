@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import Chat from "./Chat";
 
 interface Props {
   roomCode: string;
@@ -15,23 +16,14 @@ type PresenceState = {
   userName: string;
 };
 
-type ChatMessage = {
-  id: string;
-  userId: string;
-  userName: string;
-  content: string;
-  timestamp: number;
-};
-
 export default function SessionBroadcast({
   roomCode,
   userId,
   userName,
 }: Props) {
   const [onlineUsers, setOnlineUsers] = useState<PresenceState[]>([]);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState("");
-  const channelRef = useRef<RealtimeChannel | null>(null);
+  const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+  const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -41,7 +33,7 @@ export default function SessionBroadcast({
         broadcast: { ack: true },
       },
     });
-    channelRef.current = channel;
+    setChannel(channel);
 
     // Presence: track who is online
     channel.on("presence", { event: "sync" }, () => {
@@ -52,43 +44,17 @@ export default function SessionBroadcast({
     });
 
     // Join presence
-    channel.subscribe(async (status) => {
+    channel.subscribe(async (status: string) => {
       if (status === "SUBSCRIBED") {
         channel.track({ userId, userName });
+        setSubscribed(true);
       }
-    });
-
-    // Listen for chat messages
-    channel.on("broadcast", { event: "chat" }, ({ payload }) => {
-      setMessages((prev) => {
-        const msg = payload as ChatMessage;
-        // Only add if not already present
-        if (prev.some((m) => m.id === msg.id)) return prev;
-        return [...prev, msg];
-      });
     });
 
     return () => {
       channel.unsubscribe();
     };
   }, [roomCode, userId, userName]);
-
-  // Send chat message
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || !channelRef.current) return;
-    const msg: ChatMessage = {
-      id: crypto.randomUUID(),
-      userId,
-      userName,
-      content: input,
-      timestamp: Date.now(),
-    };
-    channelRef.current.send({ type: "broadcast", event: "chat", payload: msg });
-// Optimistically add the message to your own chat
-setMessages((prev) => [...prev, msg]);
-setInput("");
-  };
 
   return (
     <div style={{ display: "flex", gap: 32 }}>
@@ -105,35 +71,12 @@ setInput("");
       </div>
       {/* Chat */}
       <div style={{ flex: 1 }}>
-        <h3>Chat</h3>
-        <div
-          style={{
-            border: "1px solid #ccc",
-            minHeight: 120,
-            maxHeight: 200,
-            overflowY: "auto",
-            marginBottom: 8,
-            padding: 8,
-          }}
-        >
-          {messages.map((msg) => (
-            <div key={msg.id}>
-              <strong>{msg.userName}:</strong> {msg.content}
-              <span style={{ color: "#888", fontSize: 10, marginLeft: 8 }}>
-                {new Date(msg.timestamp).toLocaleTimeString()}
-              </span>
-            </div>
-          ))}
-        </div>
-        <form onSubmit={sendMessage} style={{ display: "flex", gap: 8 }}>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message..."
-            style={{ flex: 1 }}
-          />
-          <button type="submit">Send</button>
-        </form>
+        <Chat
+          channel={channel}
+          userId={userId}
+          userName={userName}
+          subscribed={subscribed}
+        />
       </div>
       {/* Video/Whiteboard placeholders */}
       <div style={{ minWidth: 200 }}>
