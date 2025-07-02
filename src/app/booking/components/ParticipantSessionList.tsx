@@ -71,7 +71,6 @@ export default function ParticipantSessionList({
           <span style={{ fontStyle: "italic", color: "#888" }}>
             ({row.sessions.time_zone ?? "UTC"})
           </span>
-          (Room: {row.sessions.room_code})
           <button
             style={{ marginLeft: 8 }}
             onClick={() => {

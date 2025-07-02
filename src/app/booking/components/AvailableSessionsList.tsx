@@ -69,7 +69,6 @@ export default function AvailableSessionsList({
           <span style={{ fontStyle: "italic", color: "#888" }}>
             ({session.time_zone ?? "UTC"})
           </span>
-          (Room: {session.room_code})
           <ParticipantBookSession
             sessionId={session.id}
             participantId={participantId}

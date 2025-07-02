@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { formatSessionTimeWithZone } from "../../booking/utils/formatSessionTime";
+import SessionBroadcast from "./SessionBroadcast";
+import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 
 export default async function SessionRoomPage({
   params,
@@ -15,6 +17,12 @@ export default async function SessionRoomPage({
     .single();
 
   if (!session || error) {
+    notFound();
+  }
+
+  // Fetch user and name for presence/chat
+  const { user, name } = await getUserWithRole();
+  if (!user) {
     notFound();
   }
 
@@ -33,11 +41,11 @@ export default async function SessionRoomPage({
         )}{" "}
         ({session.time_zone ?? "UTC"})
       </p>
-
-      {/* Placeholder for Realtime/WebRTC features */}
-      <div style={{ marginTop: 32, padding: 16, border: "1px solid #ccc" }}>
-        <strong>Live session features coming soon!</strong>
-      </div>
+      <SessionBroadcast
+        roomCode={params.room_code}
+        userId={user.id}
+        userName={name || user.email || user.id}
+      />
     </div>
   );
 }
