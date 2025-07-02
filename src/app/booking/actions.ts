@@ -69,6 +69,29 @@ export async function getFacilitatorSessions(facilitatorId: string) {
   return { data, error };
 }
 
+// Facilitator views their sessions AND participants
+export async function getFacilitatorSessionParticipants(facilitatorId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+  .from("sessions")
+  .select(`
+    id,
+    start_time,
+    end_time,
+    session_participants (
+      participant_id,
+      user_info!fk_participant_user_info (
+        email,
+        name,
+        role
+      )
+    )
+  `)
+  .eq("facilitator_id", facilitatorId);
+console.log("[getFacilitatorSessionParticipants]", data, error);
+  return { data, error };
+}
+
 // Participant views their sessions
 export async function getParticipantSessions(participantId: string) {
   const supabase = await createClient();
