@@ -2,15 +2,13 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import ParticipantBookSession from "./BookSession";
+import type { Session } from "../types/sessions";
 
-type Session = {
-  id: string;
-  start_time: string;
-  end_time: string;
-  room_code: string;
-};
-
-export default function AvailableSessionsList({ participantId }: { participantId: string }) {
+export default function AvailableSessionsList({
+  participantId,
+}: {
+  participantId: string;
+}) {
   const [sessions, setSessions] = useState<Session[]>([]);
 
   useEffect(() => {
@@ -34,14 +32,15 @@ export default function AvailableSessionsList({ participantId }: { participantId
       const bookedSessionIds = myBookings?.map((b) => b.session_id) ?? [];
 
       // For each session, count participants
-      const available = [];
-      for (const session of allSessions ?? []) {
+      const available: Session[] = [];
+      for (const session of (allSessions ?? []) as Session[]) {
         const { count } = await supabase
           .from("session_participants")
           .select("*", { count: "exact", head: true })
           .eq("session_id", session.id);
 
         if (
+          typeof count === "number" &&
           count < 6 &&
           !bookedSessionIds.includes(session.id)
         ) {
@@ -60,7 +59,10 @@ export default function AvailableSessionsList({ participantId }: { participantId
       {sessions.map((session) => (
         <li key={session.id}>
           {session.start_time} - {session.end_time} (Room: {session.room_code})
-          <ParticipantBookSession sessionId={session.id} participantId={participantId} />
+          <ParticipantBookSession
+            sessionId={session.id}
+            participantId={participantId}
+          />
         </li>
       ))}
     </ul>

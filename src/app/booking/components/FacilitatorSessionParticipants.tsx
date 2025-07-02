@@ -2,82 +2,47 @@
 
 import { useEffect, useState } from "react";
 import { getFacilitatorSessionParticipants } from "../actions";
-
-type RawUserInfo =
-  | {
-      name: string;
-      email: string;
-      role: string;
-    }
-  | RawUserInfo[]
-  | null;
-
-type RawSessionParticipant = {
-  participant_id: string;
-  user_info: RawUserInfo;
-};
-
-type RawSession = {
-  id: string;
-  start_time: string;
-  end_time: string;
-  room_code?: string;
-  session_participants: RawSessionParticipant[];
-};
-
-type Session = {
-  id: string;
-  start_time: string;
-  end_time: string;
-  room_code: string;
-  session_participants: {
-    participant_id: string;
-    user_info: {
-      name: string;
-      email: string;
-      role: string;
-    };
-  }[];
-};
+import type {
+  SessionWithParticipants,
+  SessionParticipant,
+  UserInfo,
+} from "../types/sessions";
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
 }: {
   facilitatorId: string;
 }) {
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<SessionWithParticipants[]>([]);
 
   useEffect(() => {
     getFacilitatorSessionParticipants(facilitatorId).then((res) => {
       if (res.data) {
-        const sessionsWithRoomCode: Session[] = (res.data as RawSession[]).map(
-          (session) => ({
-            id: session.id,
-            start_time: session.start_time,
-            end_time: session.end_time,
-            room_code: session.room_code ?? "",
-            session_participants: session.session_participants.map((sp) => {
-              let userInfoObj: RawUserInfo = sp.user_info;
-              // If user_info is an array, take the first element; if null, use fallback
-              if (Array.isArray(userInfoObj)) {
-                userInfoObj = userInfoObj[0] ?? {
-                  name: "",
-                  email: "",
-                  role: "",
-                };
-              } else if (!userInfoObj) {
-                userInfoObj = { name: "", email: "", role: "" };
-              }
-              return {
-                participant_id: sp.participant_id,
-                user_info: {
-                  name: (typeof userInfoObj === "object" && "name" in userInfoObj) ? userInfoObj.name ?? "" : "",
-                  email: (typeof userInfoObj === "object" && "email" in userInfoObj) ? userInfoObj.email ?? "" : "",
-                  role: (typeof userInfoObj === "object" && "role" in userInfoObj) ? userInfoObj.role ?? "" : "",
-                },
-              };
-            }),
-          })
+        const sessionsWithRoomCode: SessionWithParticipants[] = res.data.map(
+          (session: unknown) => {
+            const s = session as Partial<SessionWithParticipants>;
+            return {
+              id: s.id ?? "",
+              start_time: s.start_time ?? "",
+              end_time: s.end_time ?? "",
+              room_code: s.room_code ?? "",
+              session_participants: (s.session_participants ?? []).map(
+                (sp: unknown) => {
+                  const p = sp as Partial<SessionParticipant>;
+                  const userInfo: UserInfo = {
+                    user_id: p.user_info?.user_id ?? "",
+                    email: p.user_info?.email ?? "",
+                    name: p.user_info?.name ?? "",
+                    role: p.user_info?.role ?? "",
+                  };
+                  return {
+                    participant_id: p.participant_id ?? "",
+                    user_info: userInfo,
+                  };
+                }
+              ),
+            };
+          }
         );
         setSessions(sessionsWithRoomCode);
       }

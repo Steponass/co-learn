@@ -2,8 +2,17 @@
 import { useActionState } from "react";
 import { bookSession } from "../actions";
 
-export default function ParticipantBookSession({ sessionId, participantId }: { sessionId: string, participantId: string }) {
-  const [formData, formAction, isPending] = useActionState(bookSession, undefined);
+export default function ParticipantBookSession({
+  sessionId,
+  participantId,
+}: {
+  sessionId: string;
+  participantId: string;
+}) {
+  const [formData, formAction, isPending] = useActionState(
+    bookSession,
+    undefined
+  );
 
   return (
     <form action={formAction}>
@@ -11,7 +20,9 @@ export default function ParticipantBookSession({ sessionId, participantId }: { s
       <input type="hidden" name="participant_id" value={participantId} />
       <button disabled={isPending}>Book This Session</button>
       {formData?.error && <p style={{ color: "red" }}>{formData.error}</p>}
-      {formData?.message && <p style={{ color: "green" }}>{formData.message}</p>}
+      {formData?.message && (
+        <p style={{ color: "green" }}>{formData.message}</p>
+      )}
     </form>
   );
 }
