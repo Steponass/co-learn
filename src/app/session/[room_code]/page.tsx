@@ -4,11 +4,12 @@ import { formatSessionTimeWithZone } from "../../booking/utils/formatSessionTime
 import SessionBroadcast from "./SessionBroadcast";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 
-export default async function SessionRoomPage({
-  params,
-}: {
-  params: { room_code: string };
-}) {
+export default async function SessionRoomPage(
+  props: {
+    params: Promise<{ room_code: string }>;
+  }
+) {
+  const params = await props.params;
   const supabase = await createClient();
   const { data: session, error } = await supabase
     .from("sessions")
