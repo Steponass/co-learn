@@ -1,18 +1,26 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
 
-export async function createSession(previousState: unknown, formData: FormData) {
+export async function createSession(
+  previousState: unknown,
+  formData: FormData
+) {
   const supabase = await createClient();
   const facilitator_id = formData.get("facilitator_id") as string;
   const start_time = formData.get("start_time") as string;
   const end_time = formData.get("end_time") as string;
   const room_code = crypto.randomUUID();
 
-  console.log("[createSession] Data:", { facilitator_id, start_time, end_time, room_code });
+  console.log("[createSession] Data:", {
+    facilitator_id,
+    start_time,
+    end_time,
+    room_code,
+  });
 
-  const { data, error } = await supabase.from("sessions").insert([
-    { facilitator_id, start_time, end_time, room_code }
-  ]);
+  const { data, error } = await supabase
+    .from("sessions")
+    .insert([{ facilitator_id, start_time, end_time, room_code }]);
 
   if (error) {
     console.error("[createSession] Error:", error.message);
@@ -40,13 +48,13 @@ export async function bookSession(previousState: unknown, formData: FormData) {
     return { error: countError.message };
   }
 
-  if (count !== undefined && count >= 6) {
+  if (typeof count === "number" && count >= 6) {
     return { error: "Session is full." };
   }
 
-  const { data, error } = await supabase.from("session_participants").insert([
-    { session_id, participant_id }
-  ]);
+  const { data, error } = await supabase
+    .from("session_participants")
+    .insert([{ session_id, participant_id }]);
 
   if (error) {
     console.error("[bookSession] Error:", error.message);
@@ -55,7 +63,6 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   console.log("[bookSession] Success:", data);
   return { message: "Booking successful!", data };
 }
-
 
 // Facilitator views their sessions
 export async function getFacilitatorSessions(facilitatorId: string) {
@@ -73,8 +80,9 @@ export async function getFacilitatorSessions(facilitatorId: string) {
 export async function getFacilitatorSessionParticipants(facilitatorId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-  .from("sessions")
-  .select(`
+    .from("sessions")
+    .select(
+      `
     id,
     start_time,
     end_time,
@@ -86,9 +94,10 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
         role
       )
     )
-  `)
-  .eq("facilitator_id", facilitatorId);
-console.log("[getFacilitatorSessionParticipants]", data, error);
+  `
+    )
+    .eq("facilitator_id", facilitatorId);
+  console.log("[getFacilitatorSessionParticipants]", data, error);
   return { data, error };
 }
 
