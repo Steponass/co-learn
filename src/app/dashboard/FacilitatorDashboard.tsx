@@ -1,5 +1,3 @@
-"use client";
-
 import FacilitatorSessionList from "../booking/components/FacilitatorSessionList";
 import FacilitatorCreateSession from "../booking/components/FacilitatorCreateSession";
 import FacilitatorSessionParticipants from "../booking/components/FacilitatorSessionParticipants";
