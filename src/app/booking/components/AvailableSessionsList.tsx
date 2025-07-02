@@ -3,8 +3,15 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import ParticipantBookSession from "./BookSession";
 
+type Session = {
+  id: string;
+  start_time: string;
+  end_time: string;
+  room_code: string;
+};
+
 export default function AvailableSessionsList({ participantId }: { participantId: string }) {
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
 
   useEffect(() => {
     const fetchSessions = async () => {
