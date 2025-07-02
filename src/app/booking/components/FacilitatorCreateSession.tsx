@@ -1,9 +1,18 @@
 "use client";
-import { useActionState } from "react";
+import { useState, useActionState } from "react";
 import { createSession } from "../actions";
+import { timeZones } from "../utils/timezones";
 
-export default function FacilitatorCreateSession({facilitatorId,}: {facilitatorId: string;}) {
-  const [formData, formAction, isPending] = useActionState(createSession, undefined);
+export default function FacilitatorCreateSession({
+  facilitatorId,
+}: {
+  facilitatorId: string;
+}) {
+  const [formData, formAction, isPending] = useActionState(
+    createSession,
+    undefined
+  );
+  const [selectedTimeZone, setSelectedTimeZone] = useState("UTC");
 
   return (
     <form action={formAction}>
@@ -15,6 +24,21 @@ export default function FacilitatorCreateSession({facilitatorId,}: {facilitatorI
       <label>
         End Time:
         <input type="datetime-local" name="end_time" required />
+      </label>
+      <label>
+        Time Zone:
+        <select
+          name="time_zone"
+          value={selectedTimeZone}
+          onChange={(e) => setSelectedTimeZone(e.target.value)}
+          required
+        >
+          {timeZones.map((tz) => (
+            <option key={tz} value={tz}>
+              {tz}
+            </option>
+          ))}
+        </select>
       </label>
       <button disabled={isPending}>Create Session</button>
       {formData?.error && <p style={{ color: "red" }}>{formData.error}</p>}

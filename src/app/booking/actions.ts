@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
+import { DateTime } from "luxon";
 
 export async function createSession(
   previousState: unknown,
@@ -7,12 +8,24 @@ export async function createSession(
 ) {
   const supabase = await createClient();
   const facilitator_id = formData.get("facilitator_id") as string;
-  const start_time = formData.get("start_time") as string;
-  const end_time = formData.get("end_time") as string;
+  const start_time_local = formData.get("start_time") as string; // e.g. "2025-07-09T22:30"
+  const end_time_local = formData.get("end_time") as string;
+  const time_zone = formData.get("time_zone") as string;
   const room_code = crypto.randomUUID();
+
+  // Convert local datetime + time zone to UTC ISO string
+  const start_time = DateTime.fromISO(start_time_local, { zone: time_zone })
+    .toUTC()
+    .toISO();
+  const end_time = DateTime.fromISO(end_time_local, { zone: time_zone })
+    .toUTC()
+    .toISO();
 
   console.log("[createSession] Data:", {
     facilitator_id,
+    start_time_local,
+    end_time_local,
+    time_zone,
     start_time,
     end_time,
     room_code,
@@ -20,7 +33,7 @@ export async function createSession(
 
   const { data, error } = await supabase
     .from("sessions")
-    .insert([{ facilitator_id, start_time, end_time, room_code }]);
+    .insert([{ facilitator_id, start_time, end_time, room_code, time_zone }]);
 
   if (error) {
     console.error("[createSession] Error:", error.message);

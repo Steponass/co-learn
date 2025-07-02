@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import ParticipantBookSession from "./BookSession";
 import type { Session } from "../types/sessions";
+import { formatSessionTimeWithZone } from "../utils/formatSessionTime";
 
 export default function AvailableSessionsList({
   participantId,
@@ -17,6 +18,8 @@ export default function AvailableSessionsList({
       const { data: allSessions, error } = await supabase
         .from("sessions")
         .select("*");
+
+      console.log("Fetched sessions:", allSessions);
 
       if (error) {
         console.error("[AvailableSessionsList] Error:", error.message);
@@ -58,7 +61,15 @@ export default function AvailableSessionsList({
     <ul>
       {sessions.map((session) => (
         <li key={session.id}>
-          {session.start_time} - {session.end_time} (Room: {session.room_code})
+          {formatSessionTimeWithZone(
+            session.start_time,
+            session.end_time,
+            session.time_zone ?? "UTC"
+          )}{" "}
+          <span style={{ fontStyle: "italic", color: "#888" }}>
+            ({session.time_zone ?? "UTC"})
+          </span>
+          (Room: {session.room_code})
           <ParticipantBookSession
             sessionId={session.id}
             participantId={participantId}

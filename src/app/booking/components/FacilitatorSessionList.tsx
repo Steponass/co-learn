@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getFacilitatorSessions } from "../actions";
 import type { Session } from "../types/sessions";
+import { formatSessionTimeWithZone } from "../utils/formatSessionTime";
 
 export default function FacilitatorSessionList({
   facilitatorId,
@@ -21,6 +22,7 @@ export default function FacilitatorSessionList({
             start_time: s.start_time ?? "",
             end_time: s.end_time ?? "",
             room_code: s.room_code ?? "",
+            time_zone: s.time_zone ?? "UTC",
           };
         });
         setSessions(typedSessions);
@@ -33,7 +35,15 @@ export default function FacilitatorSessionList({
     <ul>
       {sessions.map((session) => (
         <li key={session.id}>
-          {session.start_time} - {session.end_time} (Room: {session.room_code})
+          {formatSessionTimeWithZone(
+            session.start_time,
+            session.end_time,
+            session.time_zone ?? "UTC"
+          )}{" "}
+          <span style={{ fontStyle: "italic", color: "#888" }}>
+            ({session.time_zone ?? "UTC"})
+          </span>
+          (Room: {session.room_code})
         </li>
       ))}
     </ul>

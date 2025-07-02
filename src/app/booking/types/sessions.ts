@@ -18,6 +18,7 @@ export type SessionWithParticipants = {
   start_time: string;
   end_time: string;
   room_code: string;
+  time_zone: string;
   session_participants: SessionParticipant[];
 };
 
@@ -27,6 +28,7 @@ export type Session = {
   start_time: string;
   end_time: string;
   room_code: string;
+  time_zone: string;
 };
 
 // A participant's booked session (joined with sessions table)
@@ -36,5 +38,6 @@ export type ParticipantSession = {
     start_time: string;
     end_time: string;
     room_code: string;
+    time_zone: string;
   };
 };
