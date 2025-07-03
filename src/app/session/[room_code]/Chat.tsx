@@ -1,55 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { RealtimeChannel } from "@supabase/supabase-js";
-
-export type ChatMessage = {
-  id: string;
-  userId: string;
-  userName: string;
-  content: string;
-  timestamp: number;
-};
+import { useState } from "react";
+import type { ChatMessage } from "./SessionBroadcast";
 
 interface ChatProps {
-  channel: RealtimeChannel | null;
+  messages: ChatMessage[];
+  onSendMessage: (msg: ChatMessage) => void;
   userId: string;
   userName: string;
   subscribed: boolean;
 }
 
 export default function Chat({
-  channel,
+  messages,
+  onSendMessage,
   userId,
   userName,
   subscribed,
 }: ChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
 
-  useEffect(() => {
-    if (!channel) return;
-    // Listen for chat messages
-    const handler = channel.on(
-      "broadcast",
-      { event: "chat" },
-      ({ payload }) => {
-        setMessages((prev) => {
-          const msg = payload as ChatMessage;
-          if (prev.some((m) => m.id === msg.id)) return prev;
-          return [...prev, msg];
-        });
-      }
-    );
-    return () => {
-      handler.unsubscribe();
-    };
-  }, [channel]);
-
   // Send chat message
-  const sendMessage = async (e: React.FormEvent) => {
+  const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !channel || !subscribed) return;
+    if (!input.trim() || !subscribed) {
+      if (!subscribed)
+        console.warn("[Chat] Tried to send before channel was subscribed!");
+      return;
+    }
     const msg: ChatMessage = {
       id: crypto.randomUUID(),
       userId,
@@ -57,8 +35,7 @@ export default function Chat({
       content: input,
       timestamp: Date.now(),
     };
-    channel.send({ type: "broadcast", event: "chat", payload: msg });
-    setMessages((prev) => [...prev, msg]);
+    onSendMessage(msg);
     setInput("");
   };
 
