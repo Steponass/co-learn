@@ -49,16 +49,18 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   const participant_id = formData.get("participant_id") as string;
 
   // Check current bookings
-  const { count, error: countError } = await supabase
+  const { data: participants, error: participantsError } = await supabase
     .from("session_participants")
-    .select("*", { count: "exact", head: true })
+    .select("*")
     .eq("session_id", session_id);
+
+  const count = participants ? participants.length : 0;
 
   console.log("[bookSession] Booking count:", count);
 
-  if (countError) {
-    console.error("[bookSession] Count error:", countError.message);
-    return { error: countError.message };
+  if (participantsError) {
+    console.error("[bookSession] Error:", participantsError?.message);
+    return { error: participantsError?.message };
   }
 
   if (typeof count === "number" && count >= 6) {
@@ -129,7 +131,10 @@ export async function getParticipantSessions(participantId: string) {
 }
 
 // Participant cancels their booking
-export async function cancelBooking(session_id: string, participant_id: string) {
+export async function cancelBooking(
+  session_id: string,
+  participant_id: string
+) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("session_participants")

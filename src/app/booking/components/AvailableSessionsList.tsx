@@ -1,63 +1,29 @@
 "use client";
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { useEffect } from "react";
 import ParticipantBookSession from "./BookSession";
-import type { Session } from "../types/sessions";
 import { formatSessionTimeWithZone } from "../utils/formatSessionTime";
+import type { Session } from "../types/sessions";
 
 export default function AvailableSessionsList({
   participantId,
+  sessions,
+  fetchSessions,
+  onBooked,
 }: {
   participantId: string;
+  sessions: Session[];
+  fetchSessions: () => void;
+  onBooked: () => void;
 }) {
-  const [sessions, setSessions] = useState<Session[]>([]);
-
   useEffect(() => {
-    const fetchSessions = async () => {
-      const supabase = createClient();
-      const { data: allSessions, error } = await supabase
-        .from("sessions")
-        .select("*");
-
-      console.log("Fetched sessions:", allSessions);
-
-      if (error) {
-        console.error("[AvailableSessionsList] Error:", error.message);
-        return;
-      }
-
-      // Get sessions already booked by this participant
-      const { data: myBookings } = await supabase
-        .from("session_participants")
-        .select("session_id")
-        .eq("participant_id", participantId);
-
-      const bookedSessionIds = myBookings?.map((b) => b.session_id) ?? [];
-
-      // For each session, count participants
-      const available: Session[] = [];
-      for (const session of (allSessions ?? []) as Session[]) {
-        const { count } = await supabase
-          .from("session_participants")
-          .select("*", { count: "exact", head: true })
-          .eq("session_id", session.id);
-
-        if (
-          typeof count === "number" &&
-          count < 6 &&
-          !bookedSessionIds.includes(session.id)
-        ) {
-          available.push(session);
-        }
-      }
-
-      setSessions(available);
-    };
-
     fetchSessions();
-  }, [participantId]);
+  }, [fetchSessions]);
+
+
 
   return (
+    <div>
+      <h3>Available Sessions</h3>
     <ul>
       {sessions.map((session) => (
         <li key={session.id}>
@@ -72,9 +38,11 @@ export default function AvailableSessionsList({
           <ParticipantBookSession
             sessionId={session.id}
             participantId={participantId}
+            onBooked={onBooked}
           />
         </li>
       ))}
     </ul>
+    </div>
   );
 }

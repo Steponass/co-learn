@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getFacilitatorSessionParticipants } from "../actions";
 import { formatSessionTimeWithZone } from "../utils/formatSessionTime";
 import type {
@@ -8,6 +8,7 @@ import type {
   SessionParticipant,
   UserInfo,
 } from "../types/sessions";
+import useSessionParticipantsRealtime from "./useSessionParticipantsRealtime";
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
@@ -16,7 +17,7 @@ export default function FacilitatorSessionParticipants({
 }) {
   const [sessions, setSessions] = useState<SessionWithParticipants[]>([]);
 
-  useEffect(() => {
+  const fetchSessions = useCallback(() => {
     getFacilitatorSessionParticipants(facilitatorId).then((res) => {
       if (res.data) {
         const sessionsWithRoomCode: SessionWithParticipants[] = res.data.map(
@@ -53,6 +54,12 @@ export default function FacilitatorSessionParticipants({
     });
   }, [facilitatorId]);
 
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  useSessionParticipantsRealtime(fetchSessions);
+
   return (
     <div>
       <h3>Your Sessions & Booked Participants</h3>
@@ -73,8 +80,9 @@ export default function FacilitatorSessionParticipants({
               style={{ marginLeft: 8 }}
               onClick={() => {
                 const url = `/session/${session.room_code}`;
-                console.log("Opening session room:", url);
-                window.open(url, "_blank", "noopener,noreferrer");
+                if(window.confirm("Start Session in a new window?")) {
+                  window.open(url, "_blank", "noopener,noreferrer");
+                }
               }}
             >
               Start Session
