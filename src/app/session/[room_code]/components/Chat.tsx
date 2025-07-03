@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ChatMessage } from "./SessionBroadcast";
+import type { ChatMessage } from "./types";
 
 interface ChatProps {
   messages: ChatMessage[];
@@ -20,12 +20,9 @@ export default function Chat({
 }: ChatProps) {
   const [input, setInput] = useState("");
 
-  // Send chat message
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !subscribed) {
-      if (!subscribed)
-        console.warn("[Chat] Tried to send before channel was subscribed!");
       return;
     }
     const msg: ChatMessage = {

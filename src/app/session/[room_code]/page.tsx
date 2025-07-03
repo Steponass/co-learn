@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { formatSessionTimeWithZone } from "../../booking/utils/formatSessionTime";
-import SessionBroadcast from "./SessionBroadcast";
+import SessionBroadcast from "./components/SessionBroadcast";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 
 export default async function SessionRoomPage(

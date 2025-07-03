@@ -3,25 +3,20 @@
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import Chat, { ChatMessage } from "./Chat";
+import Chat from "./Chat";
 import VideoGrid from "./VideoGrid";
+import type {
+  ChatMessage,
+  PresenceState,
+  SignalPayload,
+  SignalData,
+} from "./types";
 
 interface Props {
   roomCode: string;
   userId: string;
   userName: string;
 }
-
-type PresenceState = {
-  userId: string;
-  userName: string;
-};
-
-type SignalPayload = {
-  from: string;
-  to: string;
-  data: any;
-};
 
 export default function SessionBroadcast({
   roomCode,
@@ -107,7 +102,7 @@ export default function SessionBroadcast({
   };
 
   // Send WebRTC signal
-  const handleSendSignal = async (targetId: string, data: any) => {
+  const handleSendSignal = async (targetId: string, data: SignalData) => {
     if (!channel || !subscribed) return;
     try {
       await channel.send({
@@ -128,7 +123,7 @@ export default function SessionBroadcast({
     if (userSignals.length > 0) {
       signalQueue.current = signalQueue.current.filter((s) => s.to !== userId);
     }
-  }, [userSignals.length]);
+  }, [userId, userSignals.length]);
 
   return (
     <div>

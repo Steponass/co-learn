@@ -1,20 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { iceServers } from "./webrtcConfig";
-
-type PeerId = string;
-
-type SignalPayload = {
-  from: string;
-  to: string;
-  data: any;
-};
+import type { PeerId, SignalPayload, SignalData } from "./types";
 
 interface VideoGridProps {
   userId: string;
   onlineUsers: { userId: string; userName: string }[];
   subscribed: boolean;
   signals: SignalPayload[];
-  onSendSignal: (targetId: string, data: any) => void;
+  onSendSignal: (targetId: string, data: SignalData) => void;
 }
 
 type PeerConnectionMap = Record<PeerId, RTCPeerConnection>;
@@ -32,6 +25,39 @@ export default function VideoGrid({
   >({});
   const peerConnections = useRef<PeerConnectionMap>({});
   const candidateQueue = useRef<Record<PeerId, RTCIceCandidateInit[]>>({});
+
+  // Memoized createPeerConnection
+  const createPeerConnection = useCallback(
+    (peerId: string): RTCPeerConnection => {
+      const pc = new RTCPeerConnection({ iceServers });
+      console.log(`[WebRTC] Created RTCPeerConnection for ${peerId}`);
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          pc.addTrack(track, localStream);
+        });
+      }
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          onSendSignal(peerId, { candidate: event.candidate });
+        }
+      };
+      pc.ontrack = (event) => {
+        setRemoteStreams((prev) => ({
+          ...prev,
+          [peerId]: event.streams[0],
+        }));
+        console.log(`[WebRTC] Received remote stream from ${peerId}`);
+      };
+      pc.onconnectionstatechange = () => {
+        console.log(
+          `[WebRTC] Connection state with ${peerId}:`,
+          pc.connectionState
+        );
+      };
+      return pc;
+    },
+    [localStream, onSendSignal]
+  );
 
   // 1. Get local media
   useEffect(() => {
@@ -73,7 +99,7 @@ export default function VideoGrid({
         pc = createPeerConnection(from);
         peerConnections.current[from] = pc;
       }
-      if (data.sdp) {
+      if ("sdp" in data) {
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(
           () => {
             // Add any queued ICE candidates
@@ -92,7 +118,7 @@ export default function VideoGrid({
             }
           }
         );
-      } else if (data.candidate) {
+      } else if ("candidate" in data) {
         if (pc.remoteDescription && pc.remoteDescription.type) {
           pc.addIceCandidate(new RTCIceCandidate(data.candidate));
         } else {
@@ -106,7 +132,7 @@ export default function VideoGrid({
       }
     });
     // signals are cleared by parent after consumption
-  }, [signals, subscribed, localStream, onSendSignal]);
+  }, [signals, subscribed, localStream, onSendSignal, createPeerConnection]);
 
   // 3. Create peer connections for each other user
   useEffect(() => {
@@ -124,39 +150,14 @@ export default function VideoGrid({
         });
       }
     });
-  }, [onlineUsers, userId, localStream, subscribed, onSendSignal]);
-
-  function createPeerConnection(peerId: string): RTCPeerConnection {
-    const pc = new RTCPeerConnection({ iceServers });
-    console.log(`[WebRTC] Created RTCPeerConnection for ${peerId}`);
-    // Add local tracks
-    if (localStream) {
-      localStream.getTracks().forEach((track) => {
-        pc.addTrack(track, localStream);
-      });
-    }
-    // ICE candidate
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        onSendSignal(peerId, { candidate: event.candidate });
-      }
-    };
-    // Remote stream
-    pc.ontrack = (event) => {
-      setRemoteStreams((prev) => ({
-        ...prev,
-        [peerId]: event.streams[0],
-      }));
-      console.log(`[WebRTC] Received remote stream from ${peerId}`);
-    };
-    pc.onconnectionstatechange = () => {
-      console.log(
-        `[WebRTC] Connection state with ${peerId}:`,
-        pc.connectionState
-      );
-    };
-    return pc;
-  }
+  }, [
+    onlineUsers,
+    userId,
+    localStream,
+    subscribed,
+    onSendSignal,
+    createPeerConnection,
+  ]);
 
   return (
     <div>
