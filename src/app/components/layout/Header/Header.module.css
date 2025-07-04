@@ -1,8 +1,25 @@
 .header {
   width: 100%;
+  position: fixed;
+  top: 0;
+  padding: var(--space-4px);
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: black;
-  color: white;
+  color: var(--clr-whitish);
 }
+
+.sign_out_button {
+  background: url('/icons/sign_out_whitish_bold.svg') no-repeat center center;
+  background-size: contain;
+  border: none;
+  width: 32px;
+  height: 32px;
+  padding: var(--space-4px);
+  cursor: pointer;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+}
+

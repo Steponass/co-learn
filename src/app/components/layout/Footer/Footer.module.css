@@ -1,9 +1,11 @@
 .footer {
   width: 100%;
+  position: fixed;
+  bottom: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
+  padding: var(--space-8px);
   background-color: black;
   color: white;
 }

@@ -1,0 +1,47 @@
+:root {
+
+
+/* I SEE YOUR TRUEEEEE 
+COLORS 
+SHINING THRU */
+
+
+--clr-accent:   oklch(0.8464  0.1577 86.1);
+--clr-blackish: oklch(0.0969  0      0);
+--clr-greyish:  oklch(0.3257  0.0075 84.59);
+--clr-whitish:  oklch(0.9967  0.0054 95.1);
+--clr-disabled: oklch(0.8637  0.0042 91.45);
+--clr-success:  oklch(0.451   0.0912 163.34);
+--clr-error:    oklch(0.4472  0.1612 29.84);
+
+  /* SPACING  */
+
+/* Static variables, then fluid ones */
+/* Use fluid spacing for 1) Margins; 2) Padding */
+
+--space-4px: 4px;
+--space-8px: 8px;
+--space-12px: 12px;
+--space-16px: 16px;
+--space-24px: 24px;
+--space-32px: 32px;
+--space-48px: 48px;
+--space-64px: 64px;
+--space-96px: 96px;
+
+/* Fluid Spacing taken & edited from:
+https://utopia.fyi/space/calculator?c=360,16,1.25,1240,16,1.333,5,2,&s=0.75%7C0.5%7C0.25,1.5%7C2%7C3%7C4%7C6,s-l&g=s,l,xl,12*/
+
+--space-4-8px: clamp(4px, 2.3636px + 0.4545vw, 8px);
+--space-8-12px: clamp(8px, 6.3636px + 0.4545vw, 12px);
+--space-12-16px: clamp(12px, 10.3636px + 0.4545vw, 16px);
+--space-16-24px: clamp(16px, 12.7273px + 0.9091vw, 24px);
+--space-24-32px: clamp(24px, 20.7273px + 0.9091vw, 32px);
+--space-32-48px: clamp(32px, 25.4545px + 1.8182vw, 48px);
+--space-48-64px: clamp(48px, 41.4545px + 1.8182vw, 64px);
+--space-64-96px: clamp(64px, 50.9091px + 3.6364vw, 96px);
+
+
+
+
+}

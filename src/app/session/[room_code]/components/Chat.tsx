@@ -1,28 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ChatMessage } from "./types";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface ChatProps {
-  messages: ChatMessage[];
-  onSendMessage: (msg: ChatMessage) => void;
+  channel: RealtimeChannel | null;
   userId: string;
   userName: string;
   subscribed: boolean;
 }
 
 export default function Chat({
-  messages,
-  onSendMessage,
+  channel,
   userId,
   userName,
   subscribed,
 }: ChatProps) {
   const [input, setInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
-  const sendMessage = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!channel) return;
+    // Subscribe to incoming chat messages
+    const handler = channel.on(
+      "broadcast",
+      { event: "chat" },
+      ({ payload }) => {
+        const msg = payload as ChatMessage;
+        setChatMessages((prev) => {
+          if (prev.some((m) => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+        // console.log("[Chat] Received message (Chat):", msg);
+      }
+    );
+    return () => {
+      handler.unsubscribe();
+    };
+  }, [channel]);
+
+  const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !subscribed) {
+    if (!input.trim() || !subscribed || !channel) {
       return;
     }
     const msg: ChatMessage = {
@@ -32,7 +52,13 @@ export default function Chat({
       content: input,
       timestamp: Date.now(),
     };
-    onSendMessage(msg);
+    try {
+      await channel.send({ type: "broadcast", event: "chat", payload: msg });
+      setChatMessages((prev) => [...prev, msg]);
+      // console.log("[Chat] Sent message (Chat):", msg);
+    } catch (err) {
+      // console.error("[Chat] Failed to send message (Chat):", err);
+    }
     setInput("");
   };
 
@@ -49,7 +75,7 @@ export default function Chat({
           padding: 8,
         }}
       >
-        {messages.map((msg) => (
+        {chatMessages.map((msg) => (
           <div key={msg.id}>
             <strong>{msg.userName}:</strong> {msg.content}
             <span style={{ color: "#888", fontSize: 10, marginLeft: 8 }}>

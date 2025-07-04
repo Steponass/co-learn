@@ -1,16 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import Chat from "./Chat";
 import VideoMain from "./video/VideoGrid";
-import type {
-  ChatMessage,
-  PresenceState,
-  SignalPayload,
-  SignalData,
-} from "./types";
+import type { PresenceState, SignalPayload, SignalData } from "./types";
 
 interface Props {
   roomCode: string;
@@ -26,7 +21,6 @@ export default function SessionBroadcast({
   const [onlineUsers, setOnlineUsers] = useState<PresenceState[]>([]);
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const [subscribed, setSubscribed] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const signalQueue = useRef<SignalPayload[]>([]);
   const [, forceRerender] = useState(0); // for signalQueue updates
 
@@ -43,18 +37,9 @@ export default function SessionBroadcast({
     setChannel(channel);
 
     // Centralized broadcast event handling
-    const handler = channel.on(
-      "broadcast",
-      { event: "chat" },
-      ({ payload }) => {
-        const msg = payload as ChatMessage;
-        setChatMessages((prev) => {
-          if (prev.some((m) => m.id === msg.id)) return prev;
-          return [...prev, msg];
-        });
-        console.log("[Chat] Received message:", msg);
-      }
-    );
+    const handler = channel.on("broadcast", { event: "chat" }, () => {
+      // No longer update chatMessages here; Chat will handle it
+    });
     const signalHandler = channel.on(
       "broadcast",
       { event: "signal" },
@@ -92,18 +77,6 @@ export default function SessionBroadcast({
     };
   }, [roomCode, userId, userName]);
 
-  // Send chat message
-  const handleSendMessage = async (msg: ChatMessage) => {
-    if (!channel || !subscribed) return;
-    try {
-      await channel.send({ type: "broadcast", event: "chat", payload: msg });
-      setChatMessages((prev) => [...prev, msg]);
-      console.log("[Chat] Sent message:", msg);
-    } catch (err) {
-      console.error("[Chat] Failed to send message:", err);
-    }
-  };
-
   // Send WebRTC signal
   const handleSendSignal = async (targetId: string, data: SignalData) => {
     if (!channel || !subscribed) return;
@@ -128,6 +101,16 @@ export default function SessionBroadcast({
     }
   }, [userId, userSignals.length]);
 
+  const memoizedOnlineUsers = useMemo(() => onlineUsers, [onlineUsers]);
+
+  const memoizedSignals = useMemo(() => userSignals, [userSignals]);
+
+  const memoizedHandleSendSignal = useCallback(handleSendSignal, [
+    channel,
+    subscribed,
+    userId,
+  ]);
+
   return (
     <div>
       <div style={{ minWidth: 200 }}>
@@ -145,8 +128,7 @@ export default function SessionBroadcast({
 
       <div style={{ flex: 1 }}>
         <Chat
-          messages={chatMessages}
-          onSendMessage={handleSendMessage}
+          channel={channel}
           userId={userId}
           userName={userName}
           subscribed={subscribed}
@@ -165,10 +147,10 @@ export default function SessionBroadcast({
         >
           <VideoMain
             userId={userId}
-            onlineUsers={onlineUsers}
+            onlineUsers={memoizedOnlineUsers}
             subscribed={subscribed}
-            signals={userSignals}
-            onSendSignal={handleSendSignal}
+            signals={memoizedSignals}
+            onSendSignal={memoizedHandleSendSignal}
           />
         </div>
         <h3>Whiteboard</h3>

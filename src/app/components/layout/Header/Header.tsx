@@ -11,12 +11,15 @@ export default async function Header() {
 
   return (
     <header className={classes.header}>
-      <Link href="/"><h1>Co-Learn</h1></Link>
-
+      <Link href="/">
+        <h2>Co-Learn</h2>
+      </Link>
 
       {user && (
         <form action={signOut}>
-          <button type="submit">Sign Out</button>
+          <button type="submit" className={classes.sign_out_button}>
+            Sign Out
+          </button>
         </form>
       )}
     </header>
