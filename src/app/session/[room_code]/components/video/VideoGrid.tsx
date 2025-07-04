@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { iceServers } from "./webrtcConfig";
-import type { PeerId, SignalPayload, SignalData } from "./types";
+import { iceServers } from "../webrtcConfig";
+import type { PeerId, SignalPayload, SignalData } from "../types";
+import SelfVideo from "./SelfVideo";
+import OthersVideo from "./Othersvideo";
+import VideoControlPanel from "./VideoControlPanel";
 
 interface VideoGridProps {
   userId: string;
@@ -23,8 +26,19 @@ export default function VideoGrid({
   const [remoteStreams, setRemoteStreams] = useState<
     Record<PeerId, MediaStream>
   >({});
+  const [showSelfView, setShowSelfView] = useState(true);
+  const [gridLayout, setGridLayout] = useState<"row" | "column">("row");
+  const [mutedParticipants, setMutedParticipants] = useState<Set<string>>(
+    new Set()
+  );
+  const [hiddenParticipants, setHiddenParticipants] = useState<Set<string>>(
+    new Set()
+  );
+
   const peerConnections = useRef<PeerConnectionMap>({});
   const candidateQueue = useRef<Record<PeerId, RTCIceCandidateInit[]>>({});
+
+  const selfVideoLabelRef = useRef<HTMLDivElement>(null);
 
   // Memoized createPeerConnection
   const createPeerConnection = useCallback(
@@ -159,35 +173,78 @@ export default function VideoGrid({
     createPeerConnection,
   ]);
 
+  // Participant controls
+  const toggleParticipantAudio = useCallback((peerId: string) => {
+    setMutedParticipants((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(peerId)) {
+        newSet.delete(peerId);
+      } else {
+        newSet.add(peerId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const toggleParticipantVideo = useCallback((peerId: string) => {
+    setHiddenParticipants((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(peerId)) {
+        newSet.delete(peerId);
+      } else {
+        newSet.add(peerId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  // Camera/mic state for SelfVideo
+  const isCameraOn = localStream
+    ? localStream.getVideoTracks()[0]?.enabled !== false
+    : true;
+  const isMicOn = localStream
+    ? localStream.getAudioTracks()[0]?.enabled !== false
+    : true;
+
   return (
     <div>
       <h4>Video Grid</h4>
-      <div style={{ display: "flex", gap: 8 }}>
-        <div>
-          <div>Me</div>
-          <video
-            ref={(el) => {
-              if (el && localStream) el.srcObject = localStream;
-            }}
-            autoPlay
-            muted
-            playsInline
-            style={{ width: 160, height: 120, background: "#222" }}
-          />
-        </div>
-        {Object.entries(remoteStreams).map(([peerId, stream]) => (
-          <div key={peerId}>
-            <div>{peerId}</div>
-            <video
-              ref={(el) => {
-                if (el) el.srcObject = stream;
-              }}
-              autoPlay
-              playsInline
-              style={{ width: 160, height: 120, background: "#222" }}
+      <VideoControlPanel
+        showSelfView={showSelfView}
+        setShowSelfView={setShowSelfView}
+        gridLayout={gridLayout}
+        setGridLayout={setGridLayout}
+        localStream={localStream}
+      />
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          flexDirection: gridLayout === "column" ? "column" : "row",
+          flexWrap: "wrap",
+        }}
+      >
+        <SelfVideo
+          stream={localStream}
+          isCameraOn={isCameraOn}
+          isMicOn={isMicOn}
+          labelRef={selfVideoLabelRef as React.RefObject<HTMLDivElement>}
+          showSelfView={showSelfView}
+        />
+        {Object.entries(remoteStreams).map(([peerId, stream]) => {
+          const user = onlineUsers.find((u) => u.userId === peerId);
+          return (
+            <OthersVideo
+              key={peerId}
+              name={user?.userName || "Unknown"}
+              stream={stream}
+              isMuted={mutedParticipants.has(peerId)}
+              isHidden={hiddenParticipants.has(peerId)}
+              onToggleAudio={() => toggleParticipantAudio(peerId)}
+              onToggleVideo={() => toggleParticipantVideo(peerId)}
             />
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

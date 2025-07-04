@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import Chat from "./Chat";
-import VideoGrid from "./VideoGrid";
+import VideoMain from "./video/VideoGrid";
 import type {
   ChatMessage,
   PresenceState,
@@ -163,7 +163,7 @@ export default function SessionBroadcast({
             background: "#eee",
           }}
         >
-          <VideoGrid
+          <VideoMain
             userId={userId}
             onlineUsers={onlineUsers}
             subscribed={subscribed}
