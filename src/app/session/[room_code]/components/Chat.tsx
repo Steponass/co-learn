@@ -55,9 +55,8 @@ export default function Chat({
     try {
       await channel.send({ type: "broadcast", event: "chat", payload: msg });
       setChatMessages((prev) => [...prev, msg]);
-      // console.log("[Chat] Sent message (Chat):", msg);
     } catch (err) {
-      // console.error("[Chat] Failed to send message (Chat):", err);
+      console.error("[Chat] Failed to send message (Chat):", err);
     }
     setInput("");
   };
