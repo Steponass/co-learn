@@ -8,7 +8,7 @@ export const timeZones: string[] = [
   "Africa/Johannesburg",
   "Africa/Lagos",
   "Africa/Nairobi",
-  "America/Adak",
+  "Americas/Adak",
   "Americas/Anchorage",
   "Americas/Argentina/Buenos_Aires",
   "Americas/Bogota",
@@ -48,8 +48,8 @@ export const timeZones: string[] = [
   "Europe/Paris",
   "Europe/Rome",
   "Europe/Vilnius",
+  "Europe/Warsaw",
   "Europe/Zurich",
   "Pacific/Auckland",
   "Pacific/Honolulu",
-  // ...add more as needed
 ];

@@ -43,7 +43,6 @@ export default function FacilitatorSessionList({
           <span style={{ fontStyle: "italic", color: "#888" }}>
             ({session.time_zone ?? "UTC"})
           </span>
-          (Room: {session.room_code})
         </li>
       ))}
     </ul>

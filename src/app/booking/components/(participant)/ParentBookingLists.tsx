@@ -18,7 +18,6 @@ export default function ParentBookingLists({
     ParticipantSession[]
   >([]);
 
-  // Fetch available sessions
   const fetchAvailableSessions = useCallback(() => {
     const supabase = createClient();
     supabase
@@ -56,7 +55,6 @@ export default function ParentBookingLists({
       });
   }, [participantId]);
 
-  // Fetch participant's booked sessions
   const fetchParticipantSessions = useCallback(() => {
     getParticipantSessions(participantId).then((res) => {
       if (res.data) {
@@ -80,7 +78,6 @@ export default function ParentBookingLists({
     });
   }, [participantId]);
 
-  // Fetch both lists on mount and when triggered
   useEffect(() => {
     fetchAvailableSessions();
     fetchParticipantSessions();
@@ -93,9 +90,7 @@ export default function ParentBookingLists({
   });
 
   // When a booking or cancellation occurs, refresh both lists
-  const handleBookedOrCancelled = () => {
-    // No-op: let realtime handle updates
-  };
+  const handleBookedOrCancelled = () => {};
 
   return (
     <>

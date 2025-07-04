@@ -71,7 +71,10 @@ export default function SessionBroadcast({
       const state = channel.presenceState() as Record<string, PresenceState[]>;
       const users: PresenceState[] = [];
       Object.values(state).forEach((arr) => users.push(...arr));
-      setOnlineUsers(users);
+      const uniqueUsers = Array.from(
+        new Map(users.map((u) => [u.userId, u])).values()
+      );
+      setOnlineUsers(uniqueUsers);
     });
 
     // Join presence
@@ -127,18 +130,19 @@ export default function SessionBroadcast({
 
   return (
     <div>
-      {/* Presence List */}
       <div style={{ minWidth: 200 }}>
         <h3>Present in Room</h3>
         <ul>
-          {onlineUsers.map((u) => (
+          {Array.from(
+            new Map(onlineUsers.map((u) => [u.userId, u])).values()
+          ).map((u) => (
             <li key={u.userId}>
               {u.userName} {u.userId === userId ? "(You)" : null}
             </li>
           ))}
         </ul>
       </div>
-      {/* Chat */}
+
       <div style={{ flex: 1 }}>
         <Chat
           messages={chatMessages}

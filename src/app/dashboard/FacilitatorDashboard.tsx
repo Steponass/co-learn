@@ -13,9 +13,8 @@ export default function FacilitatorDashboard({
     <div>
       <h1>Facilitator Dashboard</h1>
       <h2>
-        Welcome, {name} ({userEmail})!
+        Welcome, {name}!
       </h2>
-      <h3>FACILITATOR</h3>
 
       <FacilitatorSessionList facilitatorId={facilitatorId} />
       <FacilitatorCreateSession facilitatorId={facilitatorId} />

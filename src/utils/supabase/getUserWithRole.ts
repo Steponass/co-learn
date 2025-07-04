@@ -29,19 +29,3 @@ export async function getUserWithRole() {
 
   return { user, role, name }
 }
-
-
-
-// The below is OG which works
-// export async function getUserWithRole() {
-//   const supabase = await createClient()
-
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser()
-
-  
-//   const role = user?.user_metadata?.user_role || null
-
-//   return { user, role }
-// }
