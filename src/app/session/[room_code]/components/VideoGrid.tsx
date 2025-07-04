@@ -139,7 +139,7 @@ export default function VideoGrid({
     if (!subscribed || !localStream) return;
     onlineUsers.forEach((user) => {
       if (user.userId === userId) return;
-      if (peerConnections.current[user.userId]) return; // Already connected
+      if (peerConnections.current[user.userId]) return;
       // Only one side initiates the offer to avoid glare
       if (userId < user.userId) {
         const pc = createPeerConnection(user.userId);

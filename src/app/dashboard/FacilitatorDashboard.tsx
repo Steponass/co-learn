@@ -5,7 +5,6 @@ import FacilitatorSessionParticipants from "../booking/components/(facilitator)/
 type Props = { userEmail: string; name: string; facilitatorId: string };
 
 export default function FacilitatorDashboard({
-  userEmail,
   name,
   facilitatorId,
 }: Props) {
