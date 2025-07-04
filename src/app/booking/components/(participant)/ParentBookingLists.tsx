@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import AvailableSessionsList from "./AvailableSessionsList";
 import ParticipantSessionList from "./ParticipantSessionList";
-import { getParticipantSessions } from "../actions";
+import { getParticipantSessions } from "../../actions";
 import { createClient } from "@/utils/supabase/client";
-import type { Session, ParticipantSession } from "../types/sessions";
-import useSessionParticipantsRealtime from "./useSessionParticipantsRealtime";
+import type { Session, ParticipantSession } from "../../types/sessions";
+import useSessionParticipantsRealtime from "../useSessionParticipantsRealtime";
 
 export default function ParentBookingLists({
   participantId,

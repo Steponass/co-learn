@@ -1,7 +1,7 @@
 "use client";
-import { cancelBooking } from "../actions";
-import type { ParticipantSession } from "../types/sessions";
-import { formatSessionTimeWithZone } from "../utils/formatSessionTime";
+import { cancelBooking } from "../../actions";
+import type { ParticipantSession } from "../../types/sessions";
+import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
 
 export default function ParticipantSessionList({
   participantId,

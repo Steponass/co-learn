@@ -1,6 +1,4 @@
-
-
-import ParentBookingLists from "../booking/components/ParentBookingLists";
+import ParentBookingLists from "../booking/components/(participant)/ParentBookingLists";
 
 type Props = { userEmail: string; name: string; participantId: string };
 
@@ -12,7 +10,6 @@ export default function ParticipantDashboard({ name, participantId }: Props) {
       <h3>PARTICIPANT</h3>
 
       <ParentBookingLists participantId={participantId} />
-
     </div>
   );
 }

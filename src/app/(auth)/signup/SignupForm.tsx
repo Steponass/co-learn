@@ -28,7 +28,9 @@ export default function SignupForm() {
           id="name" 
           name="name" 
           type="text" 
-          required />
+          required
+          defaultValue={formData?.name ?? ""}
+          />
         </div>
         <div>
           <label htmlFor="email">Email:</label>
@@ -36,7 +38,9 @@ export default function SignupForm() {
           id="email" 
           name="email" 
           type="email" 
-          required />
+          required
+          defaultValue={formData?.email ?? ""} 
+          />
         </div>
         <div>
           <label htmlFor="password">Password:</label>

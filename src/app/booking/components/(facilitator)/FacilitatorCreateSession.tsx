@@ -1,7 +1,7 @@
 "use client";
 import { useState, useActionState } from "react";
-import { createSession } from "../actions";
-import { timeZones } from "../utils/timezones";
+import { createSession } from "../../actions";
+import { timeZones } from "../../utils/timezones";
 
 export default function FacilitatorCreateSession({
   facilitatorId,

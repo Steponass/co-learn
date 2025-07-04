@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getFacilitatorSessionParticipants } from "../actions";
-import { formatSessionTimeWithZone } from "../utils/formatSessionTime";
+import { getFacilitatorSessionParticipants } from "../../actions";
+import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
 import type {
   SessionWithParticipants,
   SessionParticipant,
   UserInfo,
-} from "../types/sessions";
-import useSessionParticipantsRealtime from "./useSessionParticipantsRealtime";
+} from "../../types/sessions";
+import useSessionParticipantsRealtime from "../useSessionParticipantsRealtime";
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
@@ -80,7 +80,7 @@ export default function FacilitatorSessionParticipants({
               style={{ marginLeft: 8 }}
               onClick={() => {
                 const url = `/session/${session.room_code}`;
-                if(window.confirm("Start Session in a new window?")) {
+                if (window.confirm("Start Session in a new window?")) {
                   window.open(url, "_blank", "noopener,noreferrer");
                 }
               }}

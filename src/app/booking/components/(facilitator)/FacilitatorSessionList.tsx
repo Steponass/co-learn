@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getFacilitatorSessions } from "../actions";
-import type { Session } from "../types/sessions";
-import { formatSessionTimeWithZone } from "../utils/formatSessionTime";
+import { getFacilitatorSessions } from "../../actions";
+import type { Session } from "../../types/sessions";
+import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
 
 export default function FacilitatorSessionList({
   facilitatorId,

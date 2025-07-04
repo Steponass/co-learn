@@ -29,6 +29,7 @@ export default function LoginForm() {
             name="email"
             type="email"
             required
+            defaultValue={formData?.email ?? ""}
           />
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 import { useActionState } from "react";
-import { bookSession } from "../actions";
+import { bookSession } from "../../actions";
 import { useEffect } from "react";
 
 export default function ParticipantBookSession({
