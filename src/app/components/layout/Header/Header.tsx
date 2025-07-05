@@ -24,7 +24,7 @@ export default async function Header() {
           <form action={signOut}>
             <button type="submit"
             className={classes.header_button}>
-              <SignOutIcon size="lg" hover />
+              <SignOutIcon size="md" hover />
             </button>
           </form>
         )}

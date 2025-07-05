@@ -8,11 +8,12 @@
   align-items: center;
   background-color: var(--clr-bg-raised);
   color: var(--clr-txt-strong);
-  border: 1px solid var(--clr-stroke-weak);
 
-    transition-property: background-color, color, border-color, fill, stroke;
+  transition-property: background-color, color, border-color, fill, stroke;
   transition-duration: 300ms;
   transition-timing-function: ease-in-out;
+
+  box-shadow: var(--shadow-elevation-1);
 }
 
 .header_button {
@@ -23,4 +24,5 @@
 .header div {
   display: flex;
   gap: 16px;
+  align-content: center;
 }

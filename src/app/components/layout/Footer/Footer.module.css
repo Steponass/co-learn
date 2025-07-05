@@ -8,7 +8,7 @@
   padding: var(--space-8px);
   background-color: var(--clr-bg-raised);
   color: var(--clr-txt-strong);
-  border: 1px solid var(--clr-stroke-weak);
+  box-shadow: var(--shadow-elevation-1);
 
   transition-property: background-color, color, border-color, fill, stroke;
   transition-duration: 300ms;
