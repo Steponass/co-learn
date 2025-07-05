@@ -6,20 +6,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: black;
-  color: var(--clr-whitish);
+  background-color: var(--clr-bg-raised);
+  color: var(--clr-txt-strong);
+  border: 1px solid var(--clr-stroke-weak);
+
+    transition-property: background-color, color, border-color, fill, stroke;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out;
 }
 
-.sign_out_button {
-  background: url('/icons/sign_out_whitish_bold.svg') no-repeat center center;
-  background-size: contain;
+.header_button {
+  background-color: transparent;
   border: none;
-  width: 32px;
-  height: 32px;
-  padding: var(--space-4px);
-  cursor: pointer;
-  overflow: hidden;
-  text-indent: 100%;
-  white-space: nowrap;
 }
 
+.header div {
+  display: flex;
+  gap: 16px;
+}

@@ -1,20 +1,49 @@
+/* COLORS - LIGHT MODE */
+
+[data-theme="light"] {
+--clr-brand:        oklch(0.8464 0.1577 86.1);
+--clr-txt-strong:   oklch(0.0969 0      0);
+--clr-txt-weak:     oklch(0.3257 0.0075 84.59);
+--clr-stroke-strong:oklch(0.5666 0.0856 87.14);
+--clr-stroke-weak:  oklch(0.8666 0.0518 88.57);
+--clr-bg-base:      oklch(0.9967 0.0054 95.1);
+--clr-bg-raised:    oklch(0.9793 0.0029 84.56);
+--clr-bg-overlay:   oklch(0.9938 0.0013 106.42);
+--clr-disabled:     oklch(0.8637 0.0042 91.45);
+--clr-success:      oklch(0.451  0.0912 163.34);
+--clr-error:        oklch(0.4472 0.1612 29.84);
+/* The 2 below must be tested to confirm if they work */
+--clr-brand-opacity-75: oklch(0.8464 0.1577 86.1 / 0.75);
+--clr-brand-opacity-25: oklch(0.8464 0.1577 86.1 / 0.25);
+}
+
+/* COLORS - DARK MODE */
+
+[data-theme="dark"] {
+--clr-brand:        oklch(0.8464 0.1577 86.1);
+--clr-txt-strong:   oklch(0.9769 0.0011 17.18);
+--clr-txt-weak:     oklch(0.8883 0.0042 91.45);
+--clr-stroke-strong:oklch(0.7872 0.0319 88.4);
+--clr-stroke-weak:  oklch(0.4039 0.0333 88.76);
+--clr-bg-base:      oklch(0.1353 0.0032 69.58);
+--clr-bg-raised:    oklch(0.2098 0.0083 84.59);
+--clr-bg-overlay:   oklch(0.2652 0.0079 84.59);
+--clr-disabled:     oklch(0.4435 0.0089 80.7);
+--clr-success:      oklch(0.7784 0.1766 159.68);
+--clr-error:        oklch(0.72   0.1721 27.17);
+/* The 2 below must be tested to confirm if they work */
+--clr-brand-opacity-75: oklch(0.8464 0.1577 86.1 / 0.75);
+--clr-brand-opacity-25: oklch(0.8464 0.1577 86.1 / 0.25);
+}
+
+
+
+
+
+
+
+/* SPACING  */
 :root {
-
-
-/* I SEE YOUR TRUEEEEE 
-COLORS 
-SHINING THRU */
-
-
---clr-accent:   oklch(0.8464  0.1577 86.1);
---clr-blackish: oklch(0.0969  0      0);
---clr-greyish:  oklch(0.3257  0.0075 84.59);
---clr-whitish:  oklch(0.9967  0.0054 95.1);
---clr-disabled: oklch(0.8637  0.0042 91.45);
---clr-success:  oklch(0.451   0.0912 163.34);
---clr-error:    oklch(0.4472  0.1612 29.84);
-
-  /* SPACING  */
 
 /* Static variables, then fluid ones */
 /* Use fluid spacing for 1) Margins; 2) Padding */
@@ -40,8 +69,5 @@ https://utopia.fyi/space/calculator?c=360,16,1.25,1240,16,1.333,5,2,&s=0.75%7C0.
 --space-32-48px: clamp(32px, 25.4545px + 1.8182vw, 48px);
 --space-48-64px: clamp(48px, 41.4545px + 1.8182vw, 64px);
 --space-64-96px: clamp(64px, 50.9091px + 3.6364vw, 96px);
-
-
-
 
 }

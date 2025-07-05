@@ -6,6 +6,11 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-8px);
-  background-color: black;
-  color: white;
+  background-color: var(--clr-bg-raised);
+  color: var(--clr-txt-strong);
+  border: 1px solid var(--clr-stroke-weak);
+
+  transition-property: background-color, color, border-color, fill, stroke;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out;
 }
