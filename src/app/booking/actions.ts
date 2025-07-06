@@ -21,16 +21,6 @@ export async function createSession(
     .toUTC()
     .toISO();
 
-  console.log("[createSession] Data:", {
-    facilitator_id,
-    start_time_local,
-    end_time_local,
-    time_zone,
-    start_time,
-    end_time,
-    room_code,
-  });
-
   const { data, error } = await supabase
     .from("sessions")
     .insert([{ facilitator_id, start_time, end_time, room_code, time_zone }]);
@@ -147,4 +137,65 @@ export async function cancelBooking(
     return { error: error.message };
   }
   return { message: "Booking cancelled" };
+}
+
+// Facilitator cancels a session (deletes session and all participant bookings)
+export async function cancelSession(
+  previousState: unknown,
+  formData: FormData
+) {
+  const supabase = await createClient();
+  const session_id = formData.get("session_id") as string;
+  const facilitator_id = formData.get("facilitator_id") as string;
+
+  // First verify the session belongs to this facilitator
+  const { data: session, error: sessionError } = await supabase
+    .from("sessions")
+    .select("facilitator_id")
+    .eq("id", session_id)
+    .single();
+
+  if (sessionError) {
+    console.error(
+      "[cancelSession] Session lookup error:",
+      sessionError.message
+    );
+    return { error: "Session not found" };
+  }
+
+  if (session.facilitator_id !== facilitator_id) {
+    console.error("[cancelSession] Unauthorized access attempt");
+    return { error: "Unauthorized to cancel this session" };
+  }
+
+  // Delete all participant bookings for this session
+  const { error: participantsError } = await supabase
+    .from("session_participants")
+    .delete()
+    .eq("session_id", session_id);
+
+  if (participantsError) {
+    console.error(
+      "[cancelSession] Error deleting participants:",
+      participantsError.message
+    );
+    return { error: participantsError.message };
+  }
+
+  // Delete the session itself
+  const { error: sessionDeleteError } = await supabase
+    .from("sessions")
+    .delete()
+    .eq("id", session_id);
+
+  if (sessionDeleteError) {
+    console.error(
+      "[cancelSession] Error deleting session:",
+      sessionDeleteError.message
+    );
+    return { error: sessionDeleteError.message };
+  }
+
+  console.log("[cancelSession] Success: Session and all bookings cancelled");
+  return { message: "Session cancelled successfully" };
 }

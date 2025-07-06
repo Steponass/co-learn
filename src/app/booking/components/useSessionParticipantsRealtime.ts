@@ -5,7 +5,7 @@ export default function useSessionParticipantsRealtime(onChange: () => void) {
   const fetchSessions = useCallback(() => {
     const supabase = createClient();
     const channel = supabase
-      .channel("session_participants_changes")
+      .channel("session_changes")
       .on(
         "postgres_changes",
         {
@@ -15,6 +15,18 @@ export default function useSessionParticipantsRealtime(onChange: () => void) {
         },
         (payload) => {
           console.log("[Realtime] session_participants changed:", payload);
+          onChange();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "sessions",
+        },
+        (payload) => {
+          console.log("[Realtime] sessions changed:", payload);
           onChange();
         }
       )

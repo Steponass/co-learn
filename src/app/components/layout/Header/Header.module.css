@@ -21,8 +21,13 @@
   border: none;
 }
 
-.header div {
+.header_panel {
   display: flex;
-  gap: 16px;
-  align-content: center;
+  gap: var(--space-12-16px);
+  align-items: center;
+}
+
+.signout_form {
+  display: flex;
+  align-items: center;
 }

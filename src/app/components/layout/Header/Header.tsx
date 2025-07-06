@@ -17,14 +17,14 @@ export default async function Header() {
       <Link href="/">
         <h2>Co-Learn</h2>
       </Link>
-      <div>
+      <div className={classes.header_panel}>
         <HeaderClient />
 
         {user && (
-          <form action={signOut}>
+          <form className={classes.signout_form} action={signOut}>
             <button type="submit"
             className={classes.header_button}>
-              <SignOutIcon size="md" hover />
+              <SignOutIcon size="md" />
             </button>
           </form>
         )}

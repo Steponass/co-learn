@@ -33,6 +33,8 @@ main {
 
 button:hover {
 cursor: pointer;
+filter: drop-shadow(var(--drop-shadow-1));
+transform: translateY(-0.25px);
 }
 
 .icon-xs {
