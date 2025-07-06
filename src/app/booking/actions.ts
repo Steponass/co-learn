@@ -71,41 +71,96 @@ export async function bookSession(previousState: unknown, formData: FormData) {
 
 // Facilitator views their sessions
 export async function getFacilitatorSessions(facilitatorId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("sessions")
-    .select("*")
-    .eq("facilitator_id", facilitatorId);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("facilitator_id", facilitatorId);
 
-  console.log("[getFacilitatorSessions]", data, error);
-  return { data, error };
+    console.log("[getFacilitatorSessions]", data, error);
+
+    if (error) {
+      console.error("[getFacilitatorSessions] Error:", error);
+      return { data: null, error: error.message };
+    }
+
+    return { data: data || [], error: null };
+  } catch (err) {
+    console.error("[getFacilitatorSessions] Exception:", err);
+    return { data: null, error: "Failed to fetch sessions" };
+  }
 }
 
 // Facilitator views their sessions AND participants
 export async function getFacilitatorSessionParticipants(facilitatorId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("sessions")
-    .select(
-      `
-    id,
-    start_time,
-    end_time,
-    room_code,
-    time_zone,
-    session_participants (
-      participant_id,
-      user_info!fk_participant_user_info (
-        email,
-        name,
-        role
-      )
-    )
-  `
-    )
-    .eq("facilitator_id", facilitatorId);
-  console.log("[getFacilitatorSessionParticipants]", data, error);
-  return { data, error };
+  try {
+    const supabase = await createClient();
+
+    // First get all sessions for this facilitator
+    const { data: sessions, error: sessionsError } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("facilitator_id", facilitatorId);
+
+    if (sessionsError) {
+      console.error(
+        "[getFacilitatorSessionParticipants] Sessions error:",
+        sessionsError
+      );
+      return { data: null, error: sessionsError.message };
+    }
+
+    if (!sessions || sessions.length === 0) {
+      return { data: [], error: null };
+    }
+
+    // For each session, get the participants with their user info
+    const sessionsWithParticipants = [];
+
+    for (const session of sessions) {
+      const { data: participants, error: participantsError } = await supabase
+        .from("session_participants")
+        .select(
+          `
+          participant_id,
+          user_info (
+            user_id,
+            email,
+            name,
+            role
+          )
+        `
+        )
+        .eq("session_id", session.id);
+
+      if (participantsError) {
+        console.error(
+          `[getFacilitatorSessionParticipants] Participants error for session ${session.id}:`,
+          participantsError
+        );
+        continue;
+      }
+
+      sessionsWithParticipants.push({
+        id: session.id,
+        start_time: session.start_time,
+        end_time: session.end_time,
+        room_code: session.room_code,
+        time_zone: session.time_zone,
+        session_participants: participants || [],
+      });
+    }
+
+    console.log(
+      "[getFacilitatorSessionParticipants]",
+      sessionsWithParticipants
+    );
+    return { data: sessionsWithParticipants, error: null };
+  } catch (err) {
+    console.error("[getFacilitatorSessionParticipants] Exception:", err);
+    return { data: null, error: "Failed to fetch sessions with participants" };
+  }
 }
 
 // Participant views their sessions

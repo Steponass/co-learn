@@ -17,22 +17,36 @@ export default function FacilitatorSessionList({
   }>({});
 
   const fetchSessions = useCallback(() => {
-    getFacilitatorSessions(facilitatorId).then((res) => {
-      if (res.data) {
-        const typedSessions: Session[] = res.data.map((session: unknown) => {
-          const s = session as Partial<Session>;
-          return {
-            id: s.id ?? "",
-            start_time: s.start_time ?? "",
-            end_time: s.end_time ?? "",
-            room_code: s.room_code ?? "",
-            time_zone: s.time_zone ?? "UTC",
-          };
-        });
-        setSessions(typedSessions);
-      }
-      if (res.error) console.error(res.error);
-    });
+    getFacilitatorSessions(facilitatorId)
+      .then((res) => {
+        console.log("[FacilitatorSessionList] Response:", res);
+        if (res && res.data) {
+          const typedSessions: Session[] = res.data.map((session: unknown) => {
+            const s = session as Partial<Session>;
+            return {
+              id: s.id ?? "",
+              start_time: s.start_time ?? "",
+              end_time: s.end_time ?? "",
+              room_code: s.room_code ?? "",
+              time_zone: s.time_zone ?? "UTC",
+            };
+          });
+          setSessions(typedSessions);
+        } else if (res && res.error) {
+          console.error("[FacilitatorSessionList] Error:", res.error);
+          setSessions([]);
+        } else {
+          console.error(
+            "[FacilitatorSessionList] Unexpected response format:",
+            res
+          );
+          setSessions([]);
+        }
+      })
+      .catch((error) => {
+        console.error("[FacilitatorSessionList] Fetch error:", error);
+        setSessions([]);
+      });
   }, [facilitatorId]);
 
   useEffect(() => {
@@ -70,7 +84,7 @@ export default function FacilitatorSessionList({
 
   return (
     <div>
-      <h3>Your Sessions</h3>
+      <h3>Open Sessions</h3>
       {sessions.length === 0 ? (
         <p>No sessions created yet.</p>
       ) : (
@@ -78,11 +92,8 @@ export default function FacilitatorSessionList({
           {sessions.map((session) => {
             const sessionCancelState = cancelState[session.id];
             return (
-              <li
-                key={session.id}
-              >
-                <div
-                >
+              <li key={session.id}>
+                <div>
                   <div>
                     <strong>
                       {formatSessionTimeWithZone(
@@ -106,15 +117,9 @@ export default function FacilitatorSessionList({
                       : "Cancel Session"}
                   </button>
                 </div>
-                {sessionCancelState?.error && (
-                  <p>
-                    {sessionCancelState.error}
-                  </p>
-                )}
+                {sessionCancelState?.error && <p>{sessionCancelState.error}</p>}
                 {sessionCancelState?.message && (
-                  <p>
-                    {sessionCancelState.message}
-                  </p>
+                  <p>{sessionCancelState.message}</p>
                 )}
               </li>
             );

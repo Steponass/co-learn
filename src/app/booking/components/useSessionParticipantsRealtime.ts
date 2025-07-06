@@ -1,43 +1,23 @@
 import { useEffect, useCallback } from "react";
-import { createClient } from "@/utils/supabase/client";
 
 export default function useSessionParticipantsRealtime(onChange: () => void) {
-  const fetchSessions = useCallback(() => {
-    const supabase = createClient();
-    const channel = supabase
-      .channel("session_changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "session_participants",
-        },
-        (payload) => {
-          console.log("[Realtime] session_participants changed:", payload);
-          onChange();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "sessions",
-        },
-        (payload) => {
-          console.log("[Realtime] sessions changed:", payload);
-          onChange();
-        }
-      )
-      .subscribe();
+  const setupPolling = useCallback(() => {
+    console.log("[Realtime] Setting up polling...");
+
+    // Poll for changes every 3 seconds
+    const pollInterval = setInterval(() => {
+      console.log("[Realtime] Polling for changes...");
+      onChange();
+    }, 3000);
 
     return () => {
-      channel.unsubscribe();
+      console.log("[Realtime] Cleaning up polling...");
+      clearInterval(pollInterval);
     };
   }, [onChange]);
 
   useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+    const cleanup = setupPolling();
+    return cleanup;
+  }, [setupPolling]);
 }
