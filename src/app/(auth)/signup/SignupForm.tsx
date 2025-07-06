@@ -76,9 +76,6 @@ export default function SignupForm() {
         {formData?.message && <p style={{ color: "green" }}>{formData?.message}</p>}
         <button disabled={isPending}>Sign up</button>
       </form>
-      <button type="button" onClick={() => router.push("/login")}>
-  Back to Log in
-</button>
     </div>
   );
 }

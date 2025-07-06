@@ -17,10 +17,17 @@ export default function FacilitatorSessionList({
   }>({});
 
   const fetchSessions = useCallback(() => {
+    if (!facilitatorId) {
+      setSessions([]);
+      return;
+    }
     getFacilitatorSessions(facilitatorId)
       .then((res) => {
-        console.log("[FacilitatorSessionList] Response:", res);
-        if (res && res.data) {
+        if (!res) {
+          setSessions([]);
+          return;
+        }
+        if (res.data) {
           const typedSessions: Session[] = res.data.map((session: unknown) => {
             const s = session as Partial<Session>;
             return {
@@ -32,7 +39,7 @@ export default function FacilitatorSessionList({
             };
           });
           setSessions(typedSessions);
-        } else if (res && res.error) {
+        } else if (res.error) {
           console.error("[FacilitatorSessionList] Error:", res.error);
           setSessions([]);
         } else {
@@ -53,10 +60,13 @@ export default function FacilitatorSessionList({
     fetchSessions();
   }, [fetchSessions]);
 
-  // Realtime updates
   useSessionParticipantsRealtime(() => {
     fetchSessions();
   });
+
+  if (!facilitatorId) {
+    return <div>Please log in to view your sessions.</div>;
+  }
 
   const handleCancelSession = async (sessionId: string) => {
     setCancelState((prev) => ({ ...prev, [sessionId]: { isPending: true } }));

@@ -42,6 +42,10 @@ svg {
   -webkit-touch-callout: none;
 }
 
+img::after {
+  content: "The image didn’t load";
+}
+
 p,
 h1,
 h2,

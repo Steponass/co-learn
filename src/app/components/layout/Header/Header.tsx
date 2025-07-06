@@ -1,10 +1,8 @@
-
 import classes from "./Header.module.css";
-import { signOut } from "@/app/(auth)/login/actions";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import HeaderClient from "./HeaderClient";
-import { SignOutIcon } from "../../Icon";
+import SignOutButton from "./SignOutButton";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -19,15 +17,7 @@ export default async function Header() {
       </Link>
       <div className={classes.header_panel}>
         <HeaderClient />
-
-        {user && (
-          <form className={classes.signout_form} action={signOut}>
-            <button type="submit"
-            className={classes.header_button}>
-              <SignOutIcon size="md" />
-            </button>
-          </form>
-        )}
+        {user && <SignOutButton />}
       </div>
     </header>
   );

@@ -1,3 +1,23 @@
-.login_container {
-  background-color: skyblue
+.main {
+  height: 80vh;
+  display: flex;
+  align-items: center;
+}
+
+.auth_container {
+  width: min(80%, 300px);
+  height: max(30%, 280px);
+  margin-inline: auto;
+  margin-block: var(--space-16-24px);
+  padding: var(--space-16-24px);
+  border-radius: var(--border-radius-8px);
+  background-color: var(--clr-bg-raised);
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.signup_forgot_container {
+  margin-top: var(--space-12-16px);
+  display: flex;
+  gap: var(--space-4-8px);
+  justify-content: space-between;
 }

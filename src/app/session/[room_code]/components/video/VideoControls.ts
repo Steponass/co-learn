@@ -41,38 +41,6 @@ export function useVideoControls(localStream: MediaStream | null) {
     }
   }, [localStream]);
 
-  const toggleScreenShare = useCallback(async () => {
-    try {
-      if (!isScreenSharingRef.current) {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: true,
-        });
-        const videoTrack = screenStream.getVideoTracks()[0];
-        isScreenSharingRef.current = true;
-        screenStreamRef.current = screenStream;
-        if (screenShareButtonRef.current) {
-          screenShareButtonRef.current.textContent = "🖥️❌ Screen Share";
-        }
-        videoTrack.onended = () => {
-          isScreenSharingRef.current = false;
-          screenStreamRef.current = null;
-          if (screenShareButtonRef.current) {
-            screenShareButtonRef.current.textContent = "🖥️ Screen Share";
-          }
-        };
-      } else {
-        isScreenSharingRef.current = false;
-        screenStreamRef.current = null;
-        if (screenShareButtonRef.current) {
-          screenShareButtonRef.current.textContent = "🖥️ Screen Share";
-        }
-      }
-    } catch (error) {
-      console.error("Error sharing screen:", error);
-    }
-  }, []);
-
   return {
     isCameraOnRef,
     isMicOnRef,
@@ -83,6 +51,5 @@ export function useVideoControls(localStream: MediaStream | null) {
     screenShareButtonRef,
     toggleCamera,
     toggleMic,
-    toggleScreenShare,
   };
 }

@@ -152,11 +152,13 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
       });
     }
 
-    console.log(
-      "[getFacilitatorSessionParticipants]",
-      sessionsWithParticipants
+    // Filter out sessions with no participants
+    const filteredSessions = sessionsWithParticipants.filter(
+      (s) => s.session_participants && s.session_participants.length > 0
     );
-    return { data: sessionsWithParticipants, error: null };
+
+    console.log("[getFacilitatorSessionParticipants]", filteredSessions);
+    return { data: filteredSessions, error: null };
   } catch (err) {
     console.error("[getFacilitatorSessionParticipants] Exception:", err);
     return { data: null, error: "Failed to fetch sessions with participants" };

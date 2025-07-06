@@ -5,11 +5,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-8px);
+  padding-inline: var(--space-8-12px);
+  padding-block: var(--space-4-8px);
+  
   background-color: var(--clr-bg-raised);
   color: var(--clr-txt-strong);
   box-shadow: var(--shadow-elevation-1);
-
   transition-property: background-color, color, border-color, fill, stroke;
   transition-duration: 300ms;
   transition-timing-function: ease-in-out;

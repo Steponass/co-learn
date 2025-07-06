@@ -67,11 +67,11 @@ https://utopia.fyi/space/calculator?c=360,16,1.25,1240,16,1.333,5,2,&s=0.75%7C0.
 
 /* BORDER RADIUS, I.E. CORNERS */
 :root{
+--border-radius-2px: 2px;
 --border-radius-4px: 4px;
 --border-radius-8px: 8px;
 --border-radius-12px: 12px;
---border-radius-16px: 16x;
---border-radius-24px: 24x;
+--border-radius-16px: 16px;
 }
 
 
@@ -90,7 +90,7 @@ https://utopia.fyi/space/calculator?c=360,16,1.25,1240,16,1.333,5,2,&s=0.75%7C0.
 
 --shadow-elevation-3: 
 0 8px 16px hsla(0, 0%, 16%, 0.35),
-0 3px  6px hsla(0, 0%, 12% 0,2);
+0 3px  6px hsla(0, 0%, 12%, 0.2);
 
 --shadow-elevation-4: 
 0 8px 12px -1px hsla(0, 0%, 30%, 0.4),

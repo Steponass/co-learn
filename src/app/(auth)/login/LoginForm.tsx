@@ -3,6 +3,7 @@
 import { useEffect, useActionState } from "react";
 import { login } from "./actions";
 import { useRouter } from "next/navigation";
+import classes from "./LoginForm.module.css";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -18,13 +19,14 @@ export default function LoginForm() {
   }, [formData, router]);
 
   return (
-    <div>
-      <h1>Log In(side of me)</h1>
+    <div className={classes.login_container}>
+      <h1>Log in</h1>
 
-      <form action={formAction}>
-        <div>
+      <form className={classes.login_form} action={formAction}>
+        <div className={classes.email_container}>
           <label htmlFor="email">Email:</label>
           <input
+            className={classes.input}
             id="email"
             name="email"
             type="email"
@@ -33,18 +35,29 @@ export default function LoginForm() {
           />
         </div>
 
-        <div>
+        <div className={classes.password_container}>
           <label htmlFor="password">Password:</label>
           <input
+            className={classes.input}
             id="password"
             name="password"
             type="password"
             required
           />
         </div>
-        {formData?.error && <p style={{ color: "red" }}>{formData?.error}</p>}
-        {formData?.message && <p style={{ color: "green" }}>{formData?.message}</p>}
-        <button disabled={isPending}>Enter the Matrix</button>
+        {formData?.error && (
+          <div className="error_msg">
+            <p>{formData?.error}</p>
+          </div>
+        )}
+        {formData?.message && (
+          <div className="success_msg">
+            <p>{formData?.message}</p>
+          </div>
+        )}
+        <button className={classes.login_button} disabled={isPending}>
+          Log in
+        </button>
       </form>
     </div>
   );
