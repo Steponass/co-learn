@@ -144,7 +144,7 @@ export default function SessionBroadcast({
           subscribed={subscribed}
         />
       </div>
-      {/* Video/Whiteboard placeholders */}
+      {/* Whiteboard placeholder */}
       <div style={{ minWidth: 200, minHeight: 200 }}>
 
         <h3>Whiteboard</h3>
