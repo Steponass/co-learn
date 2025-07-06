@@ -1,14 +1,12 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { formatSessionTimeWithZone } from "../../booking/utils/formatSessionTime";
-import SessionBroadcast from "./components/SessionBroadcast";
+import SessionBroadcastWrapper from "./components/SessionBroadcastWrapper";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 
-export default async function SessionRoomPage(
-  props: {
-    params: Promise<{ room_code: string }>;
-  }
-) {
+export default async function SessionRoomPage(props: {
+  params: Promise<{ room_code: string }>;
+}) {
   const params = await props.params;
   const supabase = await createClient();
   const { data: session, error } = await supabase
@@ -42,7 +40,7 @@ export default async function SessionRoomPage(
         )}{" "}
         ({session.time_zone ?? "UTC"})
       </p>
-      <SessionBroadcast
+      <SessionBroadcastWrapper
         roomCode={params.room_code}
         userId={user.id}
         userName={name || user.email || user.id}

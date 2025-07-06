@@ -1,4 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Co-Learn
+
+A collaborative learning platform built with Next.js, featuring real-time video conferencing with advanced video controls.
+
+## Features
+
+### Video Conferencing
+- **Resizable Video Screens**: Drag and resize video participants to your preferred layout
+- **Fullscreen Support**: Toggle fullscreen mode for any participant's video
+- **Screen Sharing**: Share your screen with other participants
+- **Flexible Grid Layout**: Switch between row and column layouts
+- **Individual Controls**: Mute/unmute and show/hide individual participants
+- **Real-time WebRTC**: Peer-to-peer video communication
+
+### Video Controls
+- Camera on/off toggle
+- Microphone mute/unmute
+- Self-view toggle
+- Screen sharing with dedicated viewer
+- Layout switching (row/column)
+- Participant-specific audio/video controls
 
 ## Getting Started
 

@@ -127,6 +127,16 @@ export default function SessionBroadcast({
       </div>
 
       <div style={{ flex: 1 }}>
+      <h3>Video</h3>
+        <div>
+          <VideoMain
+            userId={userId}
+            onlineUsers={memoizedOnlineUsers}
+            subscribed={subscribed}
+            signals={memoizedSignals}
+            onSendSignal={memoizedHandleSendSignal}
+          />
+        </div>
         <Chat
           channel={channel}
           userId={userId}
@@ -136,23 +146,7 @@ export default function SessionBroadcast({
       </div>
       {/* Video/Whiteboard placeholders */}
       <div style={{ minWidth: 200, minHeight: 200 }}>
-        <h3>Video</h3>
-        <div
-          style={{
-            border: "1px solid #ccc",
-            height: 120,
-            marginBottom: 8,
-            background: "#eee",
-          }}
-        >
-          <VideoMain
-            userId={userId}
-            onlineUsers={memoizedOnlineUsers}
-            subscribed={subscribed}
-            signals={memoizedSignals}
-            onSendSignal={memoizedHandleSendSignal}
-          />
-        </div>
+
         <h3>Whiteboard</h3>
         <div
           style={{ border: "1px solid #ccc", height: 80, background: "#eee" }}

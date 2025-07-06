@@ -5,11 +5,11 @@ export function useVideoControls(localStream: MediaStream | null) {
   const isCameraOnRef = useRef(true);
   const isMicOnRef = useRef(true);
   const isScreenSharingRef = useRef(false);
+  const screenStreamRef = useRef<MediaStream | null>(null);
 
   const cameraButtonRef = useRef<HTMLButtonElement | null>(null);
   const micButtonRef = useRef<HTMLButtonElement | null>(null);
   const screenShareButtonRef = useRef<HTMLButtonElement | null>(null);
-  const selfVideoLabelRef = useRef<HTMLDivElement | null>(null);
 
   const toggleCamera = useCallback(() => {
     if (localStream) {
@@ -21,11 +21,6 @@ export function useVideoControls(localStream: MediaStream | null) {
           cameraButtonRef.current.textContent = `${
             isCameraOnRef.current ? "📹" : "📹❌"
           } Camera`;
-        }
-        if (selfVideoLabelRef.current) {
-          selfVideoLabelRef.current.textContent = `Me ${
-            !isCameraOnRef.current ? "(Camera Off)" : ""
-          }`;
         }
       }
     }
@@ -42,12 +37,6 @@ export function useVideoControls(localStream: MediaStream | null) {
             isMicOnRef.current ? "🎤" : "🎤❌"
           } Mic`;
         }
-        if (selfVideoLabelRef.current) {
-          const cameraStatus = !isCameraOnRef.current ? "(Camera Off)" : "";
-          const micStatus = !isMicOnRef.current ? "(Muted)" : "";
-          selfVideoLabelRef.current.textContent =
-            `Me ${cameraStatus} ${micStatus}`.trim();
-        }
       }
     }
   }, [localStream]);
@@ -61,17 +50,20 @@ export function useVideoControls(localStream: MediaStream | null) {
         });
         const videoTrack = screenStream.getVideoTracks()[0];
         isScreenSharingRef.current = true;
+        screenStreamRef.current = screenStream;
         if (screenShareButtonRef.current) {
           screenShareButtonRef.current.textContent = "🖥️❌ Screen Share";
         }
         videoTrack.onended = () => {
           isScreenSharingRef.current = false;
+          screenStreamRef.current = null;
           if (screenShareButtonRef.current) {
             screenShareButtonRef.current.textContent = "🖥️ Screen Share";
           }
         };
       } else {
         isScreenSharingRef.current = false;
+        screenStreamRef.current = null;
         if (screenShareButtonRef.current) {
           screenShareButtonRef.current.textContent = "🖥️ Screen Share";
         }
@@ -85,10 +77,10 @@ export function useVideoControls(localStream: MediaStream | null) {
     isCameraOnRef,
     isMicOnRef,
     isScreenSharingRef,
+    screenStreamRef,
     cameraButtonRef,
     micButtonRef,
     screenShareButtonRef,
-    selfVideoLabelRef,
     toggleCamera,
     toggleMic,
     toggleScreenShare,
