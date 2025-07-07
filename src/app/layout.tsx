@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./styles/css-reset.css";
 import "./styles/variables.css";
+import "./styles/fonts.css"
 import "./styles/globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Header from "./components/layout/Header/Header";

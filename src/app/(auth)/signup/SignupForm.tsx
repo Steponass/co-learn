@@ -3,6 +3,7 @@
 import { useEffect, useActionState } from "react";
 import { signup } from "../login/actions";
 import { useRouter } from "next/navigation";
+import classes from "../login/login.module.css"
 
 export default function SignupForm() {
   const router = useRouter();
@@ -19,12 +20,12 @@ export default function SignupForm() {
   }, [formData, router]);
 
   return (
-    <div>
+    <div className="stack">
       <h1>Sign Up</h1>
-      <form action={formAction}>
-        <div>
+      <form className="stack" action={formAction}>
+        <div className={classes.input_container}>
           <label htmlFor="name">Name:</label>
-          <input 
+          <input className={classes.input}
           id="name" 
           name="name" 
           type="text" 
@@ -32,9 +33,9 @@ export default function SignupForm() {
           defaultValue={formData?.name ?? ""}
           />
         </div>
-        <div>
+        <div className={classes.input_container}>
           <label htmlFor="email">Email:</label>
-          <input 
+          <input className={classes.input}
           id="email" 
           name="email" 
           type="email" 
@@ -42,16 +43,16 @@ export default function SignupForm() {
           defaultValue={formData?.email ?? ""} 
           />
         </div>
-        <div>
+        <div className={classes.input_container}>
           <label htmlFor="password">Password:</label>
-          <input 
+          <input className={classes.input}
           id="password" 
           name="password" 
           type="password" 
           required />
         </div>
         <div>
-          <p>My role is a:</p>
+          <p>Role:</p>
           <label>
             <input
               type="radio"
@@ -69,12 +70,13 @@ export default function SignupForm() {
               value="participant"
               required
             />
-            Participant
+            Learner / Participant
           </label>
         </div>
         {formData?.error && <p style={{ color: "red" }}>{formData?.error}</p>}
         {formData?.message && <p style={{ color: "green" }}>{formData?.message}</p>}
-        <button disabled={isPending}>Sign up</button>
+        <button className="primary_button" 
+        disabled={isPending}>Sign up</button>
       </form>
     </div>
   );

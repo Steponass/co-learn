@@ -167,14 +167,22 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
 
 // Participant views their sessions
 export async function getParticipantSessions(participantId: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("session_participants")
-    .select("session_id, sessions(*)")
-    .eq("participant_id", participantId);
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("session_participants")
+      .select("session_id, sessions(*)")
+      .eq("participant_id", participantId);
 
-  console.log("[getParticipantSessions]", data, error);
-  return { data, error };
+    console.log("[getParticipantSessions]", data, error);
+    if (error) {
+      return { data: [], error: null };
+    }
+    return { data: data || [], error: null };
+  } catch (err) {
+    console.error("[getParticipantSessions] Exception:", err);
+    return { data: [], error: null };
+  }
 }
 
 // Participant cancels their booking

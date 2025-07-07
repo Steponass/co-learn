@@ -15,10 +15,12 @@ export default function LoginPage() {
           <>
             <LoginForm />
             <div className={classes.signup_forgot_container}>
-            <button type="button" onClick={() => setForm("signup")}>
+            <button className="secondary_button"
+            type="button" onClick={() => setForm("signup")}>
               Sign up
             </button>
-            <button type="button" onClick={() => setForm("reset")}>
+            <button className="secondary_button"
+            type="button" onClick={() => setForm("reset")}>
               Forgot password
             </button>
             </div>
@@ -27,17 +29,23 @@ export default function LoginPage() {
         {form === "signup" && (
           <>
             <SignupForm />
-            <button type="button" onClick={() => setForm("login")}>
+            <div  className={classes.signup_forgot_container}>
+            <button className="secondary_button"
+            type="button" onClick={() => setForm("login")}>
               Back to Login
             </button>
+            </div>
           </>
         )}
         {form === "reset" && (
           <>
             <ResetPasswordForm />
-            <button type="button" onClick={() => setForm("login")}>
+            <div  className={classes.signup_forgot_container}>
+            <button className="secondary_button"
+            type="button" onClick={() => setForm("login")}>
               Back to Login
             </button>
+            </div>
           </>
         )}
       </div>

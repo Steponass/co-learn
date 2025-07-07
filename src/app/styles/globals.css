@@ -1,5 +1,7 @@
 html,
 body {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background: var(--clr-bg-base);
   color: var(--clr-txt-strong);
@@ -9,21 +11,28 @@ body {
 * {
   font-family: Arial, Helvetica, sans-serif;
 
-  transition-property: background-color, color, border-color, fill, stroke;
+  transition-property: background-color, color, border-color, fill, stroke, box-shadow, -webkit-box-shadow, -webkit-text-fill-color;
   transition-duration: 300ms;
   transition-timing-function: ease-in-out;
-}
 
-button {
-  border: none;
-  padding-inline: var(--space-8px);
-  padding-block: var(--space-4px);
-  box-shadow: var(--shadow-elevation-1);
-  border-radius: var(--border-radius-4px);
+  accent-color: var(--clr-brand);
+  caret-color: var(--clr-txt-strong);
 
   &&:focus-visible {
     outline: 3px solid var(--clr-brand);
   }
+}
+
+.explain_info {
+  color: var(--clr-txt-weak);
+}
+
+button {
+  border: none;
+  padding: var(--space-8px);
+  box-shadow: var(--shadow-elevation-1);
+  border-radius: var(--border-radius-4px);
+
   @media (hover: hover) { &:hover {
       cursor: pointer;
       filter: drop-shadow(var(--drop-shadow-1));
@@ -32,6 +41,21 @@ button {
   &&:active {
     transform: translateY(0.5px);
   }
+}
+
+.primary_button {
+  background-color: var(--clr-txt-strong);
+  color: var(--clr-bg-raised);
+}
+
+.secondary_button {
+  background-color: var(--clr-bg-overlay);
+  color: var(--clr-txt-strong);
+  border: 1px solid var(--clr-stroke-strong);
+}
+
+label > input[type="radio"] {
+  margin-right: 0.5em;
 }
 
 .error_msg {
@@ -84,3 +108,15 @@ button {
   width: 48px;
   height: 48px;
 }
+
+/* Layout utility classes */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  }
+  .stack > * + * {
+  margin-block-start: var(--space-12-16px);
+  }
+  

@@ -56,8 +56,12 @@ export default function ParentBookingLists({
   }, [participantId]);
 
   const fetchParticipantSessions = useCallback(() => {
+    if (!participantId) {
+      setParticipantSessions([]);
+      return;
+    }
     getParticipantSessions(participantId).then((res) => {
-      if (res.data) {
+      if (res && res.data) {
         const typedSessions: ParticipantSession[] = res.data.map(
           (row: unknown) => {
             const r = row as Partial<ParticipantSession>;
@@ -73,8 +77,13 @@ export default function ParentBookingLists({
           }
         );
         setParticipantSessions(typedSessions);
+      } else if (res && res.error) {
+        console.error(res.error);
+      } else {
+        // Defensive: handle completely unexpected response
+        setParticipantSessions([]);
+        console.error("Unexpected response from getParticipantSessions:", res);
       }
-      if (res.error) console.error(res.error);
     });
   }, [participantId]);
 

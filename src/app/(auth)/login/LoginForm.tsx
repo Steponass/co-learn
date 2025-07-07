@@ -3,7 +3,7 @@
 import { useEffect, useActionState } from "react";
 import { login } from "./actions";
 import { useRouter } from "next/navigation";
-import classes from "./LoginForm.module.css";
+import classes from "./login.module.css";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -19,11 +19,11 @@ export default function LoginForm() {
   }, [formData, router]);
 
   return (
-    <div className={classes.login_container}>
+    <div className="stack">
       <h1>Log in</h1>
 
-      <form className={classes.login_form} action={formAction}>
-        <div className={classes.email_container}>
+      <form className="stack" action={formAction}>
+        <div className={classes.input_container}>
           <label htmlFor="email">Email:</label>
           <input
             className={classes.input}
@@ -35,7 +35,7 @@ export default function LoginForm() {
           />
         </div>
 
-        <div className={classes.password_container}>
+        <div className={classes.input_container}>
           <label htmlFor="password">Password:</label>
           <input
             className={classes.input}
@@ -55,7 +55,7 @@ export default function LoginForm() {
             <p>{formData?.message}</p>
           </div>
         )}
-        <button className={classes.login_button} disabled={isPending}>
+        <button className="primary_button" disabled={isPending}>
           Log in
         </button>
       </form>
