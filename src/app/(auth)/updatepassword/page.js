@@ -1,11 +1,12 @@
 
 
 import UpdatePasswordForm from './UpdatePasswordForm'
+import classes from "./UpdatePassword.module.css";
 
 export default function UpdatePasswordPage() {
   return (
-    <div>
+    <main className={classes.main}>
       <UpdatePasswordForm />
-    </div>
+    </main>
   )
 }

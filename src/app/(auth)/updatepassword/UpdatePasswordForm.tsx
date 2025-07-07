@@ -4,6 +4,7 @@ import { useEffect, useActionState } from "react";
 import { updatePassword } from "../login/actions";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import classes from "./UpdatePassword.module.css";
 
 export default function UpdatePasswordForm() {
   const [formData, formAction, isPending] = useActionState(
@@ -31,12 +32,14 @@ export default function UpdatePasswordForm() {
   }, []);
 
   return (
-    <div>
+    // Combine module classes with globals like below. MUST use space in front of global class string
+    <div className={classes.auth_container + " stack"}>
       <h1>Update Password</h1>
-      <form action={formAction}>
-        <div>
+      <form className="stack" action={formAction}>
+        <div className={classes.input_container}>
           <label htmlFor="password">New Password:</label>
           <input
+            className={classes.input}
             id="password"
             name="password"
             type="password"
@@ -44,11 +47,18 @@ export default function UpdatePasswordForm() {
             minLength={6}
           />
         </div>
-        {formData?.error && <p style={{ color: "red" }}>{formData.error}</p>}
-        {formData?.message && (
-          <p style={{ color: "green" }}>{formData.message}</p>
+        {formData?.error && (
+          <div className="error_msg">
+            <p>{formData.error}</p>
+          </div>
         )}
-        <button disabled={isPending}>Update Password</button>
+        {formData?.message && (
+          <div className="error_msg">
+            <p>{formData.message}</p>
+          </div>
+        )}
+        <button className="primary_button"
+        disabled={isPending}>Update Password</button>
       </form>
     </div>
   );

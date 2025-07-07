@@ -3,7 +3,7 @@
 import { useEffect, useActionState } from "react";
 import { signup } from "../login/actions";
 import { useRouter } from "next/navigation";
-import classes from "../login/login.module.css"
+import classes from "../login/login.module.css";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -25,58 +25,62 @@ export default function SignupForm() {
       <form className="stack" action={formAction}>
         <div className={classes.input_container}>
           <label htmlFor="name">Name:</label>
-          <input className={classes.input}
-          id="name" 
-          name="name" 
-          type="text" 
-          required
-          defaultValue={formData?.name ?? ""}
+          <input
+            className={classes.input}
+            id="name"
+            name="name"
+            type="text"
+            required
+            defaultValue={formData?.name ?? ""}
           />
         </div>
         <div className={classes.input_container}>
           <label htmlFor="email">Email:</label>
-          <input className={classes.input}
-          id="email" 
-          name="email" 
-          type="email" 
-          required
-          defaultValue={formData?.email ?? ""} 
+          <input
+            className={classes.input}
+            id="email"
+            name="email"
+            type="email"
+            required
+            defaultValue={formData?.email ?? ""}
           />
         </div>
         <div className={classes.input_container}>
           <label htmlFor="password">Password:</label>
-          <input className={classes.input}
-          id="password" 
-          name="password" 
-          type="password" 
-          required />
+          <input
+            className={classes.input}
+            id="password"
+            name="password"
+            type="password"
+            required
+          />
         </div>
         <div>
           <p>Role:</p>
           <label>
-            <input
-              type="radio"
-              name="role"
-              value="facilitator"
-              required
-            />
+            <input type="radio" name="role" value="facilitator" required />
             Facilitator
           </label>
           <br />
           <label>
-            <input
-              type="radio"
-              name="role"
-              value="participant"
-              required
-            />
+            <input type="radio" name="role" value="participant" required />
             Learner / Participant
           </label>
         </div>
-        {formData?.error && <p style={{ color: "red" }}>{formData?.error}</p>}
-        {formData?.message && <p style={{ color: "green" }}>{formData?.message}</p>}
-        <button className="primary_button" 
-        disabled={isPending}>Sign up</button>
+
+        {formData?.error && (
+          <div className="error_msg">
+            <p>{formData?.error}</p>
+          </div>
+        )}
+        {formData?.message && (
+          <div className="error_msg">
+            <p>{formData?.message}</p>
+          </div>
+        )}
+        <button className="primary_button" disabled={isPending}>
+          Sign up
+        </button>
       </form>
     </div>
   );
