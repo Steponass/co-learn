@@ -1,5 +1,5 @@
 .auth_container {
-  width: min(80%, 240px);
+  width: min(90%, 320px);
   height: fit-content;
   padding: var(--space-16-24px);
   border-radius: var(--border-radius-8px);

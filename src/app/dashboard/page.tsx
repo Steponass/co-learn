@@ -11,8 +11,7 @@ export default async function DashboardPage() {
 
   if (role === "admin")
     return(
-      <AdminDashboard 
-      userEmail={user.email ?? ""} 
+      <AdminDashboard  
       name={name ?? ""}/>
       );
 

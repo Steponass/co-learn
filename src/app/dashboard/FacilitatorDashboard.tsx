@@ -11,14 +11,13 @@ export default function FacilitatorDashboard({ name, facilitatorId }: Props) {
   return (
     <div className={classes.dashboard + " stack"}>
       <div className={classes.dashboard_title}>
-      <h1>Facilitator Dashboard</h1>
-      <h2 className={classes.welcome_name}>Hey, {name}!</h2>
+        <h1>Facilitator Dashboard</h1>
+        <h2 className={classes.welcome_name}>Hey, {name}!</h2>
       </div>
 
       <FacilitatorSessionParticipants facilitatorId={facilitatorId} />
       <FacilitatorSessionList facilitatorId={facilitatorId} />
       <FacilitatorCreateSession facilitatorId={facilitatorId} />
-
     </div>
   );
 }
