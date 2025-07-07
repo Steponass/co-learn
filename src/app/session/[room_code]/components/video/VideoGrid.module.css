@@ -1,0 +1,35 @@
+.video_feeds_container {
+  display: flex;
+  width: 1200px;
+  background-color: red;
+}
+
+.video_feed_container {
+  position: relative;
+  height: fit-content;
+  resize: both;
+  overflow: auto;
+  min-width: 250px;
+  min-height: 250px;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: inline-block;
+}
+
+.video_feed {
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--border-radius-16px);
+}
+
+.video_label {
+  position: absolute;
+  bottom: 8;
+  left: 8;
+  background-color: var(--clr-brand-opacity-75);
+  color: var(--clr-txt-strong);
+  padding-block: var(--space-4px);
+  padding-inline: var(--space-8px);
+  border-radius: var(--border-radius-8px);
+  pointer-events: none;
+}

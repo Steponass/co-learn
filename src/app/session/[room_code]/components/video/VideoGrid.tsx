@@ -4,6 +4,7 @@ import type { PeerId, SignalPayload, SignalData } from "../types";
 import SelfVideo from "./SelfVideo";
 import OthersVideo from "./Othersvideo";
 import VideoControlPanel from "./VideoControlPanel";
+import classes from "./VideoGrid.module.css";
 
 interface VideoGridProps {
   userId: string;
@@ -216,14 +217,8 @@ export default function VideoGrid({
         setGridLayout={setGridLayout}
         localStream={localStream}
       />
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          flexDirection: gridLayout === "column" ? "column" : "row",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className={classes.video_feeds_container}
+        style={{flexDirection: gridLayout === "column" ? "column" : "row"}}>
         <SelfVideo
           stream={localStream}
           isCameraOn={isCameraOn}

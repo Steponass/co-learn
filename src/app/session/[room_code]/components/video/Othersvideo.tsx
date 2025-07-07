@@ -1,4 +1,5 @@
 import React from "react";
+import classes from "./VideoGrid.module.css";
 
 interface OthersVideoProps {
   name: string;
@@ -12,18 +13,27 @@ interface OthersVideoProps {
 const OthersVideo: React.FC<OthersVideoProps> = React.memo(
   ({ name, stream, isMuted, isHidden, onToggleAudio, onToggleVideo }) => {
     return (
-      <div style={{ position: "relative" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span>{name}</span>
-          <button onClick={onToggleAudio} style={{ fontSize: 12, padding: 2 }}>
-            {isMuted ? "🔇" : "🔊"}
-          </button>
-          <button onClick={onToggleVideo} style={{ fontSize: 12, padding: 2 }}>
-            {isHidden ? "👁️❌" : "👁️"}
-          </button>
-        </div>
+      <div className={classes.others_video_feed}>
+        <div className={classes.video_feed_container}>
+          <div className={classes.video_label}>
+            <span>{name}</span>
+            <button
+              onClick={onToggleAudio}
+              style={{ fontSize: 12, padding: 2 }}
+            >
+              {isMuted ? "🔇" : "🔊"}
+            </button>
+            <button
+              onClick={onToggleVideo}
+              style={{ fontSize: 12, padding: 2 }}
+            >
+              {isHidden ? "👁️❌" : "👁️"}
+            </button>
+          </div>
+        
         {!isHidden ? (
           <video
+          className={classes.video_feed}
             ref={(el) => {
               if (el) {
                 el.srcObject = stream;
@@ -34,18 +44,9 @@ const OthersVideo: React.FC<OthersVideoProps> = React.memo(
             playsInline
           />
         ) : (
-          <div
-            style={{
-              background: "#222",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-            }}
-          >
-            Video Hidden
-          </div>
+          <div>Video Hidden</div>
         )}
+        </div>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import React from "react";
+import classes from "./VideoGrid.module.css";
 
 interface SelfVideoProps {
   stream: MediaStream | null;
@@ -17,13 +17,9 @@ const SelfVideo: React.FC<SelfVideoProps> = ({
 }) => {
   if (!showSelfView) return null;
   return (
-    <div style={{ position: "relative" }}>
-      <div ref={labelRef}>
-        Me
-        {!isCameraOn ? " (Camera Off)" : ""}
-        {!isMicOn ? " (Muted)" : ""}
-      </div>
+    <div className={classes.video_feed_container}>
       <video
+        className={classes.video_feed}
         ref={(el) => {
           if (el && stream) el.srcObject = stream;
         }}
@@ -31,6 +27,11 @@ const SelfVideo: React.FC<SelfVideoProps> = ({
         muted
         playsInline
       />
+      <div ref={labelRef} className={classes.video_label}>
+        Me
+        {!isCameraOn ? " (Camera Off)" : ""}
+        {!isMicOn ? " (Muted)" : ""}
+      </div>
     </div>
   );
 };
