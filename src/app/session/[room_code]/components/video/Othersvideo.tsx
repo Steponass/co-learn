@@ -32,13 +32,10 @@ const OthersVideo: React.FC<OthersVideoProps> = React.memo(
             }}
             autoPlay
             playsInline
-            style={{ width: 160, height: 120, background: "#222" }}
           />
         ) : (
           <div
             style={{
-              width: 160,
-              height: 120,
               background: "#222",
               display: "flex",
               alignItems: "center",

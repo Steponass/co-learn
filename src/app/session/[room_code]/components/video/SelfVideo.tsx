@@ -30,7 +30,6 @@ const SelfVideo: React.FC<SelfVideoProps> = ({
         autoPlay
         muted
         playsInline
-        style={{ width: 160, height: 120, background: "#222" }}
       />
     </div>
   );

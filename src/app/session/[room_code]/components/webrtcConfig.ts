@@ -1,3 +1,5 @@
+// STUN/TURN services by metered.ca - 20GB/month free. Yay!
+
 export const iceServers = [
   {
     urls: ["stun:stun.relay.metered.ca:80"],

@@ -19,6 +19,18 @@
   width: 100%;
 }
 
+
+/* !Specific media query widths are TBD when
+fluid typescale is implemented!  */
+@media (max-width: 32rem) {
+  .booking_item {
+    flex-direction: column;
+    gap: var(--space-8px);
+    align-items: flex-start;
+    margin-bottom: var(--space-8px);
+  }
+}
+
 .book_session_and_msg {
   display: flex;
   align-items: center;

@@ -51,6 +51,10 @@ button {
   &&:active {
     transform: translateY(0.5px);
   }
+  &&:disabled {
+    background-color: var(--clr-disabled);
+    color: var(--clr-txt-weak);
+  }
 }
 
 .primary_button {

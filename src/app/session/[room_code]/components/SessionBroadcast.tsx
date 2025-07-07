@@ -6,6 +6,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import Chat from "./Chat";
 import VideoMain from "./video/VideoGrid";
 import type { PresenceState, SignalPayload, SignalData } from "./types";
+import classes from "../SessionPage.module.css";
 
 interface Props {
   roomCode: string;
@@ -113,7 +114,7 @@ export default function SessionBroadcast({
 
   return (
     <div>
-      <div style={{ minWidth: 200 }}>
+      <div>
         <h3>Present in Room</h3>
         <ul>
           {Array.from(
@@ -126,9 +127,8 @@ export default function SessionBroadcast({
         </ul>
       </div>
 
-      <div style={{ flex: 1 }}>
-      <h3>Video</h3>
-        <div>
+      <div className={classes.video_and_chat_container}>
+        <div className={classes.video_container}>
           <VideoMain
             userId={userId}
             onlineUsers={memoizedOnlineUsers}
@@ -137,21 +137,14 @@ export default function SessionBroadcast({
             onSendSignal={memoizedHandleSendSignal}
           />
         </div>
-        <Chat
-          channel={channel}
-          userId={userId}
-          userName={userName}
-          subscribed={subscribed}
-        />
-      </div>
-      {/* Whiteboard placeholder */}
-      <div style={{ minWidth: 200, minHeight: 200 }}>
 
-        <h3>Whiteboard</h3>
-        <div
-          style={{ border: "1px solid #ccc", height: 80, background: "#eee" }}
-        >
-          (Whiteboard toggle here)
+        <div className={classes.chat_container}>
+          <Chat
+            channel={channel}
+            userId={userId}
+            userName={userName}
+            subscribed={subscribed}
+          />
         </div>
       </div>
     </div>

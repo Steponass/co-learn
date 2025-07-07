@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { formatSessionTimeWithZone } from "../../booking/utils/formatSessionTime";
 import SessionBroadcastWrapper from "./components/SessionBroadcastWrapper";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
+import classes from "./SessionPage.module.css";
 
 export default async function SessionRoomPage(props: {
   params: Promise<{ room_code: string }>;
@@ -26,13 +27,10 @@ export default async function SessionRoomPage(props: {
   }
 
   return (
-    <div>
+    <div className={classes.session_container}>
       <h1>Session Room</h1>
       <p>
-        Room Code: <strong>{params.room_code}</strong>
-      </p>
-      <p>
-        Session Time:{" "}
+        Time:{" "}
         {formatSessionTimeWithZone(
           session.start_time,
           session.end_time,

@@ -15,24 +15,20 @@ export default function VideoControlPanel({
   setGridLayout,
   localStream,
 }: VideoControlPanelProps) {
-  const {
-    cameraButtonRef,
-    micButtonRef,
-    toggleCamera,
-    toggleMic,
-  } = useVideoControls(localStream);
+  const { cameraButtonRef, micButtonRef, toggleCamera, toggleMic } =
+    useVideoControls(localStream);
 
   return (
     <div>
-            <button ref={cameraButtonRef} onClick={toggleCamera}>
+      <button ref={cameraButtonRef} onClick={toggleCamera}>
         📹 Camera
       </button>
       <button ref={micButtonRef} onClick={toggleMic}>
         🎤 Mic
       </button>
       <button onClick={() => setShowSelfView(!showSelfView)}>
-        {showSelfView ? "👁️"  : "👁️❌"} Self View
-      </button >
+        {showSelfView ? "👁️" : "👁️❌"} Self View
+      </button>
       <button
         onClick={() => setGridLayout(gridLayout === "row" ? "column" : "row")}
       >

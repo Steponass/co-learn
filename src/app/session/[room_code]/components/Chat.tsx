@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import type { ChatMessage } from "./types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import classes from "../SessionPage.module.css";
+
 
 interface ChatProps {
   channel: RealtimeChannel | null;
@@ -22,7 +24,7 @@ export default function Chat({
 
   useEffect(() => {
     if (!channel) return;
-    // Subscribe to incoming chat messages
+  
     const handler = channel.on(
       "broadcast",
       { event: "chat" },
@@ -32,7 +34,6 @@ export default function Chat({
           if (prev.some((m) => m.id === msg.id)) return prev;
           return [...prev, msg];
         });
-        // console.log("[Chat] Received message (Chat):", msg);
       }
     );
     return () => {
@@ -62,35 +63,27 @@ export default function Chat({
   };
 
   return (
-    <div>
+    <div className="stack">
       <h3>Chat</h3>
-      <div
-        style={{
-          border: "1px solid #ccc",
-          minHeight: 120,
-          maxHeight: 200,
-          overflowY: "auto",
-          marginBottom: 8,
-          padding: 8,
-        }}
-      >
+      <div className={classes.chat_window}>
         {chatMessages.map((msg) => (
           <div key={msg.id}>
             <strong>{msg.userName}:</strong> {msg.content}
-            <span style={{ color: "#888", fontSize: 10, marginLeft: 8 }}>
+            <span>
               {new Date(msg.timestamp).toLocaleTimeString()}
             </span>
           </div>
         ))}
       </div>
-      <form onSubmit={sendMessage} style={{ display: "flex", gap: 8 }}>
-        <input
+      <form className={classes.chat_input_container} 
+      onSubmit={sendMessage}>
+        <input className={classes.chat_input}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
-          style={{ flex: 1 }}
+          placeholder="Type something, now!!!"
         />
-        <button type="submit" disabled={!subscribed || !input.trim()}>
+        <button className="primary_button"
+        type="submit" disabled={!subscribed || !input.trim()}>
           Send
         </button>
       </form>
