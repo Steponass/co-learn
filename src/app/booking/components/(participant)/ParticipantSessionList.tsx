@@ -2,6 +2,7 @@
 import { cancelBooking } from "../../actions";
 import type { ParticipantSession } from "../../types/sessions";
 import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
+import classes from "./BookingList.module.css";
 
 export default function ParticipantSessionList({
   participantId,
@@ -22,21 +23,24 @@ export default function ParticipantSessionList({
   };
 
   return (
-    <div>
-      <h3>My Bookings</h3>
-      <ul>
+    <div className={classes.booking_list}>
+      <h3 className={classes.list_heading}>
+        My Bookings</h3>
+      <ul className="stack">
         {sessions.map((row) => (
-          <li key={row.session_id}>
+          <li  className={classes.booking_item}
+          key={row.session_id}>
+            <p>
             {formatSessionTimeWithZone(
               row.sessions.start_time,
               row.sessions.end_time,
               row.sessions.time_zone ?? "UTC"
             )}{" "}
-            <span style={{ fontStyle: "italic", color: "#888" }}>
-              ({row.sessions.time_zone ?? "UTC"})
+            <span>({row.sessions.time_zone ?? "UTC"})
             </span>
+            </p>
             <button
-              style={{ marginLeft: 8 }}
+              className="primary_button"
               onClick={() => {
                 const url = `/session/${row.sessions.room_code}`;
                 if (window.confirm("Open session in a new window?")) {
@@ -47,7 +51,7 @@ export default function ParticipantSessionList({
               Join Session
             </button>
             <button
-              style={{ marginLeft: 8 }}
+              className="secondary_button"
               onClick={() => {
                 if (window.confirm("Sure you want to cancel this sesh?")) {
                   handleCancel(row.session_id);

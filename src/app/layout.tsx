@@ -22,7 +22,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <Header />
+          <main>
           {children}
+          </main>
           <Footer />
         </ThemeProvider>
       </body>

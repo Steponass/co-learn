@@ -14,7 +14,7 @@ export default function SignupForm() {
     if (formData?.redirectTo) {
       const timeout = setTimeout(() => {
         router.push(formData.redirectTo);
-      }, formData.delay || 3000);
+      }, formData.delay || 1500);
       return () => clearTimeout(timeout);
     }
   }, [formData, router]);

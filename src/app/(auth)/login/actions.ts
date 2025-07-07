@@ -42,7 +42,7 @@ export async function signup(previousState: unknown, formData: FormData) {
     message:
       "Signup successful! Please check your email to confirm your account.",
     redirectTo: "/login",
-    delay: 3000,
+    delay: 1500,
   };
 }
 
@@ -66,7 +66,7 @@ export async function login(previousState: unknown, formData: FormData) {
   return {
     message: "Login successful! Redirecting to your dashboard...",
     redirectTo: "/dashboard",
-    delay: 2000,
+    delay: 1000,
   };
 }
 

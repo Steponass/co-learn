@@ -1,0 +1,16 @@
+.dashboard {
+  width: min(90%, 640px);
+  height: fit-content;
+  padding: var(--space-16-24px);
+  border-radius: var(--border-radius-12px);
+  background-color: var(--clr-bg-raised);
+  box-shadow: var(--shadow-elevation-2);
+}
+
+.dashboard_title {
+  padding-inline: var(--space-8-12px);
+}
+
+.welcome_name {
+  color: var(--clr-txt-weak);
+}

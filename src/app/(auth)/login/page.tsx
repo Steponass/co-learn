@@ -9,7 +9,6 @@ export default function LoginPage() {
   const [form, setForm] = useState<"login" | "signup" | "reset">("login");
 
   return (
-    <main className={classes.main}>
       <div className={classes.auth_container}>
         {form === "login" && (
           <>
@@ -49,6 +48,5 @@ export default function LoginPage() {
           </>
         )}
       </div>
-    </main>
   );
 }

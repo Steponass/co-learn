@@ -13,7 +13,7 @@ export default function LoginForm() {
     if (formData?.redirectTo) {
       const timeout = setTimeout(() => {
         router.push(formData.redirectTo);
-      }, formData.delay || 2000);
+      }, formData.delay || 1000);
       return () => clearTimeout(timeout);
     }
   }, [formData, router]);

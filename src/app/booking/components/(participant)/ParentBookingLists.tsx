@@ -88,15 +88,22 @@ export default function ParentBookingLists({
   }, [participantId]);
 
   useEffect(() => {
+    if (!participantId) return;
     fetchAvailableSessions();
     fetchParticipantSessions();
-  }, [fetchAvailableSessions, fetchParticipantSessions]);
+  }, [fetchAvailableSessions, fetchParticipantSessions, participantId]);
 
   // Realtime updates
   useSessionParticipantsRealtime(() => {
+    if (!participantId) return;
     fetchAvailableSessions();
     fetchParticipantSessions();
   });
+
+  // Defensive: if no participantId, render nothing
+  if (!participantId) {
+    return null; // or: return <div>Please sign in to view your bookings.</div>;
+  }
 
   // When a booking or cancellation occurs, refresh both lists
   const handleBookedOrCancelled = () => {};

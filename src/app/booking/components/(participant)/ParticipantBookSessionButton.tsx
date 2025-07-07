@@ -2,8 +2,9 @@
 import { useActionState } from "react";
 import { bookSession } from "../../actions";
 import { useEffect } from "react";
+import classes from "./BookingList.module.css"
 
-export default function ParticipantBookSession({
+export default function ParticipantBookSessionButton({
   sessionId,
   participantId,
   onBooked,
@@ -28,11 +29,18 @@ export default function ParticipantBookSession({
     <form action={formAction}>
       <input type="hidden" name="session_id" value={sessionId} />
       <input type="hidden" name="participant_id" value={participantId} />
-      <button disabled={isPending}>Book Session</button>
-      {formData?.error && <p style={{ color: "red" }}>{formData.error}</p>}
+      <div className={classes.book_session_and_msg}>
+      <button className="primary_button"
+      disabled={isPending}>Book Session</button>
+      {formData?.error && 
+      <div className="error_msg">
+      <p>{formData.error}</p>
+      </div>}
       {formData?.message && (
-        <p style={{ color: "green" }}>{formData.message}</p>
-      )}
+        <div className="success_msg">
+        <p>{formData.message}</p>
+        </div>)}
+      </div>
     </form>
   );
 }

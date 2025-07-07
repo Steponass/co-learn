@@ -1,0 +1,56 @@
+.booking_list {
+  padding-block: var(--space-4-8px);
+  padding-inline: var(--space-8-12px);
+  background-color: var(--clr-bg-overlay);
+  border-radius: var(--border-radius-8px);
+  /* max-width: 56%; */
+  width: max-content;
+}
+
+.list_heading {
+  margin-bottom: var(--space-4-8px);
+}
+
+.booking_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-16-24px);
+  width: max-content;
+}
+
+.book_session_and_msg {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8-12px);
+}
+
+.start_or_cancel_session_container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4px);
+}
+
+.session_time_input_container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 340px;
+}
+
+.datetime_picker {
+  padding: var(--space-8px);
+  border-radius: var(--border-radius-8px);
+  border: 1px solid var(--clr-stroke-strong);
+  background: var(--clr-bg-base);
+  color: var(--clr-txt-strong);
+}
+
+.dropdown {
+  padding: var(--space-8px);
+  border-radius: var(--border-radius-8px);
+  border: 1px solid var(--clr-stroke-strong);
+  background: var(--clr-bg-base);
+  color: var(--clr-txt-strong);
+  max-width: 200px;
+}

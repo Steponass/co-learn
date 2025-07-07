@@ -23,6 +23,16 @@ body {
   }
 }
 
+main {
+  flex: 1 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-8-12px);
+  padding-block: var(--space-4-8px);
+}
+
+
 .explain_info {
   color: var(--clr-txt-weak);
 }
@@ -66,6 +76,11 @@ label > input[type="radio"] {
 .success_msg {
   color: var(--clr-success);
   animation: msg_entry 0.3s ease-out;
+}
+
+span {
+  color: var(--clr-txt-weak);
+  font-style: italic;
 }
 
 @keyframes msg_entry {

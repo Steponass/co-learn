@@ -2,6 +2,7 @@
 import { useState, useActionState } from "react";
 import { createSession } from "../../actions";
 import { timeZones } from "../../utils/timezones";
+import classes from "../(participant)/BookingList.module.css";
 
 export default function FacilitatorCreateSession({
   facilitatorId,
@@ -15,36 +16,61 @@ export default function FacilitatorCreateSession({
   const [selectedTimeZone, setSelectedTimeZone] = useState("UTC");
 
   return (
-    <form action={formAction}>
-      <input type="hidden" name="facilitator_id" value={facilitatorId} />
-      <label>
-        Start Time:
-        <input type="datetime-local" name="start_time" required />
-      </label>
-      <label>
-        End Time:
-        <input type="datetime-local" name="end_time" required />
-      </label>
-      <label>
-        Time Zone:
-        <select
-          name="time_zone"
-          value={selectedTimeZone}
-          onChange={(e) => setSelectedTimeZone(e.target.value)}
-          required
-        >
-          {timeZones.map((tz) => (
-            <option key={tz} value={tz}>
-              {tz}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button disabled={isPending}>Create Session</button>
-      {formData?.error && <p style={{ color: "red" }}>{formData.error}</p>}
-      {formData?.message && (
-        <p style={{ color: "green" }}>{formData.message}</p>
-      )}
-    </form>
+    <div className={classes.booking_list}>
+      <h3 className={classes.list_heading}>Open New Session</h3>
+      <form className="stack" action={formAction}>
+        <input type="hidden" name="facilitator_id" value={facilitatorId} />
+        <div className={classes.session_time_input_container}>
+        <label htmlFor="start_time">
+          Start Time:
+          </label>
+          <input
+            type="datetime-local"
+            name="start_time"
+            required
+            className={classes.datetime_picker}
+          />
+        </div>
+        <div className={classes.session_time_input_container}>
+        <label>End Time:</label>
+          <input
+            type="datetime-local"
+            name="end_time"
+            required
+            className={classes.datetime_picker}
+          />
+        </div>
+        <div className={classes.session_time_input_container}>
+        <label>Time Zone:</label>
+          <select
+            name="time_zone"
+            value={selectedTimeZone}
+            onChange={(e) => setSelectedTimeZone(e.target.value)}
+            required
+            className={classes.dropdown}
+          >
+            {timeZones.map((tz) => (
+              <option key={tz} value={tz}>
+                {tz}
+              </option>
+            ))}
+          </select>
+        
+        </div>
+        <button className="primary_button"
+        disabled={isPending}>Create Session</button>
+        {formData?.error && (
+          <div className="error_msg">
+            <p>{formData.error}</p>
+          </div>
+        )}
+
+        {formData?.message && (
+          <div className="success_msg">
+            <p>{formData.message}</p>
+          </div>
+        )}
+      </form>
+    </div>
   );
 }

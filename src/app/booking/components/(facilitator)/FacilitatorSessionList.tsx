@@ -5,6 +5,7 @@ import { getFacilitatorSessions, cancelSession } from "../../actions";
 import type { Session } from "../../types/sessions";
 import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
 import useSessionParticipantsRealtime from "../useSessionParticipantsRealtime";
+import classes from "../(participant)/BookingList.module.css";
 
 export default function FacilitatorSessionList({
   facilitatorId,
@@ -93,32 +94,27 @@ export default function FacilitatorSessionList({
   };
 
   return (
-    <div>
-      <h3>Open Sessions</h3>
+    <div className={classes.booking_list}>
+      <h3 className={classes.list_heading}>Open Sessions</h3>
       {sessions.length === 0 ? (
         <p>No sessions created yet.</p>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul className="stack">
           {sessions.map((session) => {
             const sessionCancelState = cancelState[session.id];
             return (
-              <li key={session.id}>
-                <div>
-                  <div>
-                    <strong>
-                      {formatSessionTimeWithZone(
-                        session.start_time,
-                        session.end_time,
-                        session.time_zone ?? "UTC"
-                      )}
-                    </strong>
-                    <br />
-                    <span style={{ fontStyle: "italic", color: "#888" }}>
-                      ({session.time_zone ?? "UTC"})
-                    </span>
-                    <br />
-                  </div>
+              <li className={classes.booking_item}
+              key={session.id}>
+                  <p>
+                    {formatSessionTimeWithZone(
+                      session.start_time,
+                      session.end_time,
+                      session.time_zone ?? "UTC"
+                    )}
+                    <span>({session.time_zone ?? "UTC"})</span>
+                  </p>
                   <button
+                    className="secondary_button"
                     onClick={() => handleCancelSession(session.id)}
                     disabled={sessionCancelState?.isPending}
                   >
@@ -126,10 +122,13 @@ export default function FacilitatorSessionList({
                       ? "Cancelling..."
                       : "Cancel Session"}
                   </button>
-                </div>
-                {sessionCancelState?.error && <p>{sessionCancelState.error}</p>}
+                {sessionCancelState?.error && 
+                <div className="error_msg">
+                <p>{sessionCancelState.error}</p></div>}
                 {sessionCancelState?.message && (
+                  <div className="success_msg">
                   <p>{sessionCancelState.message}</p>
+                  </div>
                 )}
               </li>
             );

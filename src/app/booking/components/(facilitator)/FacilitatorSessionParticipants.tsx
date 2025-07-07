@@ -12,6 +12,7 @@ import type {
   UserInfo,
 } from "../../types/sessions";
 import useSessionParticipantsRealtime from "../useSessionParticipantsRealtime";
+import classes from "../(participant)/BookingList.module.css";
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
@@ -115,133 +116,74 @@ export default function FacilitatorSessionParticipants({
   };
 
   return (
-    <div>
-      <h3>Booked Sessions</h3>
+    <div className={classes.booking_list}>
+      <h3 className={classes.list_heading}>Booked Sessions</h3>
       {sessions.length === 0 ? (
         <p>No sessions with participants yet.</p>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul className="stack">
           {sessions.map((session) => {
             const sessionCancelState = cancelState[session.id];
             return (
-              <li
-                key={session.id}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  marginBottom: "12px",
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <strong>
-                      {formatSessionTimeWithZone(
-                        session.start_time,
-                        session.end_time,
-                        session.time_zone ?? "UTC"
-                      )}
-                    </strong>
-                    <br />
-                    <span style={{ fontStyle: "italic", color: "#888" }}>
-                      ({session.time_zone ?? "UTC"})
-                    </span>
-                    <br />
-                    <br />
-                    <span style={{ fontSize: "0.9em", color: "#666" }}>
-                      Participants: {session.session_participants.length}
-                    </span>
+              <li className={classes.booking_item} key={session.id}>
+                <div>
+                  {formatSessionTimeWithZone(
+                    session.start_time,
+                    session.end_time,
+                    session.time_zone ?? "UTC"
+                  )}
+                  <span>({session.time_zone ?? "UTC"})</span>
+                  <br />
+                  <span>
+                    Participants: {session.session_participants.length}
+                  </span>
 
-                    {session.session_participants.length > 0 && (
-                      <ul style={{ marginTop: "8px", paddingLeft: "20px" }}>
-                        {session.session_participants.map((sp) => (
-                          <li
-                            key={sp.participant_id}
-                            style={{ fontSize: "0.9em" }}
-                          >
-                            {sp.user_info?.name || "Unknown"} (
-                            {sp.user_info?.email || "No email"}) -{" "}
-                            {sp.user_info?.role}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
-                      marginLeft: "16px",
+                  {session.session_participants.length > 0 && (
+                    <ul>
+                      {session.session_participants.map((sp) => (
+                        <li
+                          key={sp.participant_id}
+                          style={{ fontSize: "0.9em" }}
+                        >
+                          <span title={sp.user_info?.email || "No email"}>
+                            {sp.user_info?.name || "Unknown"}
+                          </span>{" "}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className={classes.start_or_cancel_session_container}>
+                  <button
+                    className="primary_button"
+                    onClick={() => {
+                      const url = `/session/${session.room_code}`;
+                      if (window.confirm("Start Session in a new window?")) {
+                        window.open(url, "_blank", "noopener,noreferrer");
+                      }
                     }}
                   >
-                    <button
-                      onClick={() => {
-                        const url = `/session/${session.room_code}`;
-                        if (window.confirm("Start Session in a new window?")) {
-                          window.open(url, "_blank", "noopener,noreferrer");
-                        }
-                      }}
-                      style={{
-                        backgroundColor: "#28a745",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        padding: "8px 16px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Start Session
-                    </button>
-                    <button
-                      onClick={() => handleCancelSession(session.id)}
-                      disabled={sessionCancelState?.isPending}
-                      style={{
-                        backgroundColor: "#dc3545",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        padding: "8px 16px",
-                        cursor: sessionCancelState?.isPending
-                          ? "not-allowed"
-                          : "pointer",
-                        opacity: sessionCancelState?.isPending ? 0.6 : 1,
-                      }}
-                    >
-                      {sessionCancelState?.isPending
-                        ? "Cancelling..."
-                        : "Cancel Session"}
-                    </button>
-                  </div>
+                    Start Session
+                  </button>
+                  <button
+                    className="secondary_button"
+                    onClick={() => handleCancelSession(session.id)}
+                    disabled={sessionCancelState?.isPending}
+                  >
+                    {sessionCancelState?.isPending
+                      ? "Cancelling..."
+                      : "Cancel Session"}
+                  </button>
                 </div>
                 {sessionCancelState?.error && (
-                  <p
-                    style={{
-                      color: "red",
-                      marginTop: "8px",
-                      fontSize: "0.9em",
-                    }}
-                  >
-                    {sessionCancelState.error}
-                  </p>
+                  <div className="error_msg">
+                    <p>{sessionCancelState.error}</p>
+                  </div>
                 )}
                 {sessionCancelState?.message && (
-                  <p
-                    style={{
-                      color: "green",
-                      marginTop: "8px",
-                      fontSize: "0.9em",
-                    }}
-                  >
-                    {sessionCancelState.message}
-                  </p>
+                  <div className="success_msg">
+                    <p>{sessionCancelState.message}</p>
+                  </div>
                 )}
               </li>
             );

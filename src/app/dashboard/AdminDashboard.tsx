@@ -1,11 +1,13 @@
-type Props = { userEmail: string; name: string };
+import classes from "./Dashboard.module.css"
 
-export default function AdminDashboard({ userEmail, name }: Props) {
+type Props = { name: string };
+
+export default function AdminDashboard({ name }: Props) {
   return (
-    <div>
+    <div className={classes.dashboard}>
       <h1>Admin Dashboard</h1>
       <h2>
-        Welcome, {name} ({userEmail})!
+        Welcome, {name})!
       </h2>
       <p>You DA BIG BOSS!</p>
     </div>
