@@ -74,7 +74,7 @@ export default function SignupForm() {
           </div>
         )}
         {formData?.message && (
-          <div className="error_msg">
+          <div className="success_msg">
             <p>{formData?.message}</p>
           </div>
         )}

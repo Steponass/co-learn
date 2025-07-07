@@ -16,7 +16,7 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--space-16-24px);
-  width: max-content;
+  width: 100%;
 }
 
 .book_session_and_msg {
