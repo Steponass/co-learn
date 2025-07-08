@@ -5,6 +5,7 @@ import SelfVideo from "./SelfVideo";
 import OthersVideo from "./Othersvideo";
 import VideoControlBar from "./VideoControlBar";
 import classes from "./VideoGrid.module.css";
+import ScreenshareView from "./ScreenshareView";
 
 interface VideoGridProps {
   userId: string;
@@ -419,87 +420,18 @@ export default function VideoGrid({
   return (
     <div className={classes.video_grid_wrapper} ref={gridWrapperRef}>
       {isScreenSharing && screenStream ? (
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "70vh",
-            minHeight: 320,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {/* Small video feeds row, absolutely positioned top-left */}
-          <div
-            style={{
-              position: "absolute",
-              top: 16,
-              left: 16,
-              display: "flex",
-              gap: 8,
-              zIndex: 2,
-            }}
-          >
-            {Object.entries(remoteStreams).map(([peerId, stream]) => {
-              const user = onlineUsers.find((u) => u.userId === peerId);
-              return (
-                <div
-                  key={peerId}
-                  style={{
-                    width: 128,
-                    height: 72,
-                    background: "var(--clr-bg-raised)",
-                    borderRadius: 8,
-                    overflow: "hidden",
-                    boxShadow: "var(--shadow-elevation-1)",
-                  }}
-                >
-                  <OthersVideo
-                    name={user?.userName || "Unknown"}
-                    stream={stream}
-                  />
-                </div>
-              );
-            })}
-            {/* Self video small */}
-            <div
-              style={{
-                width: 128,
-                height: 72,
-                background: "var(--clr-bg-raised)",
-                borderRadius: 8,
-                overflow: "hidden",
-                boxShadow: "var(--shadow-elevation-1)",
-              }}
-            >
-              <SelfVideo
-                stream={cameraStream}
-                isCameraOn={isCameraOn}
-                isMicOn={isMicOn}
-                labelRef={selfVideoLabelRef as React.RefObject<HTMLDivElement>}
-                showSelfView={showSelfView}
-              />
-            </div>
-          </div>
-          {/* Screenshare area fills available space */}
-          <video
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              borderRadius: 16,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
-              background: "var(--clr-bg-base)",
-            }}
-            ref={(el) => {
-              if (el && screenStream) el.srcObject = screenStream;
-            }}
-            autoPlay
-            playsInline
-            muted
-          />
-        </div>
+        <ScreenshareView
+          remoteStreams={remoteStreams}
+          onlineUsers={onlineUsers}
+          cameraStream={cameraStream}
+          isCameraOn={isCameraOn}
+          isMicOn={isMicOn}
+          selfVideoLabelRef={
+            selfVideoLabelRef as React.RefObject<HTMLDivElement>
+          }
+          showSelfView={showSelfView}
+          screenStream={screenStream}
+        />
       ) : (
         <div
           className={
