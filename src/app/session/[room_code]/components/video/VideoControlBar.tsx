@@ -1,6 +1,6 @@
 import React from "react";
 import classes from "./VideoGrid.module.css";
-import {CamOnIcon, CamOffIcon, MicOnIcon, MicOffIcon, ScreenShareOnIcon, ScreenShareOffIcon, ChatOnIcon, ChatOffIcon, LayoutHorizontalIcon, LayoutVerticalIcon, FullScreenOnIcon, FullScreenOffIcon} from "../../../../components/Icon"
+import {CamOnIcon, CamOffIcon, MicOnIcon, MicOffIcon, ScreenShareOnIcon, ScreenShareOffIcon, ChatOnIcon, ChatOffIcon, LayoutHorizontalIcon, LayoutVerticalIcon, SelfViewOnIcon, SelfViewOffIcon, FullScreenOnIcon, FullScreenOffIcon} from "../../../../components/Icon"
 
 
 interface VideoControlBarProps {
@@ -109,7 +109,12 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
         title="Toggle Self View"
         onClick={() => setShowSelfView(!showSelfView)}
       >
-        {showSelfView ? "👁️" : "👁️❌"}
+        {showSelfView? 
+        (
+          <SelfViewOnIcon size="md" />
+        ) : (
+          <SelfViewOffIcon size="md" />
+        )}
       </button>
       <button
         className="secondary_button"

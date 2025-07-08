@@ -146,6 +146,7 @@ export default function SessionBroadcast({
               userId={userId}
               userName={userName}
               subscribed={subscribed}
+              roomCode={roomCode}
             />
           </div>
         )}

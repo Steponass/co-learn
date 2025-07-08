@@ -4,6 +4,7 @@ export type PeerId = string;
 
 export interface ChatMessage {
   id: string;
+  room_code: string;
   userId: string;
   userName: string;
   content: string;

@@ -124,27 +124,55 @@ export const ChatOffIcon: React.FC<Omit<IconProps, "children">> = (props) => (
   </Icon>
 );
 
-
-export const LayoutHorizontalIcon: React.FC<Omit<IconProps, "children">> = (props) => (
+export const LayoutHorizontalIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
   <Icon {...props}>
-    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/>
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M3 9h18" />
   </Icon>
 );
 
-export const LayoutVerticalIcon: React.FC<Omit<IconProps, "children">> = (props) => (
+export const LayoutVerticalIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
   <Icon {...props}>
-    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M9 3v18" />
   </Icon>
 );
 
-export const FullScreenOnIcon: React.FC<Omit<IconProps, "children">> = (props) => (
+export const SelfViewOnIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
   <Icon {...props}>
-    <path d="M4 14h6v6M3 21l6.1-6.1M20 10h-6V4M21 3l-6.1 6.1"/>
+    <ellipse cx="12" cy="12" rx="8" ry="5" />
+    <circle cx="12" cy="12" r="2" />
   </Icon>
 );
 
-export const FullScreenOffIcon: React.FC<Omit<IconProps, "children">> = (props) => (
+export const SelfViewOffIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
   <Icon {...props}>
-    <path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1"/>
+    <ellipse cx="12" cy="12" rx="8" ry="5" />
+    <circle cx="12" cy="12" r="2" />
+    <line x1="4" y1="4" x2="20" y2="20" />
+  </Icon>
+);
+
+export const FullScreenOnIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
+  <Icon {...props}>
+    <path d="M4 14h6v6M3 21l6.1-6.1M20 10h-6V4M21 3l-6.1 6.1" />
+  </Icon>
+);
+
+export const FullScreenOffIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
+  <Icon {...props}>
+    <path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1" />
   </Icon>
 );
