@@ -68,6 +68,14 @@ button {
   border: 1px solid var(--clr-stroke-strong);
 }
 
+.link {
+  text-decoration: underline;
+
+  &&:hover {
+    text-decoration: none;
+  }
+}
+
 label > input[type="radio"] {
   margin-right: 0.5em;
 }

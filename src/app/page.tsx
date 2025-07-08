@@ -1,10 +1,11 @@
-import styles from "./page.module.css";
+"use client"
+
 import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className={styles.home_page}>
-          <h1><Link className={styles.link} 
+    <div>
+          <h1><Link className="link" 
           href="/dashboard">Dashboard</Link></h1>
     </div>
   );

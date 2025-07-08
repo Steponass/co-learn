@@ -1,5 +1,7 @@
 import React from "react";
 import classes from "./VideoGrid.module.css";
+import {CamOnIcon, CamOffIcon, MicOnIcon, MicOffIcon, ScreenShareOnIcon, ScreenShareOffIcon, ChatOnIcon, ChatOffIcon, LayoutHorizontalIcon, LayoutVerticalIcon, FullScreenOnIcon, FullScreenOffIcon} from "../../../../components/Icon"
+
 
 interface VideoControlBarProps {
   showSelfView: boolean;
@@ -41,14 +43,22 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
         title="Toggle Camera"
         onClick={onToggleCamera}
       >
-        {isCameraOn ? "📹" : "📹❌"}
+        {isCameraOn ? (
+        <CamOnIcon size="md" />
+      ) : (
+        <CamOffIcon size="md" />
+      )}
       </button>
       <button
         className="secondary_button"
         title="Toggle Mic"
         onClick={onToggleMic}
       >
-        {isMicOn ? "🎤" : "🎤❌"}
+        {isMicOn ? (
+        <MicOnIcon size="md" />
+      ) : (
+        <MicOffIcon size="md" />
+      )}
       </button>
       <button
         className="secondary_button"
@@ -60,7 +70,12 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
             : {}
         }
       >
-        {isScreenSharing ? "🟢🖥️" : "🖥️"}
+        {isScreenSharing ? 
+        (
+          <ScreenShareOffIcon size="md" />
+        ) : (
+          <ScreenShareOnIcon size="md" />
+        )}
       </button>
       <button
         className="secondary_button"
@@ -70,14 +85,24 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
           showChat ? { fontWeight: "bold", color: "var(--clr-brand)" } : {}
         }
       >
-        {showChat ? "🟢💬" : "💬"}
+        {showChat ? 
+        (
+          <ChatOnIcon size="md" />
+        ) : (
+          <ChatOffIcon size="md" />
+        )}
       </button>
       <button
         className="secondary_button"
         title="Toggle Layout"
         onClick={() => setGridLayout(gridLayout === "row" ? "column" : "row")}
       >
-        {gridLayout === "row" ? "📋" : "📊"}
+        {gridLayout === "row" ? 
+        (
+          <LayoutHorizontalIcon size="md" />
+        ) : (
+          <LayoutVerticalIcon size="md" />
+        )}
       </button>
       <button
         className="secondary_button"
@@ -94,7 +119,12 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
           isFullscreen ? { fontWeight: "bold", color: "var(--clr-brand)" } : {}
         }
       >
-        {isFullscreen ? "🟢⛶" : "⛶"}
+        {isFullscreen ? 
+        (
+          <FullScreenOnIcon size="md" />
+        ) : (
+          <FullScreenOffIcon size="md" />
+        )}
       </button>
     </div>
   );
