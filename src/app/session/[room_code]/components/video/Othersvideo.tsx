@@ -19,33 +19,35 @@ const OthersVideo: React.FC<OthersVideoProps> = React.memo(
             <span>{name}</span>
             <button
               onClick={onToggleAudio}
-              style={{ fontSize: 12, padding: 2 }}
+              className="secondary_button"
+              title="Toggle Audio"
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
             <button
               onClick={onToggleVideo}
-              style={{ fontSize: 12, padding: 2 }}
+              className="secondary_button"
+              title="Toggle Video"
             >
               {isHidden ? "👁️❌" : "👁️"}
             </button>
           </div>
-        
-        {!isHidden ? (
-          <video
-          className={classes.video_feed}
-            ref={(el) => {
-              if (el) {
-                el.srcObject = stream;
-                el.muted = isMuted;
-              }
-            }}
-            autoPlay
-            playsInline
-          />
-        ) : (
-          <div>Video Hidden</div>
-        )}
+
+          {!isHidden ? (
+            <video
+              className={classes.video_feed}
+              ref={(el) => {
+                if (el) {
+                  el.srcObject = stream;
+                  el.muted = isMuted;
+                }
+              }}
+              autoPlay
+              playsInline
+            />
+          ) : (
+            <div>Video Hidden</div>
+          )}
         </div>
       </div>
     );

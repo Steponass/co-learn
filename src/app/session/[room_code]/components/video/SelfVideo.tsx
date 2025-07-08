@@ -19,7 +19,7 @@ const SelfVideo: React.FC<SelfVideoProps> = ({
   return (
     <div className={classes.video_feed_container}>
       <video
-        className={classes.video_feed}
+        className={`${classes.video_feed} ${classes.self_video_mirrored}`}
         ref={(el) => {
           if (el && stream) el.srcObject = stream;
         }}

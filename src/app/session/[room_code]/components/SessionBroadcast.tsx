@@ -22,6 +22,7 @@ export default function SessionBroadcast({
   const [onlineUsers, setOnlineUsers] = useState<PresenceState[]>([]);
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const [subscribed, setSubscribed] = useState(false);
+  const [showChat, setShowChat] = useState(true);
   const signalQueue = useRef<SignalPayload[]>([]);
   const [, forceRerender] = useState(0); // for signalQueue updates
 
@@ -114,19 +115,6 @@ export default function SessionBroadcast({
 
   return (
     <div>
-      <div>
-        <h3>Present in Room</h3>
-        <ul>
-          {Array.from(
-            new Map(onlineUsers.map((u) => [u.userId, u])).values()
-          ).map((u) => (
-            <li key={u.userId}>
-              {u.userName} {u.userId === userId ? "(You)" : null}
-            </li>
-          ))}
-        </ul>
-      </div>
-
       <div className={classes.video_and_chat_container}>
         <div className={classes.video_container}>
           <VideoMain
@@ -135,17 +123,32 @@ export default function SessionBroadcast({
             subscribed={subscribed}
             signals={memoizedSignals}
             onSendSignal={memoizedHandleSendSignal}
+            showChat={showChat}
+            setShowChat={setShowChat}
           />
         </div>
-
-        <div className={classes.chat_container}>
-          <Chat
-            channel={channel}
-            userId={userId}
-            userName={userName}
-            subscribed={subscribed}
-          />
-        </div>
+        {showChat && (
+          <div className={classes.chat_container}>
+            <div className={classes.session_participants_list}>
+              <h3>Present in Room</h3>
+              <ul>
+                {Array.from(
+                  new Map(onlineUsers.map((u) => [u.userId, u])).values()
+                ).map((u) => (
+                  <li key={u.userId}>
+                    {u.userName} {u.userId === userId ? "(You)" : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Chat
+              channel={channel}
+              userId={userId}
+              userName={userName}
+              subscribed={subscribed}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
