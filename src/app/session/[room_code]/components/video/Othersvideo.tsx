@@ -1,59 +1,63 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import classes from "./VideoGrid.module.css";
 
 interface OthersVideoProps {
   name: string;
   stream: MediaStream;
-  isMuted: boolean;
-  isHidden: boolean;
-  onToggleAudio: () => void;
-  onToggleVideo: () => void;
+  isReconnecting?: boolean;
 }
 
-const OthersVideo: React.FC<OthersVideoProps> = React.memo(
-  ({ name, stream, isMuted, isHidden, onToggleAudio, onToggleVideo }) => {
-    return (
-      <div className={classes.others_video_feed}>
-        <div className={classes.video_feed_container}>
-          <div className={classes.video_label}>
-            <span>{name}</span>
-            <button
-              onClick={onToggleAudio}
-              className="secondary_button"
-              title="Toggle Audio"
-            >
-              {isMuted ? "🔇" : "🔊"}
-            </button>
-            <button
-              onClick={onToggleVideo}
-              className="secondary_button"
-              title="Toggle Video"
-            >
-              {isHidden ? "👁️❌" : "👁️"}
-            </button>
-          </div>
+const OthersVideo: React.FC<OthersVideoProps> = ({
+  name,
+  stream,
+  isReconnecting,
+}) => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-          {!isHidden ? (
-            <video
-              className={classes.video_feed}
-              ref={(el) => {
-                if (el) {
-                  el.srcObject = stream;
-                  el.muted = isMuted;
-                }
-              }}
-              autoPlay
-              playsInline
-            />
-          ) : (
-            <div>Video Hidden</div>
-          )}
+  // Set srcObject and muted on mount and when isMuted/stream changes
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream]);
+
+  return (
+    <div
+      className={classes.video_feed_container}
+      style={{ position: "relative" }}
+    >
+      <video
+        className={classes.video_feed}
+        ref={videoRef}
+        autoPlay
+        playsInline
+      />
+      {isReconnecting && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.5)",
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.2em",
+            zIndex: 2,
+            borderRadius: "inherit",
+          }}
+        >
+          Reconnecting…
         </div>
+      )}
+      <div className={classes.video_label}>
+        <p>{name}</p>
       </div>
-    );
-  }
-);
-
-OthersVideo.displayName = "OthersVideo";
+    </div>
+  );
+};
 
 export default OthersVideo;

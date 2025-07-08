@@ -34,21 +34,30 @@ export default function VideoGrid({
   >({});
   const [showSelfView, setShowSelfView] = useState(true);
   const [gridLayout, setGridLayout] = useState<"row" | "column">("row");
-  const [mutedParticipants, setMutedParticipants] = useState<Set<string>>(
-    new Set()
-  );
-  const [hiddenParticipants, setHiddenParticipants] = useState<Set<string>>(
-    new Set()
-  );
+
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
 
+  // Adaptive bitrate state
+  const [videoQuality, setVideoQuality] = useState<"high" | "medium" | "low">(
+    "high"
+  );
+
+  // Fullscreen state
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const gridWrapperRef = useRef<HTMLDivElement>(null);
+
   const peerConnections = useRef<PeerConnectionMap>({});
   const candidateQueue = useRef<Record<PeerId, RTCIceCandidateInit[]>>({});
 
   const selfVideoLabelRef = useRef<HTMLDivElement>(null);
+
+  // Track reconnecting peers for UI feedback
+  const [reconnectingPeers, setReconnectingPeers] = useState<Set<string>>(
+    new Set()
+  );
 
   // Memoized createPeerConnection
   const createPeerConnection = useCallback(
@@ -71,16 +80,54 @@ export default function VideoGrid({
           [peerId]: event.streams[0],
         }));
         console.log(`[WebRTC] Received remote stream from ${peerId}`);
+        // Remove from reconnectingPeers when track is received
+        setReconnectingPeers((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(peerId);
+          return newSet;
+        });
       };
       pc.onconnectionstatechange = () => {
         console.log(
           `[WebRTC] Connection state with ${peerId}:`,
           pc.connectionState
         );
+        if (pc.connectionState === "failed") {
+          console.warn(
+            `[WebRTC] Connection with ${peerId} failed. Attempting to reconnect...`
+          );
+          setReconnectingPeers((prev) => {
+            const newSet = new Set(prev);
+            newSet.add(peerId);
+            return newSet;
+          });
+          // Clean up the failed connection
+          pc.close();
+          delete peerConnections.current[peerId];
+          setRemoteStreams((prev) => {
+            const newStreams = { ...prev };
+            delete newStreams[peerId];
+            return newStreams;
+          });
+          // Re-initiate connection after short delay
+          setTimeout(() => {
+            if (!peerConnections.current[peerId]) {
+              const newPc = createPeerConnection(peerId);
+              peerConnections.current[peerId] = newPc;
+              // Only one side initiates offer
+              if (userId < peerId && localStream) {
+                newPc.createOffer().then((offer) => {
+                  newPc.setLocalDescription(offer);
+                  onSendSignal(peerId, { sdp: offer });
+                });
+              }
+            }
+          }, 2000);
+        }
       };
       return pc;
     },
-    [localStream, onSendSignal]
+    [localStream, onSendSignal, userId]
   );
 
   // 1. Get local media
@@ -199,30 +246,63 @@ export default function VideoGrid({
     createPeerConnection,
   ]);
 
-  // Participant controls
-  const toggleParticipantAudio = useCallback((peerId: string) => {
-    setMutedParticipants((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(peerId)) {
-        newSet.delete(peerId);
-      } else {
-        newSet.add(peerId);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const toggleParticipantVideo = useCallback((peerId: string) => {
-    setHiddenParticipants((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(peerId)) {
-        newSet.delete(peerId);
-      } else {
-        newSet.add(peerId);
-      }
-      return newSet;
-    });
-  }, []);
+  // Adaptive bitrate effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      Object.values(peerConnections.current).forEach(async (pc) => {
+        const senders = pc.getSenders();
+        const videoSender = senders.find(
+          (s) => s.track && s.track.kind === "video"
+        );
+        if (!videoSender) return;
+        try {
+          const stats = await pc.getStats();
+          let rtt = 0;
+          let packetsLost = 0;
+          let packetsSent = 0;
+          stats.forEach((report) => {
+            if (
+              report.type === "remote-inbound-rtp" &&
+              report.kind === "video"
+            ) {
+              if (typeof report.roundTripTime === "number")
+                rtt = report.roundTripTime;
+              if (typeof report.packetsLost === "number")
+                packetsLost = report.packetsLost;
+              if (typeof report.packetsReceived === "number")
+                packetsSent = report.packetsReceived;
+            }
+          });
+          // Simple logic: if RTT > 0.5s or >5% packet loss, reduce quality; if good, increase
+          const lossRate = packetsSent > 0 ? packetsLost / packetsSent : 0;
+          let newQuality: "high" | "medium" | "low" = videoQuality;
+          if (rtt > 0.5 || lossRate > 0.05) {
+            newQuality = "low";
+          } else if (rtt > 0.3 || lossRate > 0.02) {
+            newQuality = "medium";
+          } else {
+            newQuality = "high";
+          }
+          if (newQuality !== videoQuality) setVideoQuality(newQuality);
+          // Set parameters
+          const params = videoSender.getParameters();
+          if (!params.encodings) params.encodings = [{}];
+          if (newQuality === "high") {
+            params.encodings[0].maxBitrate = 1500_000;
+            params.encodings[0].scaleResolutionDownBy = 1;
+          } else if (newQuality === "medium") {
+            params.encodings[0].maxBitrate = 600_000;
+            params.encodings[0].scaleResolutionDownBy = 2;
+          } else {
+            params.encodings[0].maxBitrate = 250_000;
+            params.encodings[0].scaleResolutionDownBy = 3;
+          }
+          videoSender.setParameters(params);
+        } catch {}
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [videoQuality]);
 
   // Camera/mic state for SelfVideo
   const isCameraOn = cameraOn;
@@ -316,8 +396,28 @@ export default function VideoGrid({
     }
   }, [isScreenSharing, screenStream, restoreCameraStream]);
 
+  // Fullscreen handlers
+  const handleToggleFullscreen = useCallback(() => {
+    const elem = gridWrapperRef.current;
+    if (!elem) return;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  }, []);
+
+  // Listen for fullscreen change
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
   return (
-    <div className={classes.video_grid_wrapper}>
+    <div className={classes.video_grid_wrapper} ref={gridWrapperRef}>
       {isScreenSharing && screenStream ? (
         <div
           style={{
@@ -358,10 +458,6 @@ export default function VideoGrid({
                   <OthersVideo
                     name={user?.userName || "Unknown"}
                     stream={stream}
-                    isMuted={mutedParticipants.has(peerId)}
-                    isHidden={hiddenParticipants.has(peerId)}
-                    onToggleAudio={() => toggleParticipantAudio(peerId)}
-                    onToggleVideo={() => toggleParticipantVideo(peerId)}
                   />
                 </div>
               );
@@ -405,7 +501,13 @@ export default function VideoGrid({
           />
         </div>
       ) : (
-        <div className={classes.video_feeds_container}>
+        <div
+          className={
+            gridLayout === "column"
+              ? classes.video_feeds_column
+              : classes.video_feeds_row
+          }
+        >
           {Object.entries(remoteStreams).map(([peerId, stream]) => {
             const user = onlineUsers.find((u) => u.userId === peerId);
             return (
@@ -413,10 +515,7 @@ export default function VideoGrid({
                 key={peerId}
                 name={user?.userName || "Unknown"}
                 stream={stream}
-                isMuted={mutedParticipants.has(peerId)}
-                isHidden={hiddenParticipants.has(peerId)}
-                onToggleAudio={() => toggleParticipantAudio(peerId)}
-                onToggleVideo={() => toggleParticipantVideo(peerId)}
+                isReconnecting={reconnectingPeers.has(peerId)}
               />
             );
           })}
@@ -442,7 +541,8 @@ export default function VideoGrid({
         onToggleChat={() => setShowChat(!showChat)}
         isScreenSharing={isScreenSharing}
         onToggleScreenshare={handleToggleScreenshare}
-        // prepare for fullscreen
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={handleToggleFullscreen}
       />
       <div className={classes.video_grid_bottom_spacer} />
     </div>

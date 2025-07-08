@@ -14,6 +14,8 @@ interface VideoControlBarProps {
   onToggleChat: () => void;
   isScreenSharing: boolean;
   onToggleScreenshare: () => void;
+  isFullscreen: boolean;
+  onToggleFullscreen: () => void;
 }
 
 const VideoControlBar: React.FC<VideoControlBarProps> = ({
@@ -29,6 +31,8 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
   onToggleChat,
   isScreenSharing,
   onToggleScreenshare,
+  isFullscreen,
+  onToggleFullscreen,
 }) => {
   return (
     <div className={classes.control_bar}>
@@ -82,8 +86,15 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
       >
         {showSelfView ? "👁️" : "👁️❌"}
       </button>
-      <button className="secondary_button" title="Fullscreen">
-        ⛶
+      <button
+        className="secondary_button"
+        title="Fullscreen"
+        onClick={onToggleFullscreen}
+        style={
+          isFullscreen ? { fontWeight: "bold", color: "var(--clr-brand)" } : {}
+        }
+      >
+        {isFullscreen ? "🟢⛶" : "⛶"}
       </button>
     </div>
   );

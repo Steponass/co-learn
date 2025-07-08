@@ -9,6 +9,29 @@
   padding: var(--space-16px);
 }
 
+.video_feeds_row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-16px);
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background: none;
+  padding: var(--space-16px);
+}
+
+.video_feeds_column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16px);
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  background: none;
+  padding: var(--space-16px);
+}
+
 .video_feed_container {
   position: relative;
   width: 360px;
@@ -33,6 +56,7 @@
   object-fit: cover;
   border-radius: var(--border-radius-16px);
   background: var(--clr-bg-base);
+  border: 3px solid var(--clr-stroke-weak);
 }
 
 .self_video_mirrored {
