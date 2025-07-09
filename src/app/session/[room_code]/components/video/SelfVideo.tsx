@@ -6,6 +6,7 @@ interface SelfVideoProps {
   isMicOn: boolean;
   labelRef: React.RefObject<HTMLDivElement>;
   showSelfView: boolean;
+  size?: "normal" | "small";
 }
 
 const SelfVideo: React.FC<SelfVideoProps> = ({
@@ -14,10 +15,18 @@ const SelfVideo: React.FC<SelfVideoProps> = ({
   isMicOn,
   labelRef,
   showSelfView,
+  size = "normal",
 }) => {
   if (!showSelfView) return null;
   return (
-    <div className={classes.video_feed_container}>
+    <div
+      className={classes.video_feed_container}
+      style={
+        size === "small"
+          ? { width: 128, height: 128 }
+          : {}
+      }
+    >
       <video
         className={`${classes.video_feed} ${classes.self_video_mirrored}`}
         ref={(el) => {

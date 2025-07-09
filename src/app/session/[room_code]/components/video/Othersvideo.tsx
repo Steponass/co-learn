@@ -5,12 +5,14 @@ interface OthersVideoProps {
   name: string;
   stream: MediaStream;
   isReconnecting?: boolean;
+  size?: "normal" | "small";
 }
 
 const OthersVideo: React.FC<OthersVideoProps> = ({
   name,
   stream,
   isReconnecting,
+  size = "normal",
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -24,7 +26,12 @@ const OthersVideo: React.FC<OthersVideoProps> = ({
   return (
     <div
       className={classes.video_feed_container}
-      style={{ position: "relative" }}
+      style={{
+        position: "relative",
+        ...(size === "small"
+          ? { width: 128, height: 128 }
+          : {}),
+      }}
     >
       <video
         className={classes.video_feed}

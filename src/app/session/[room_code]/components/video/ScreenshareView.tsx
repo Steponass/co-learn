@@ -25,13 +25,14 @@ const ScreenshareView: React.FC<ScreenshareViewProps> = ({
   screenStream,
 }) => {
   return (
-    <div className={classes.screenshare_window}>
+    <div className={classes.screenshare_container}>
       {/* Small video feeds row, absolutely positioned top-left */}
-      <div className={classes.screenshare_user_video}
+      <div
+        className={classes.screenshare_user_video_container}
         style={{
           position: "absolute",
-          top: 16,
-          left: 16,
+          top: 4,
+          left: 4,
           display: "flex",
           gap: 8,
           zIndex: 2,
@@ -40,20 +41,24 @@ const ScreenshareView: React.FC<ScreenshareViewProps> = ({
         {Object.entries(remoteStreams).map(([peerId, stream]) => {
           const user = onlineUsers.find((u) => u.userId === peerId);
           return (
-            <div className={classes.screenshare_user_video}
-              key={peerId}>
-              <OthersVideo name={user?.userName || "Unknown"} stream={stream} />
+            <div className={classes.screenshare_user_video} key={peerId}>
+              <OthersVideo
+                name={user?.userName || "Unknown"}
+                stream={stream}
+                size="small"
+              />
             </div>
           );
         })}
 
-        <div className={classes.screenshare_user_video}>
+        <div>
           <SelfVideo
             stream={cameraStream}
             isCameraOn={isCameraOn}
             isMicOn={isMicOn}
             labelRef={selfVideoLabelRef}
             showSelfView={showSelfView}
+            size="small"
           />
         </div>
       </div>

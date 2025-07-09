@@ -351,34 +351,69 @@ export default function VideoGrid({
   const handleToggleScreenshare = useCallback(async () => {
     if (!isScreenSharing) {
       try {
-        const stream = await navigator.mediaDevices.getDisplayMedia({
+        // 1. Get screen stream with system audio
+        const screenStreamRaw = await navigator.mediaDevices.getDisplayMedia({
           video: true,
+          audio: true,
         });
-        setScreenStream(stream);
+        // 2. Get microphone stream
+        const micStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        // 3. Mix audio using Web Audio API
+        const audioContext = new window.AudioContext();
+        const destination = audioContext.createMediaStreamDestination();
+        // System audio
+        if (screenStreamRaw.getAudioTracks().length > 0) {
+          const systemSource =
+            audioContext.createMediaStreamSource(screenStreamRaw);
+          systemSource.connect(destination);
+        }
+        // Mic audio
+        if (micStream.getAudioTracks().length > 0) {
+          const micSource = audioContext.createMediaStreamSource(micStream);
+          micSource.connect(destination);
+        }
+        // 4. Combine video + mixed audio
+        const tracks = [
+          ...screenStreamRaw.getVideoTracks(),
+          ...destination.stream.getAudioTracks(),
+        ];
+        const mixedStream = new MediaStream(tracks);
+        setScreenStream(mixedStream);
         setIsScreenSharing(true);
-        // Replace video track in all peer connections
+        // Replace video and audio tracks in all peer connections
         Object.values(peerConnections.current).forEach((pc) => {
           const senders = pc.getSenders();
+          // Replace video
           const videoSender = senders.find(
             (s) => s.track && s.track.kind === "video"
           );
-          if (videoSender && stream.getVideoTracks()[0]) {
-            videoSender.replaceTrack(stream.getVideoTracks()[0]);
+          if (videoSender && mixedStream.getVideoTracks()[0]) {
+            videoSender.replaceTrack(mixedStream.getVideoTracks()[0]);
+          }
+          // Replace audio
+          const audioSender = senders.find(
+            (s) => s.track && s.track.kind === "audio"
+          );
+          if (audioSender && mixedStream.getAudioTracks()[0]) {
+            audioSender.replaceTrack(mixedStream.getAudioTracks()[0]);
           }
         });
-        // Replace local video for sending (not for self view)
+        // Replace local video/audio for sending (not for self view)
         setLocalStream((prev) => {
           if (!prev) return prev;
           const newStream = new MediaStream([
-            stream.getVideoTracks()[0],
-            ...prev.getAudioTracks(),
+            mixedStream.getVideoTracks()[0],
+            mixedStream.getAudioTracks()[0],
           ]);
           return newStream;
         });
         // Listen for screenshare end
-        stream.getVideoTracks()[0].addEventListener("ended", () => {
+        screenStreamRaw.getVideoTracks()[0].addEventListener("ended", () => {
           setIsScreenSharing(false);
           setScreenStream(null);
+          audioContext.close();
           restoreCameraStream();
         });
       } catch {

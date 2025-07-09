@@ -108,13 +108,3 @@
   box-shadow: var(--shadow-elevation-3);
 
 }
-
-.screenshare_user_video {
-  width: 128px;
-  height: 128px;
-  border-radius: var(--border-radius-8px);
-  box-shadow: var(--shadow-elevation-2);
-  object-fit: contain;
-  aspect-ratio: 1;
-
-}
