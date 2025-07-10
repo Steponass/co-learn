@@ -1,7 +1,23 @@
 import React from "react";
 import classes from "./VideoGrid.module.css";
-import {CamOnIcon, CamOffIcon, MicOnIcon, MicOffIcon, ScreenShareOnIcon, ScreenShareOffIcon, ChatOnIcon, ChatOffIcon, LayoutHorizontalIcon, LayoutVerticalIcon, SelfViewOnIcon, SelfViewOffIcon, FullScreenOnIcon, FullScreenOffIcon} from "../../../../components/Icon"
-
+import {
+  CamOnIcon,
+  CamOffIcon,
+  MicOnIcon,
+  MicOffIcon,
+  ScreenShareOnIcon,
+  ScreenShareOffIcon,
+  ChatOnIcon,
+  ChatOffIcon,
+  LayoutHorizontalIcon,
+  LayoutVerticalIcon,
+  SelfViewOnIcon,
+  SelfViewOffIcon,
+  FullScreenOnIcon,
+  FullScreenOffIcon,
+  BackgroundBlurOnIcon,
+  BackgroundBlurOffIcon,
+} from "../../../../components/Icon";
 
 interface VideoControlBarProps {
   showSelfView: boolean;
@@ -18,6 +34,8 @@ interface VideoControlBarProps {
   onToggleScreenshare: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
+  blurEnabled: boolean;
+  setBlurEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const VideoControlBar: React.FC<VideoControlBarProps> = ({
@@ -35,6 +53,8 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
   onToggleScreenshare,
   isFullscreen,
   onToggleFullscreen,
+  blurEnabled,
+  setBlurEnabled,
 }) => {
   return (
     <div className={classes.control_bar}>
@@ -43,22 +63,14 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
         title="Toggle Camera"
         onClick={onToggleCamera}
       >
-        {isCameraOn ? (
-        <CamOnIcon size="md" />
-      ) : (
-        <CamOffIcon size="md" />
-      )}
+        {isCameraOn ? <CamOnIcon size="md" /> : <CamOffIcon size="md" />}
       </button>
       <button
         className="secondary_button"
         title="Toggle Mic"
         onClick={onToggleMic}
       >
-        {isMicOn ? (
-        <MicOnIcon size="md" />
-      ) : (
-        <MicOffIcon size="md" />
-      )}
+        {isMicOn ? <MicOnIcon size="md" /> : <MicOffIcon size="md" />}
       </button>
       <button
         className="secondary_button"
@@ -70,8 +82,7 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
             : {}
         }
       >
-        {isScreenSharing ? 
-        (
+        {isScreenSharing ? (
           <ScreenShareOffIcon size="md" />
         ) : (
           <ScreenShareOnIcon size="md" />
@@ -85,20 +96,14 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
           showChat ? { fontWeight: "bold", color: "var(--clr-brand)" } : {}
         }
       >
-        {showChat ? 
-        (
-          <ChatOnIcon size="md" />
-        ) : (
-          <ChatOffIcon size="md" />
-        )}
+        {showChat ? <ChatOnIcon size="md" /> : <ChatOffIcon size="md" />}
       </button>
       <button
         className="secondary_button"
         title="Toggle Layout"
         onClick={() => setGridLayout(gridLayout === "row" ? "column" : "row")}
       >
-        {gridLayout === "row" ? 
-        (
+        {gridLayout === "row" ? (
           <LayoutHorizontalIcon size="md" />
         ) : (
           <LayoutVerticalIcon size="md" />
@@ -109,11 +114,24 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
         title="Toggle Self View"
         onClick={() => setShowSelfView(!showSelfView)}
       >
-        {showSelfView? 
-        (
+        {showSelfView ? (
           <SelfViewOnIcon size="md" />
         ) : (
           <SelfViewOffIcon size="md" />
+        )}
+      </button>
+      <button
+        className="secondary_button"
+        title="Toggle Background Blur"
+        onClick={() => setBlurEnabled((b) => !b)}
+        style={
+          blurEnabled ? { fontWeight: "bold", color: "var(--clr-brand)" } : {}
+        }
+      >
+        {blurEnabled ? (
+          <BackgroundBlurOnIcon size="md" />
+        ) : (
+          <BackgroundBlurOffIcon size="md" />
         )}
       </button>
       <button
@@ -124,8 +142,7 @@ const VideoControlBar: React.FC<VideoControlBarProps> = ({
           isFullscreen ? { fontWeight: "bold", color: "var(--clr-brand)" } : {}
         }
       >
-        {isFullscreen ? 
-        (
+        {isFullscreen ? (
           <FullScreenOnIcon size="md" />
         ) : (
           <FullScreenOffIcon size="md" />

@@ -50,6 +50,9 @@ export default function VideoGrid({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const gridWrapperRef = useRef<HTMLDivElement>(null);
 
+  // Background blur state
+  const [blurEnabled, setBlurEnabled] = useState<boolean>(false);
+
   const peerConnections = useRef<PeerConnectionMap>({});
   const candidateQueue = useRef<Record<PeerId, RTCIceCandidateInit[]>>({});
 
@@ -492,6 +495,8 @@ export default function VideoGrid({
             isMicOn={isMicOn}
             labelRef={selfVideoLabelRef as React.RefObject<HTMLDivElement>}
             showSelfView={showSelfView}
+            blurEnabled={blurEnabled}
+            setBlurEnabled={setBlurEnabled}
           />
         </div>
       )}
@@ -510,6 +515,8 @@ export default function VideoGrid({
         onToggleScreenshare={handleToggleScreenshare}
         isFullscreen={isFullscreen}
         onToggleFullscreen={handleToggleFullscreen}
+        blurEnabled={blurEnabled}
+        setBlurEnabled={setBlurEnabled}
       />
       <div className={classes.video_grid_bottom_spacer} />
     </div>
