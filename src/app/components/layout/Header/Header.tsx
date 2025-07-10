@@ -4,7 +4,11 @@ import Link from "next/link";
 import HeaderClient from "./HeaderClient";
 import SignOutButton from "./SignOutButton";
 
-export default async function Header() {
+type HeaderProps = {
+  isRoomPage?: boolean;
+};
+
+export default async function Header({ isRoomPage }: HeaderProps) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -13,7 +17,10 @@ export default async function Header() {
   return (
     <header className={classes.header}>
       <Link href="/">
-        <h2>Co-Learn</h2>
+        <h2>
+          Co-Learn
+          {isRoomPage ? " Session Room" : ""}
+        </h2>
       </Link>
       <div className={classes.header_panel}>
         <HeaderClient />

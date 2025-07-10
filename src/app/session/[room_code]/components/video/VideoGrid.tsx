@@ -158,11 +158,8 @@ export default function VideoGrid({
       if (activeStream) {
         activeStream.getTracks().forEach((track) => track.stop());
       }
-      if (cameraStream) {
-        cameraStream.getTracks().forEach((track) => track.stop());
-      }
     };
-  }, [cameraStream]);
+  }, []);
 
   // Sync UI state if localStream changes (e.g. after permissions)
   useEffect(() => {
