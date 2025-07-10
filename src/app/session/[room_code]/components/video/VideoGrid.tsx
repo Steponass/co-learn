@@ -136,11 +136,13 @@ export default function VideoGrid({
 
   // 1. Get local media
   useEffect(() => {
+    let activeStream: MediaStream | null = null;
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         setLocalStream(stream);
         setCameraStream(stream);
+        activeStream = stream;
         console.log("[WebRTC] Got local media stream");
         // Sync UI state with actual tracks
         const videoTrack = stream.getVideoTracks()[0];
@@ -151,7 +153,16 @@ export default function VideoGrid({
       .catch((err) => {
         console.error("[WebRTC] Failed to get local media", err);
       });
-  }, []);
+    return () => {
+      // Cleanup: stop all tracks on unmount
+      if (activeStream) {
+        activeStream.getTracks().forEach((track) => track.stop());
+      }
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [cameraStream]);
 
   // Sync UI state if localStream changes (e.g. after permissions)
   useEffect(() => {
@@ -469,6 +480,8 @@ export default function VideoGrid({
           }
           showSelfView={showSelfView}
           screenStream={screenStream}
+          blurEnabled={blurEnabled}
+          setBlurEnabled={setBlurEnabled}
         />
       ) : (
         <div

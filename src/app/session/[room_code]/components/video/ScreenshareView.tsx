@@ -12,6 +12,8 @@ interface ScreenshareViewProps {
   selfVideoLabelRef: React.RefObject<HTMLDivElement>;
   showSelfView: boolean;
   screenStream: MediaStream;
+  blurEnabled: boolean;
+  setBlurEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ScreenshareView: React.FC<ScreenshareViewProps> = ({
@@ -23,6 +25,8 @@ const ScreenshareView: React.FC<ScreenshareViewProps> = ({
   selfVideoLabelRef,
   showSelfView,
   screenStream,
+  blurEnabled,
+  setBlurEnabled,
 }) => {
   return (
     <div className={classes.screenshare_container}>
@@ -59,6 +63,8 @@ const ScreenshareView: React.FC<ScreenshareViewProps> = ({
             labelRef={selfVideoLabelRef}
             showSelfView={showSelfView}
             size="small"
+            blurEnabled={blurEnabled}
+            setBlurEnabled={setBlurEnabled}
           />
         </div>
       </div>
