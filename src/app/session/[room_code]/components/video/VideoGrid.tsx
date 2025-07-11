@@ -1,534 +1,390 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import { iceServers } from "../webrtcConfig";
-import type { PeerId, SignalPayload, SignalData } from "../types";
-import SelfVideo from "./SelfVideo";
-import OthersVideo from "./Othersvideo";
+import React, { useEffect, useRef, useState } from "react";
 import VideoControlBar from "./VideoControlBar";
-import classes from "./VideoGrid.module.css";
-import ScreenshareView from "./ScreenshareView";
+import OthersVideo from "./Othersvideo";
+import SelfVideo from "./SelfVideo";
+
+const SFU_HOST = "https://global.sfu.metered.ca";
+const SFU_APP_ID = "6870d1822bdfeac2df5ac9de";
+const SFU_SECRET = "c2OgFr1wqNT/5Dv7";
 
 interface VideoGridProps {
-  userId: string;
-  onlineUsers: { userId: string; userName: string }[];
-  subscribed: boolean;
-  signals: SignalPayload[];
-  onSendSignal: (targetId: string, data: SignalData) => void;
   showChat: boolean;
-  setShowChat: (show: boolean) => void;
+  onToggleChat: () => void;
 }
 
-type PeerConnectionMap = Record<PeerId, RTCPeerConnection>;
-
-export default function VideoGrid({
-  userId,
-  onlineUsers,
-  subscribed,
-  signals,
-  onSendSignal,
-  showChat,
-  setShowChat,
-}: VideoGridProps) {
+const VideoGrid: React.FC<VideoGridProps> = ({ showChat, onToggleChat }) => {
+  // Local media
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const [remoteStreams, setRemoteStreams] = useState<
-    Record<PeerId, MediaStream>
-  >({});
-  const [showSelfView, setShowSelfView] = useState(true);
-  const [gridLayout, setGridLayout] = useState<"row" | "column">("row");
+  // Remote streams: Map<trackId, MediaStream>
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(
+    new Map()
+  );
+  // Subscribed track IDs
+  const subscribedTrackIds = useRef<Set<string>>(new Set());
+  // Peer connection and session
+  const pcRef = useRef<RTCPeerConnection | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const publishedTrackIdRef = useRef<string | null>(null);
 
+  // UI state
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
+  const [blurEnabled, setBlurEnabled] = useState(false);
+  const [showSelfView, setShowSelfView] = useState(true);
+  const [gridLayout, setGridLayout] = useState<"row" | "column">("row");
   const [isScreenSharing, setIsScreenSharing] = useState(false);
-  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
-
-  // Adaptive bitrate state
-  const [videoQuality, setVideoQuality] = useState<"high" | "medium" | "low">(
-    "high"
-  );
-
-  // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const gridWrapperRef = useRef<HTMLDivElement>(null);
 
-  // Background blur state
-  const [blurEnabled, setBlurEnabled] = useState<boolean>(false);
-
-  const peerConnections = useRef<PeerConnectionMap>({});
-  const candidateQueue = useRef<Record<PeerId, RTCIceCandidateInit[]>>({});
-
+  // Fullscreen ref
+  const gridRef = useRef<HTMLDivElement>(null);
   const selfVideoLabelRef = useRef<HTMLDivElement>(null);
 
-  // Track reconnecting peers for UI feedback
-  const [reconnectingPeers, setReconnectingPeers] = useState<Set<string>>(
-    new Set()
-  );
-
-  // Memoized createPeerConnection
-  const createPeerConnection = useCallback(
-    (peerId: string): RTCPeerConnection => {
-      const pc = new RTCPeerConnection({ iceServers });
-      console.log(`[WebRTC] Created RTCPeerConnection for ${peerId}`);
+  // --- Camera/Mic toggle handlers ---
+  const onToggleCamera = () => {
+    setCameraOn((prev) => {
+      const newState = !prev;
       if (localStream) {
-        localStream.getTracks().forEach((track) => {
-          pc.addTrack(track, localStream);
-        });
+        localStream
+          .getVideoTracks()
+          .forEach((track) => (track.enabled = newState));
       }
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          onSendSignal(peerId, { candidate: event.candidate });
-        }
-      };
-      pc.ontrack = (event) => {
-        setRemoteStreams((prev) => ({
-          ...prev,
-          [peerId]: event.streams[0],
-        }));
-        console.log(`[WebRTC] Received remote stream from ${peerId}`);
-        // Remove from reconnectingPeers when track is received
-        setReconnectingPeers((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(peerId);
-          return newSet;
-        });
-      };
-      pc.onconnectionstatechange = () => {
-        console.log(
-          `[WebRTC] Connection state with ${peerId}:`,
-          pc.connectionState
-        );
-        if (pc.connectionState === "failed") {
-          console.warn(
-            `[WebRTC] Connection with ${peerId} failed. Attempting to reconnect...`
-          );
-          setReconnectingPeers((prev) => {
-            const newSet = new Set(prev);
-            newSet.add(peerId);
-            return newSet;
-          });
-          // Clean up the failed connection
-          pc.close();
-          delete peerConnections.current[peerId];
-          setRemoteStreams((prev) => {
-            const newStreams = { ...prev };
-            delete newStreams[peerId];
-            return newStreams;
-          });
-          // Re-initiate connection after short delay
-          setTimeout(() => {
-            if (!peerConnections.current[peerId]) {
-              const newPc = createPeerConnection(peerId);
-              peerConnections.current[peerId] = newPc;
-              // Only one side initiates offer
-              if (userId < peerId && localStream) {
-                newPc.createOffer().then((offer) => {
-                  newPc.setLocalDescription(offer);
-                  onSendSignal(peerId, { sdp: offer });
-                });
-              }
-            }
-          }, 2000);
-        }
-      };
-      return pc;
-    },
-    [localStream, onSendSignal, userId]
-  );
+      return newState;
+    });
+  };
+  const onToggleMic = () => {
+    setMicOn((prev) => {
+      const newState = !prev;
+      if (localStream) {
+        localStream
+          .getAudioTracks()
+          .forEach((track) => (track.enabled = newState));
+      }
+      return newState;
+    });
+  };
 
-  // 1. Get local media
+  // --- Screen sharing ---
+  const onToggleScreenshare = async () => {
+    if (!localStream || !pcRef.current) return;
+    if (!isScreenSharing) {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+        });
+        const screenTrack = screenStream.getVideoTracks()[0];
+        // Replace video track in localStream
+        const oldTrack = localStream.getVideoTracks()[0];
+        if (oldTrack) localStream.removeTrack(oldTrack);
+        localStream.addTrack(screenTrack);
+        // Replace sender track in peer connection
+        const sender = pcRef.current
+          .getSenders()
+          .find((s) => s.track && s.track.kind === "video");
+        if (sender) sender.replaceTrack(screenTrack);
+        setIsScreenSharing(true);
+        // When user stops sharing
+        screenTrack.onended = () => {
+          if (oldTrack) {
+            localStream.removeTrack(screenTrack);
+            localStream.addTrack(oldTrack);
+            if (sender) sender.replaceTrack(oldTrack);
+          }
+          setIsScreenSharing(false);
+        };
+      } catch {
+        setIsScreenSharing(false);
+      }
+    } else {
+      // Stop screen sharing
+      const screenTrack = localStream.getVideoTracks()[0];
+      if (screenTrack) screenTrack.stop();
+      setIsScreenSharing(false);
+    }
+  };
+
+  // Fullscreen handler
+  const onToggleFullscreen = () => {
+    if (!isFullscreen && gridRef.current) {
+      gridRef.current.requestFullscreen?.();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen?.();
+      setIsFullscreen(false);
+    }
+  };
+
+  // 1. Get local media on mount
   useEffect(() => {
-    let activeStream: MediaStream | null = null;
+    let active = true;
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
-        setLocalStream(stream);
-        setCameraStream(stream);
-        activeStream = stream;
-        console.log("[WebRTC] Got local media stream");
-        // Sync UI state with actual tracks
-        const videoTrack = stream.getVideoTracks()[0];
-        const audioTrack = stream.getAudioTracks()[0];
-        setCameraOn(videoTrack ? videoTrack.enabled : true);
-        setMicOn(audioTrack ? audioTrack.enabled : true);
+        if (active) setLocalStream(stream);
       })
       .catch((err) => {
-        console.error("[WebRTC] Failed to get local media", err);
+        console.error("Failed to get local media", err);
       });
     return () => {
-      // Cleanup: stop all tracks on unmount
-      if (activeStream) {
-        activeStream.getTracks().forEach((track) => track.stop());
-      }
+      active = false;
     };
   }, []);
 
-  // Sync UI state if localStream changes (e.g. after permissions)
+  // 2. Connect to SFU and publish local video
   useEffect(() => {
-    if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
-      const audioTrack = localStream.getAudioTracks()[0];
-      setCameraOn(videoTrack ? videoTrack.enabled : true);
-      setMicOn(audioTrack ? audioTrack.enabled : true);
-    }
-  }, [localStream]);
-
-  // Clean up peer connections for users who have left
-  useEffect(() => {
-    const currentPeers = Object.keys(peerConnections.current);
-    currentPeers.forEach((peerId) => {
-      if (!onlineUsers.some((u) => u.userId === peerId)) {
-        peerConnections.current[peerId]?.close();
-        delete peerConnections.current[peerId];
-        setRemoteStreams((prev) => {
-          const newStreams = { ...prev };
-          delete newStreams[peerId];
-          return newStreams;
-        });
-        console.log(`[WebRTC] Cleaned up connection for ${peerId}`);
-      }
+    if (!localStream) return;
+    let isMounted = true;
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.metered.ca:80" }],
     });
-  }, [onlineUsers]);
+    pcRef.current = pc;
 
-  // 2. Handle incoming signals from parent
-  useEffect(() => {
-    if (!subscribed || !localStream) return;
-    signals.forEach((payload) => {
-      const { from, data } = payload;
-      let pc = peerConnections.current[from];
-      if (!pc) {
-        pc = createPeerConnection(from);
-        peerConnections.current[from] = pc;
-      }
-      if ("sdp" in data) {
-        pc.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(
-          () => {
-            // Add any queued ICE candidates
-            if (candidateQueue.current[from]) {
-              candidateQueue.current[from].forEach((candidate) => {
-                pc.addIceCandidate(new RTCIceCandidate(candidate));
-              });
-              candidateQueue.current[from] = [];
-              console.log(`[WebRTC] Flushed queued ICE candidates for ${from}`);
-            }
-            if (data.sdp.type === "offer") {
-              pc.createAnswer().then((answer) => {
-                pc.setLocalDescription(answer);
-                onSendSignal(from, { sdp: answer });
-              });
-            }
+    // Add transceiver for video (required by SFU)
+    pc.addTransceiver("video");
+
+    // Handle remote tracks
+    pc.ontrack = (event) => {
+      if (!isMounted) return;
+      // Use track id as key
+      const track = event.track;
+      const stream = event.streams[0];
+      setRemoteStreams((prev) => {
+        if (prev.has(track.id)) return prev;
+        const newMap = new Map(prev);
+        newMap.set(track.id, stream);
+        return newMap;
+      });
+      subscribedTrackIds.current.add(track.id);
+    };
+
+    (async () => {
+      // 1. Create offer
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      // 2. Create session with SFU
+      const sessionRes = await fetch(
+        `${SFU_HOST}/api/sfu/${SFU_APP_ID}/session/new`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${SFU_SECRET}`,
+          },
+          body: JSON.stringify({ sessionDescription: offer }),
+        }
+      );
+      const sessionData = await sessionRes.json();
+      sessionIdRef.current = sessionData.sessionId;
+      await pc.setRemoteDescription(sessionData.sessionDescription);
+
+      // 3. Publish local video track
+      const videoTrack = localStream.getVideoTracks()[0];
+      let publishedTrackId: string | undefined = undefined;
+      if (videoTrack) {
+        const transceiver = pc.addTransceiver(videoTrack, {
+          direction: "sendonly",
+        });
+        const publishOffer = await pc.createOffer();
+        await pc.setLocalDescription(publishOffer);
+        const publishRes = await fetch(
+          `${SFU_HOST}/api/sfu/${SFU_APP_ID}/session/${sessionData.sessionId}/track/publish`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${SFU_SECRET}`,
+            },
+            body: JSON.stringify({
+              tracks: [
+                {
+                  trackId: transceiver.sender.track?.id ?? "video",
+                  mid: transceiver.mid,
+                  customTrackName: "userVideo",
+                },
+              ],
+              sessionDescription: publishOffer,
+            }),
           }
         );
-      } else if ("candidate" in data) {
-        if (pc.remoteDescription && pc.remoteDescription.type) {
-          pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-        } else {
-          // Queue the candidate
-          if (!candidateQueue.current[from]) candidateQueue.current[from] = [];
-          candidateQueue.current[from].push(data.candidate);
-          console.log(
-            `[WebRTC] Queued ICE candidate from ${from} (remoteDescription not set yet)`
+        const publishData = await publishRes.json();
+        await pc.setRemoteDescription(publishData.sessionDescription);
+        publishedTrackId = transceiver.sender.track?.id;
+        publishedTrackIdRef.current = publishedTrackId || null;
+      }
+
+      // 4. Initial subscribe to remote tracks
+      setTimeout(async () => {
+        if (!sessionIdRef.current) return;
+        const tracksRes = await fetch(
+          `${SFU_HOST}/api/sfu/${SFU_APP_ID}/session/${sessionIdRef.current}/tracks`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${SFU_SECRET}`,
+            },
+          }
+        );
+        const tracks = await tracksRes.json();
+        // Subscribe to all tracks not published by this session
+        const remoteTracks = tracks.filter(
+          (t: { sessionId: string; trackId: string }) =>
+            t.sessionId !== sessionIdRef.current &&
+            t.trackId !== publishedTrackId
+        );
+        if (remoteTracks.length > 0) {
+          const subscribeRes = await fetch(
+            `${SFU_HOST}/api/sfu/${SFU_APP_ID}/session/${sessionIdRef.current}/track/subscribe`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${SFU_SECRET}`,
+              },
+              body: JSON.stringify({
+                tracks: remoteTracks.map(
+                  (t: { sessionId: string; trackId: string }) => ({
+                    remoteSessionId: t.sessionId,
+                    remoteTrackId: t.trackId,
+                  })
+                ),
+              }),
+            }
+          );
+          const subscribeData = await subscribeRes.json();
+          await pc.setRemoteDescription(
+            new RTCSessionDescription(subscribeData.sessionDescription)
+          );
+          remoteTracks.forEach((t: { trackId: string }) =>
+            subscribedTrackIds.current.add(t.trackId)
           );
         }
-      }
-    });
-    // signals are cleared by parent after consumption
-  }, [signals, subscribed, localStream, onSendSignal, createPeerConnection]);
+      }, 1000);
+    })();
 
-  // 3. Create peer connections for each other user
-  useEffect(() => {
-    if (!subscribed || !localStream) return;
-    onlineUsers.forEach((user) => {
-      if (user.userId === userId) return;
-      if (peerConnections.current[user.userId]) return;
-      // Only one side initiates the offer to avoid glare
-      if (userId < user.userId) {
-        const pc = createPeerConnection(user.userId);
-        peerConnections.current[user.userId] = pc;
-        pc.createOffer().then((offer) => {
-          pc.setLocalDescription(offer);
-          onSendSignal(user.userId, { sdp: offer });
-        });
-      }
-    });
-  }, [
-    onlineUsers,
-    userId,
-    localStream,
-    subscribed,
-    onSendSignal,
-    createPeerConnection,
-  ]);
+    return () => {
+      isMounted = false;
+      pc.close();
+      pcRef.current = null;
+      setRemoteStreams(new Map());
+      subscribedTrackIds.current.clear();
+    };
+  }, [localStream]);
 
-  // Adaptive bitrate effect
+  // 3. Poll for new tracks and handle disconnects
   useEffect(() => {
-    const interval = setInterval(() => {
-      Object.values(peerConnections.current).forEach(async (pc) => {
-        const senders = pc.getSenders();
-        const videoSender = senders.find(
-          (s) => s.track && s.track.kind === "video"
-        );
-        if (!videoSender) return;
-        try {
-          const stats = await pc.getStats();
-          let rtt = 0;
-          let packetsLost = 0;
-          let packetsSent = 0;
-          stats.forEach((report) => {
-            if (
-              report.type === "remote-inbound-rtp" &&
-              report.kind === "video"
-            ) {
-              if (typeof report.roundTripTime === "number")
-                rtt = report.roundTripTime;
-              if (typeof report.packetsLost === "number")
-                packetsLost = report.packetsLost;
-              if (typeof report.packetsReceived === "number")
-                packetsSent = report.packetsReceived;
-            }
-          });
-          // Simple logic: if RTT > 0.5s or >5% packet loss, reduce quality; if good, increase
-          const lossRate = packetsSent > 0 ? packetsLost / packetsSent : 0;
-          let newQuality: "high" | "medium" | "low" = videoQuality;
-          if (rtt > 0.5 || lossRate > 0.05) {
-            newQuality = "low";
-          } else if (rtt > 0.3 || lossRate > 0.02) {
-            newQuality = "medium";
-          } else {
-            newQuality = "high";
+    const interval = setInterval(async () => {
+      if (!sessionIdRef.current || !pcRef.current) return;
+      const tracksRes = await fetch(
+        `${SFU_HOST}/api/sfu/${SFU_APP_ID}/session/${sessionIdRef.current}/tracks`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${SFU_SECRET}`,
+          },
+        }
+      );
+      const tracks = await tracksRes.json();
+      // Remove streams for tracks that disappeared
+      setRemoteStreams((prev) => {
+        const newMap = new Map(prev);
+        for (const trackId of prev.keys()) {
+          if (!tracks.some((t: { trackId: string }) => t.trackId === trackId)) {
+            newMap.delete(trackId);
+            subscribedTrackIds.current.delete(trackId);
           }
-          if (newQuality !== videoQuality) setVideoQuality(newQuality);
-          // Set parameters
-          const params = videoSender.getParameters();
-          if (!params.encodings) params.encodings = [{}];
-          if (newQuality === "high") {
-            params.encodings[0].maxBitrate = 1500_000;
-            params.encodings[0].scaleResolutionDownBy = 1;
-          } else if (newQuality === "medium") {
-            params.encodings[0].maxBitrate = 600_000;
-            params.encodings[0].scaleResolutionDownBy = 2;
-          } else {
-            params.encodings[0].maxBitrate = 250_000;
-            params.encodings[0].scaleResolutionDownBy = 3;
-          }
-          videoSender.setParameters(params);
-        } catch {}
+        }
+        return newMap;
       });
+      // Subscribe to new tracks
+      const publishedTrackId = publishedTrackIdRef.current;
+      const newRemoteTracks = tracks.filter(
+        (t: { sessionId: string; trackId: string }) =>
+          t.sessionId !== sessionIdRef.current &&
+          t.trackId !== publishedTrackId &&
+          !subscribedTrackIds.current.has(t.trackId)
+      );
+      if (newRemoteTracks.length > 0) {
+        const subscribeRes = await fetch(
+          `${SFU_HOST}/api/sfu/${SFU_APP_ID}/session/${sessionIdRef.current}/track/subscribe`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${SFU_SECRET}`,
+            },
+            body: JSON.stringify({
+              tracks: newRemoteTracks.map(
+                (t: { sessionId: string; trackId: string }) => ({
+                  remoteSessionId: t.sessionId,
+                  remoteTrackId: t.trackId,
+                })
+              ),
+            }),
+          }
+        );
+        const subscribeData = await subscribeRes.json();
+        await pcRef.current.setRemoteDescription(
+          new RTCSessionDescription(subscribeData.sessionDescription)
+        );
+        newRemoteTracks.forEach((t: { trackId: string }) =>
+          subscribedTrackIds.current.add(t.trackId)
+        );
+      }
     }, 5000);
     return () => clearInterval(interval);
-  }, [videoQuality]);
-
-  // Camera/mic state for SelfVideo
-  const isCameraOn = cameraOn;
-  const isMicOn = micOn;
-
-  const handleToggleCamera = useCallback(() => {
-    if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
-        const newState = !videoTrack.enabled;
-        videoTrack.enabled = newState;
-        setCameraOn(newState);
-      }
-    }
-  }, [localStream]);
-
-  const handleToggleMic = useCallback(() => {
-    if (localStream) {
-      const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
-        const newState = !audioTrack.enabled;
-        audioTrack.enabled = newState;
-        setMicOn(newState);
-      }
-    }
-  }, [localStream]);
-
-  // When screenshare ends, restore cameraStream to localStream
-  const restoreCameraStream = useCallback(() => {
-    if (cameraStream) {
-      Object.values(peerConnections.current).forEach((pc) => {
-        const senders = pc.getSenders();
-        const videoSender = senders.find(
-          (s) => s.track && s.track.kind === "video"
-        );
-        if (videoSender && cameraStream.getVideoTracks()[0]) {
-          videoSender.replaceTrack(cameraStream.getVideoTracks()[0]);
-        }
-      });
-      setLocalStream(cameraStream);
-    }
-  }, [cameraStream]);
-
-  // Screenshare logic
-  const handleToggleScreenshare = useCallback(async () => {
-    if (!isScreenSharing) {
-      try {
-        // 1. Get screen stream with system audio
-        const screenStreamRaw = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: true,
-        });
-        // 2. Get microphone stream
-        const micStream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        // 3. Mix audio using Web Audio API
-        const audioContext = new window.AudioContext();
-        const destination = audioContext.createMediaStreamDestination();
-        // System audio
-        if (screenStreamRaw.getAudioTracks().length > 0) {
-          const systemSource =
-            audioContext.createMediaStreamSource(screenStreamRaw);
-          systemSource.connect(destination);
-        }
-        // Mic audio
-        if (micStream.getAudioTracks().length > 0) {
-          const micSource = audioContext.createMediaStreamSource(micStream);
-          micSource.connect(destination);
-        }
-        // 4. Combine video + mixed audio
-        const tracks = [
-          ...screenStreamRaw.getVideoTracks(),
-          ...destination.stream.getAudioTracks(),
-        ];
-        const mixedStream = new MediaStream(tracks);
-        setScreenStream(mixedStream);
-        setIsScreenSharing(true);
-        // Replace video and audio tracks in all peer connections
-        Object.values(peerConnections.current).forEach((pc) => {
-          const senders = pc.getSenders();
-          // Replace video
-          const videoSender = senders.find(
-            (s) => s.track && s.track.kind === "video"
-          );
-          if (videoSender && mixedStream.getVideoTracks()[0]) {
-            videoSender.replaceTrack(mixedStream.getVideoTracks()[0]);
-          }
-          // Replace audio
-          const audioSender = senders.find(
-            (s) => s.track && s.track.kind === "audio"
-          );
-          if (audioSender && mixedStream.getAudioTracks()[0]) {
-            audioSender.replaceTrack(mixedStream.getAudioTracks()[0]);
-          }
-        });
-        // Replace local video/audio for sending (not for self view)
-        setLocalStream((prev) => {
-          if (!prev) return prev;
-          const newStream = new MediaStream([
-            mixedStream.getVideoTracks()[0],
-            mixedStream.getAudioTracks()[0],
-          ]);
-          return newStream;
-        });
-        // Listen for screenshare end
-        screenStreamRaw.getVideoTracks()[0].addEventListener("ended", () => {
-          setIsScreenSharing(false);
-          setScreenStream(null);
-          audioContext.close();
-          restoreCameraStream();
-        });
-      } catch {
-        // User cancelled or error
-        setIsScreenSharing(false);
-        setScreenStream(null);
-      }
-    } else {
-      // Stop screenshare
-      if (screenStream) {
-        screenStream.getTracks().forEach((track) => track.stop());
-      }
-      setIsScreenSharing(false);
-      setScreenStream(null);
-      restoreCameraStream();
-    }
-  }, [isScreenSharing, screenStream, restoreCameraStream]);
-
-  // Fullscreen handlers
-  const handleToggleFullscreen = useCallback(() => {
-    const elem = gridWrapperRef.current;
-    if (!elem) return;
-    if (!document.fullscreenElement) {
-      elem.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
   }, []);
 
-  // Listen for fullscreen change
-  useEffect(() => {
-    const onFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener("fullscreenchange", onFsChange);
-    return () => document.removeEventListener("fullscreenchange", onFsChange);
-  }, []);
-
+  // --- Render ---
   return (
-    <div className={classes.video_grid_wrapper} ref={gridWrapperRef}>
-      {isScreenSharing && screenStream ? (
-        <ScreenshareView
-          remoteStreams={remoteStreams}
-          onlineUsers={onlineUsers}
-          cameraStream={cameraStream}
-          isCameraOn={isCameraOn}
-          isMicOn={isMicOn}
-          selfVideoLabelRef={
-            selfVideoLabelRef as React.RefObject<HTMLDivElement>
-          }
-          showSelfView={showSelfView}
-          screenStream={screenStream}
-          blurEnabled={blurEnabled}
-          setBlurEnabled={setBlurEnabled}
-        />
-      ) : (
-        <div
-          className={
-            gridLayout === "column"
-              ? classes.video_feeds_column
-              : classes.video_feeds_row
-          }
-        >
-          {Object.entries(remoteStreams).map(([peerId, stream]) => {
-            const user = onlineUsers.find((u) => u.userId === peerId);
-            return (
-              <OthersVideo
-                key={peerId}
-                name={user?.userName || "Unknown"}
-                stream={stream}
-                isReconnecting={reconnectingPeers.has(peerId)}
-              />
-            );
-          })}
+    <div
+      ref={gridRef}
+      style={{ display: "flex", flexDirection: "column", gap: 16 }}
+    >
+      <div style={{ display: "flex", gap: 16 }}>
+        {/* Local video, only if showSelfView is true */}
+        {showSelfView && (
           <SelfVideo
-            stream={cameraStream}
-            isCameraOn={isCameraOn}
-            isMicOn={isMicOn}
-            labelRef={selfVideoLabelRef as React.RefObject<HTMLDivElement>}
+            stream={localStream}
+            isCameraOn={cameraOn}
+            isMicOn={micOn}
+            labelRef={selfVideoLabelRef}
             showSelfView={showSelfView}
             blurEnabled={blurEnabled}
             setBlurEnabled={setBlurEnabled}
           />
-        </div>
-      )}
+        )}
+        {/* Remote videos */}
+        {Array.from(remoteStreams.values()).map((stream, idx) => (
+          <OthersVideo
+            key={stream.id}
+            stream={stream}
+            name={`Remote ${idx + 1}`}
+            isReconnecting={false}
+          />
+        ))}
+      </div>
+      {/* Video controls */}
       <VideoControlBar
         showSelfView={showSelfView}
         setShowSelfView={setShowSelfView}
         gridLayout={gridLayout}
         setGridLayout={setGridLayout}
-        onToggleCamera={handleToggleCamera}
-        onToggleMic={handleToggleMic}
-        isCameraOn={isCameraOn}
-        isMicOn={isMicOn}
+        onToggleCamera={onToggleCamera}
+        onToggleMic={onToggleMic}
+        isCameraOn={cameraOn}
+        isMicOn={micOn}
         showChat={showChat}
-        onToggleChat={() => setShowChat(!showChat)}
+        onToggleChat={onToggleChat}
         isScreenSharing={isScreenSharing}
-        onToggleScreenshare={handleToggleScreenshare}
+        onToggleScreenshare={onToggleScreenshare}
         isFullscreen={isFullscreen}
-        onToggleFullscreen={handleToggleFullscreen}
+        onToggleFullscreen={onToggleFullscreen}
         blurEnabled={blurEnabled}
         setBlurEnabled={setBlurEnabled}
       />
-      <div className={classes.video_grid_bottom_spacer} />
     </div>
   );
-}
+};
+
+export default VideoGrid;

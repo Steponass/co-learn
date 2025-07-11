@@ -9,7 +9,7 @@ interface SelfVideoProps {
   stream: MediaStream | null;
   isCameraOn: boolean;
   isMicOn: boolean;
-  labelRef: React.RefObject<HTMLDivElement>;
+  labelRef: React.RefObject<HTMLDivElement | null>;
   showSelfView: boolean;
   size?: "normal" | "small";
   blurEnabled: boolean;
