@@ -29,7 +29,6 @@ export default function SessionBroadcast({
   useEffect(() => {
     const supabase = createClient();
     const topic = `session-${roomCode}`;
-    console.log(`[Supabase] Joining channel: ${topic} as userId: ${userId}`);
     const channel = supabase.channel(topic, {
       config: {
         presence: { key: userId },
@@ -39,9 +38,7 @@ export default function SessionBroadcast({
     setChannel(channel);
 
     // Centralized broadcast event handling
-    const handler = channel.on("broadcast", { event: "chat" }, () => {
-      // No longer update chatMessages here; Chat will handle it
-    });
+    const handler = channel.on("broadcast", { event: "chat" }, () => {});
     const signalHandler = channel.on(
       "broadcast",
       { event: "signal" },
