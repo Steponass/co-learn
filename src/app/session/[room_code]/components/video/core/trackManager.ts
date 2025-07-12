@@ -111,35 +111,40 @@ export class TrackManager {
     }
   }
 
-  handleRemoteTrack(event: RTCTrackEvent): void {
-    if (!this.isActive) return;
+// In trackManager.ts, modify handleRemoteTrack:
+handleRemoteTrack(event: RTCTrackEvent): void {
+  if (!this.isActive) return;
 
-    const track = event.track;
-    // Use the mapping from trackId to userId (customTrackName)
-    const userId = this.trackIdToUserId.get(track.id) || track.label;
-    if (!userId) return;
-
-    let streamInfo = this.remoteStreams.get(userId);
-    if (!streamInfo) {
-      const newStream = new MediaStream([track]);
-      streamInfo = {
-        stream: newStream,
-        sessionId: userId, // For compatibility, but this is userId
-        isAudioEnabled: true,
-        isVideoEnabled: true,
-      };
-      this.remoteStreams.set(userId, streamInfo);
-    } else {
-      if (!streamInfo.stream.getTracks().some((t) => t.id === track.id)) {
-        streamInfo.stream.addTrack(track);
-      }
-    }
-
-    // Handle track ending
-    track.onended = () => {
-      this.remoteStreams.delete(userId);
+  const track = event.track;
+  // The issue is here - we need to use the correct identifier
+  const userId = this.trackIdToUserId.get(track.id) || `session-${Date.now()}`;
+  
+  let streamInfo = this.remoteStreams.get(userId);
+  if (!streamInfo) {
+    const newStream = new MediaStream([track]);
+    streamInfo = {
+      stream: newStream,
+      sessionId: userId, // Keep this for compatibility
+      userName: undefined, // Will be set later
+      isAudioEnabled: true,
+      isVideoEnabled: true,
     };
+    this.remoteStreams.set(userId, streamInfo);
+  } else {
+    // Don't add the same track twice
+    if (!streamInfo.stream.getTracks().some((t) => t.id === track.id)) {
+      streamInfo.stream.addTrack(track);
+    }
   }
+
+  // Handle track ending - but don't remove the stream immediately
+  track.onended = () => {
+    if (streamInfo && streamInfo.stream.getTracks().length <= 1) {
+      // Only remove if this was the last track
+      this.remoteStreams.delete(userId);
+    }
+  };
+}
 
   getRemoteStreams(): Map<string, MediaStreamInfo> {
     return new Map(this.remoteStreams);
