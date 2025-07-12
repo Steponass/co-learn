@@ -47,3 +47,8 @@
   padding: var(--space-4-8px);
   width: 100%;
 }
+
+.video_container {
+  flex: 1;
+  min-width: 0;
+}
