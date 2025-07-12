@@ -46,10 +46,10 @@ button {
   @media (hover: hover) { &:hover {
       cursor: pointer;
       filter: drop-shadow(var(--drop-shadow-1));
-      transform: translateY(-0.5px);
+      transform: translateY(-0.75px);
   }}
   &&:active {
-    transform: translateY(0.5px);
+    transform: translateY(0.75px);
   }
   &&:disabled {
     background-color: var(--clr-disabled);
@@ -106,6 +106,7 @@ span {
     transform: translateY(0);
   }
 }
+
 
 .icon {
   color: var(--clr-txt-strong);

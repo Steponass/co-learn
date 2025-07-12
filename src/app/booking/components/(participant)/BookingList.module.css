@@ -17,8 +17,12 @@
   align-items: center;
   gap: var(--space-16-24px);
   width: 100%;
+
 }
 
+.booking_item_details {
+  min-width: 270px;
+}
 
 /* !Specific media query widths are TBD when
 fluid typescale is implemented!  */
@@ -31,6 +35,10 @@ fluid typescale is implemented!  */
   }
 }
 
+.book_session_form {
+ min-width: 296px;
+}
+
 .book_session_and_msg {
   display: flex;
   align-items: center;
@@ -40,14 +48,13 @@ fluid typescale is implemented!  */
 .start_or_cancel_session_container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4px);
+  gap: var(--space-8px);
 }
 
 .session_time_input_container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 340px;
 }
 
 .datetime_picker {
@@ -56,6 +63,7 @@ fluid typescale is implemented!  */
   border: 1px solid var(--clr-stroke-strong);
   background: var(--clr-bg-base);
   color: var(--clr-txt-strong);
+  max-width: 200px;
 }
 
 .dropdown {

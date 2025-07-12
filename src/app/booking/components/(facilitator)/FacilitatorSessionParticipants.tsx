@@ -11,7 +11,7 @@ import type {
   SessionParticipant,
   UserInfo,
 } from "../../types/sessions";
-import useSessionParticipantsRealtime from "../useSessionParticipantsRealtime";
+import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 import classes from "../(participant)/BookingList.module.css";
 
 export default function FacilitatorSessionParticipants({
@@ -126,13 +126,13 @@ export default function FacilitatorSessionParticipants({
             const sessionCancelState = cancelState[session.id];
             return (
               <li className={classes.booking_item} key={session.id}>
-                <div>
+                <div className={classes.booking_item_details}>
                   {formatSessionTimeWithZone(
                     session.start_time,
                     session.end_time,
                     session.time_zone ?? "UTC"
                   )}
-                  <span>({session.time_zone ?? "UTC"})</span>
+                  <span> ({session.time_zone ?? "UTC"})</span>
                   <br />
                   <span>
                     Participants: {session.session_participants.length}
@@ -141,10 +141,7 @@ export default function FacilitatorSessionParticipants({
                   {session.session_participants.length > 0 && (
                     <ul>
                       {session.session_participants.map((sp) => (
-                        <li
-                          key={sp.participant_id}
-                          style={{ fontSize: "0.9em" }}
-                        >
+                        <li key={sp.participant_id}>
                           <span title={sp.user_info?.email || "No email"}>
                             {sp.user_info?.name || "Unknown"}
                           </span>{" "}
@@ -175,16 +172,15 @@ export default function FacilitatorSessionParticipants({
                       : "Cancel Session"}
                   </button>
                 </div>
-                {sessionCancelState?.error && (
+                {sessionCancelState?.error ? (
                   <div className="error_msg">
                     <p>{sessionCancelState.error}</p>
                   </div>
-                )}
-                {sessionCancelState?.message && (
+                ) : sessionCancelState?.message ? (
                   <div className="success_msg">
                     <p>{sessionCancelState.message}</p>
                   </div>
-                )}
+                ) : null}
               </li>
             );
           })}

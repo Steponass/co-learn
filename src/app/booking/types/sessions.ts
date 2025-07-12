@@ -6,13 +6,13 @@ export type UserInfo = {
   role: string;
 };
 
-// A participant in a session
+// Participant in a session
 export type SessionParticipant = {
   participant_id: string;
   user_info: UserInfo;
 };
 
-// A session as seen by a facilitator (with participants)
+// Session as seen by a facilitator (with participants)
 export type SessionWithParticipants = {
   id: string;
   start_time: string;
@@ -22,7 +22,7 @@ export type SessionWithParticipants = {
   session_participants: SessionParticipant[];
 };
 
-// A session as seen by a facilitator (list only)
+// Session as seen by a facilitator (list only)
 export type Session = {
   id: string;
   start_time: string;
@@ -31,7 +31,7 @@ export type Session = {
   time_zone: string;
 };
 
-// A participant's booked session (joined with sessions table)
+// Participant's booked session (joined with sessions table)
 export type ParticipantSession = {
   session_id: string;
   sessions: {

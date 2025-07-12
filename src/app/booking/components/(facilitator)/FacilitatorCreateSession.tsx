@@ -18,12 +18,10 @@ export default function FacilitatorCreateSession({
   return (
     <div className={classes.booking_list}>
       <h3 className={classes.list_heading}>Open New Session</h3>
-      <form className="stack" action={formAction}>
+      <form className={classes.book_session_form + " stack"} action={formAction}>
         <input type="hidden" name="facilitator_id" value={facilitatorId} />
         <div className={classes.session_time_input_container}>
-        <label htmlFor="start_time">
-          Start Time:
-          </label>
+          <label htmlFor="start_time">Start Time:</label>
           <input
             type="datetime-local"
             name="start_time"
@@ -32,7 +30,7 @@ export default function FacilitatorCreateSession({
           />
         </div>
         <div className={classes.session_time_input_container}>
-        <label>End Time:</label>
+          <label>End Time:</label>
           <input
             type="datetime-local"
             name="end_time"
@@ -41,7 +39,7 @@ export default function FacilitatorCreateSession({
           />
         </div>
         <div className={classes.session_time_input_container}>
-        <label>Time Zone:</label>
+          <label>Time Zone:</label>
           <select
             name="time_zone"
             value={selectedTimeZone}
@@ -55,19 +53,17 @@ export default function FacilitatorCreateSession({
               </option>
             ))}
           </select>
-        
         </div>
-        <button className="primary_button"
-        disabled={isPending}>Create Session</button>
-        {formData?.error && (
+        <button className="primary_button" disabled={isPending}>
+          Create Session
+        </button>
+        {formData?.error ? (
           <div className="error_msg">
             <p>{formData.error}</p>
           </div>
-        )}
-
-        {formData?.message && (
+        ) : (
           <div className="success_msg">
-            <p>{formData.message}</p>
+            <p>{formData?.message}</p>
           </div>
         )}
       </form>

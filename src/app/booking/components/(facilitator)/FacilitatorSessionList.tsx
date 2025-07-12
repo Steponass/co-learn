@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { getFacilitatorSessions, cancelSession } from "../../actions";
 import type { Session } from "../../types/sessions";
 import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
-import useSessionParticipantsRealtime from "../useSessionParticipantsRealtime";
+import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 import classes from "../(participant)/BookingList.module.css";
 
 export default function FacilitatorSessionList({
@@ -103,16 +103,16 @@ export default function FacilitatorSessionList({
           {sessions.map((session) => {
             const sessionCancelState = cancelState[session.id];
             return (
-              <li className={classes.booking_item}
-              key={session.id}>
-                  <p>
-                    {formatSessionTimeWithZone(
-                      session.start_time,
-                      session.end_time,
-                      session.time_zone ?? "UTC"
-                    )}
-                    <span>({session.time_zone ?? "UTC"})</span>
-                  </p>
+              <li className={classes.booking_item} key={session.id}>
+                <div className={classes.booking_item_details}>
+                  {formatSessionTimeWithZone(
+                    session.start_time,
+                    session.end_time,
+                    session.time_zone ?? "UTC"
+                  )}
+                  <span> ({session.time_zone ?? "UTC"})</span>
+                </div>
+                <div className={classes.start_or_cancel_session_container}>
                   <button
                     className="secondary_button"
                     onClick={() => handleCancelSession(session.id)}
@@ -122,14 +122,16 @@ export default function FacilitatorSessionList({
                       ? "Cancelling..."
                       : "Cancel Session"}
                   </button>
-                {sessionCancelState?.error && 
-                <div className="error_msg">
-                <p>{sessionCancelState.error}</p></div>}
-                {sessionCancelState?.message && (
-                  <div className="success_msg">
-                  <p>{sessionCancelState.message}</p>
+                </div>
+                {sessionCancelState?.error ? (
+                  <div className="error_msg">
+                    <p>{sessionCancelState.error}</p>
                   </div>
-                )}
+                ) : sessionCancelState?.message ? (
+                  <div className="success_msg">
+                    <p>{sessionCancelState.message}</p>
+                  </div>
+                ) : null}
               </li>
             );
           })}

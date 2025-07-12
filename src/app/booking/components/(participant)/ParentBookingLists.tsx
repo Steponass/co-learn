@@ -6,7 +6,7 @@ import ParticipantSessionList from "./ParticipantSessionList";
 import { getParticipantSessions } from "../../actions";
 import { createClient } from "@/utils/supabase/client";
 import type { Session, ParticipantSession } from "../../types/sessions";
-import useSessionParticipantsRealtime from "../useSessionParticipantsRealtime";
+import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 
 export default function ParentBookingLists({
   participantId,
@@ -46,6 +46,8 @@ export default function ParentBookingLists({
           }
           const count = participants ? participants.length : 0;
           const isBooked = bookedSessionIds.includes(session.id);
+          
+          // Session Available only if under 6 people have already booked it
           const isFull = count >= 6;
           if (!isBooked && !isFull) {
             available.push(session);
@@ -100,9 +102,9 @@ export default function ParentBookingLists({
     fetchParticipantSessions();
   });
 
-  // Defensive: if no participantId, render nothing
+  // If no participantId, render nothing
   if (!participantId) {
-    return null; // or: return <div>Please sign in to view your bookings.</div>;
+    return <div><p>Please sign in to view your bookings.</p></div>; 
   }
 
   // When a booking or cancellation occurs, refresh both lists
