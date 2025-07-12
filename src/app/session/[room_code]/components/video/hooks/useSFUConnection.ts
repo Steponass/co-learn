@@ -6,6 +6,7 @@ import {
   ConnectionOptions,
   MediaStreamInfo,
 } from "../core/types";
+import { iceServers } from "../core/stunTurnConfig";
 
 interface UseSFUConnectionReturn {
   localStream: MediaStream | null;
@@ -77,7 +78,7 @@ export const useSFUConnection = (
         const options: ConnectionOptions = {
           userId,
           roomId,
-          iceServers: [{ urls: "stun:stun.metered.ca:80" }],
+          iceServers, // Use imported config
         };
 
         const sfuService = new SFUService(
@@ -86,9 +87,7 @@ export const useSFUConnection = (
             onRemoteTrack: () => {
               const updatedStreams = sfuService.getRemoteStreams();
               updatedStreams.forEach((info, sessionId) => {
-                info.userName =
-                  userMapRef.current[sessionId] ||
-                  `Remote User (${sessionId.substring(0, 8)})`;
+                info.userName = userMapRef.current[sessionId];
               });
               setRemoteStreams((prev) =>
                 areStreamsEqual(prev, updatedStreams)
@@ -141,9 +140,7 @@ export const useSFUConnection = (
       if (sfuServiceRef.current) {
         const streams = sfuServiceRef.current.getRemoteStreams();
         streams.forEach((info, sessionId) => {
-          info.userName =
-            userMapRef.current[sessionId] ||
-            `Remote User (${sessionId.substring(0, 8)})`;
+          info.userName = userMapRef.current[sessionId];
         });
         // Remove remote streams whose userId is not in presentUserIds
         // (No cleanup: show all remote streams regardless of presence)

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import Chat from "./Chat";
 import VideoGrid from "./video/VideoGrid";
-import type { PresenceState, SignalPayload } from "./types";
+import type { PresenceState } from "./types";
 import classes from "../SessionPage.module.css";
 
 interface Props {
@@ -22,7 +22,6 @@ export default function SessionBroadcast({
   const [onlineUsers, setOnlineUsers] = useState<PresenceState[]>([]);
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const [subscribed, setSubscribed] = useState(false);
-  const signalQueue = useRef<SignalPayload[]>([]);
   const [showChat, setShowChat] = useState(true);
   const onToggleChat = () => setShowChat((v) => !v);
 
@@ -37,18 +36,7 @@ export default function SessionBroadcast({
     });
     setChannel(channel);
 
-    // Centralized broadcast event handling
-    const handler = channel.on("broadcast", { event: "chat" }, () => {});
-    const signalHandler = channel.on(
-      "broadcast",
-      { event: "signal" },
-      ({ payload }) => {
-        if (!payload) return;
-        signalQueue.current.push(payload as SignalPayload);
-      }
-    );
-
-    // Presence: track who is online
+    // Presence: track who is online in Chat. For now, handled here, in case needed for video
     channel.on("presence", { event: "sync" }, () => {
       const state = channel.presenceState() as Record<string, PresenceState[]>;
       const users: PresenceState[] = [];
@@ -68,20 +56,9 @@ export default function SessionBroadcast({
     });
 
     return () => {
-      handler.unsubscribe();
-      signalHandler.unsubscribe();
       channel.unsubscribe();
     };
   }, [roomCode, userId, userName]);
-
-  // Pass only signals for this user to VideoGrid, and clear them after consumption
-  const userSignals = signalQueue.current.filter((s) => s.to === userId);
-  // Remove consumed signals
-  useEffect(() => {
-    if (userSignals.length > 0) {
-      signalQueue.current = signalQueue.current.filter((s) => s.to !== userId);
-    }
-  }, [userId, userSignals.length]);
 
   // Create a userId -> userName map from presence
   const userMap = Object.fromEntries(
@@ -123,6 +100,8 @@ export default function SessionBroadcast({
               userName={userName}
               subscribed={subscribed}
               roomCode={roomCode}
+              userMap={userMap}
+              presentUserIds={presentUserIds}
             />
           </div>
         )}

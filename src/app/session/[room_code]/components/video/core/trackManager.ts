@@ -10,6 +10,7 @@ export class TrackManager {
   private subscribedTracks = new Set<string>();
   private remoteStreams = new Map<string, MediaStreamInfo>(); // userId -> MediaStreamInfo
   private isActive = true;
+  private trackIdToUserId = new Map<string, string>(); // remoteTrackId -> userId
 
   constructor(apiClient: SFUApiClient, connectionManager: ConnectionManager) {
     this.apiClient = apiClient;
@@ -69,6 +70,13 @@ export class TrackManager {
         return;
       }
 
+      // Store mapping from remoteTrackId to customTrackName (userId)
+      tracks.forEach((track) => {
+        if (track.customTrackName) {
+          this.trackIdToUserId.set(track.trackId, track.customTrackName);
+        }
+      });
+
       // Filter out tracks we've already subscribed to
       const newTracks = tracks.filter((track) => {
         const trackKey = `${remoteSessionId}-${track.trackId}`;
@@ -107,7 +115,8 @@ export class TrackManager {
     if (!this.isActive) return;
 
     const track = event.track;
-    const userId = track.label; // Use userId as the key (should now match presence)
+    // Use the mapping from trackId to userId (customTrackName)
+    const userId = this.trackIdToUserId.get(track.id) || track.label;
     if (!userId) return;
 
     let streamInfo = this.remoteStreams.get(userId);

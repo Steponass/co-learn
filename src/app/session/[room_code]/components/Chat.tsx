@@ -13,6 +13,8 @@ interface ChatProps {
   userName: string;
   subscribed: boolean;
   roomCode: string;
+  userMap?: Record<string, string>;
+  presentUserIds?: string[];
 }
 
 export default function Chat({
