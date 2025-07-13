@@ -22,8 +22,6 @@ export default function SessionBroadcast({
   const [onlineUsers, setOnlineUsers] = useState<PresenceState[]>([]);
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const [subscribed, setSubscribed] = useState(false);
-  // const [showChat, setShowChat] = useState(true);
-  // const onToggleChat = () => setShowChat((v) => !v);
 
   useEffect(() => {
     const supabase = createClient();
@@ -72,8 +70,6 @@ export default function SessionBroadcast({
         <div className={classes.video_container}>
           <LiveKitRoom roomName={roomCode} userName={userName} />
         </div>
-
-        {/* {showChat && ( */}
           <div className={classes.chat_container}>
             <div className={classes.session_participants_list}>
               <h3>Present in Room</h3>
@@ -97,7 +93,6 @@ export default function SessionBroadcast({
               presentUserIds={presentUserIds}
             />
           </div>
-        {/* )} */}
       </div>
     </div>
   );
