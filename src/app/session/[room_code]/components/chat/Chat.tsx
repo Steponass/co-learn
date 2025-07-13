@@ -1,9 +1,9 @@
 "use client";
 import { createClient } from "@/utils/supabase/client";
-import { useState, useEffect } from "react";
-import type { ChatMessage } from "./types";
+import { useState, useEffect, useRef } from "react";
+import type { ChatMessage } from "../types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import classes from "../SessionPage.module.css";
+import classes from "./Chat.module.css";
 
 const supabase = createClient();
 
@@ -26,6 +26,9 @@ export default function Chat({
 }: ChatProps) {
   const [input, setInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+
+  // Add ref to track the chat window for auto-scrolling
+  const chatWindowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -50,6 +53,13 @@ export default function Chat({
     };
     fetchMessages();
   }, [roomCode]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
 
   useEffect(() => {
     if (!channel) return;
@@ -77,7 +87,7 @@ export default function Chat({
     }
     const msg = {
       id: crypto.randomUUID(),
-      room_code: roomCode, // Make sure roomCode is passed as a prop
+      room_code: roomCode,
       user_id: userId,
       user_name: userName,
       content: input,
@@ -110,11 +120,16 @@ export default function Chat({
   return (
     <div className="stack">
       <h3>Chat</h3>
-      <div className={classes.chat_window}>
+      <div className={classes.chat_window} ref={chatWindowRef}>
         {chatMessages.map((msg) => (
           <div key={msg.id}>
             <strong>{msg.userName}:</strong> {msg.content}
-            <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
+            <span className={classes.chat_msg_timestamp}>
+              {" "}
+              {new Date(msg.timestamp).toLocaleTimeString([], {
+                timeStyle: "short",
+              })}
+            </span>
           </div>
         ))}
       </div>

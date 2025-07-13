@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import Chat from "./Chat";
-import VideoGrid from "./video/VideoGrid";
+import Chat from "./chat/Chat";
 import type { PresenceState } from "./types";
 import classes from "../SessionPage.module.css";
+import LiveKitRoom from "./video/LiveKitRoom";
 
 interface Props {
   roomCode: string;
@@ -23,7 +23,7 @@ export default function SessionBroadcast({
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const [subscribed, setSubscribed] = useState(false);
   const [showChat, setShowChat] = useState(true);
-  const onToggleChat = () => setShowChat((v) => !v);
+  // const onToggleChat = () => setShowChat((v) => !v);
 
   useEffect(() => {
     const supabase = createClient();
@@ -70,14 +70,7 @@ export default function SessionBroadcast({
     <div>
       <div className={classes.video_and_chat_container}>
         <div className={classes.video_container}>
-          <VideoGrid
-            showChat={showChat}
-            onToggleChat={onToggleChat}
-            roomId={roomCode}
-            userId={userId}
-            userMap={userMap}
-            presentUserIds={presentUserIds}
-          />
+          <LiveKitRoom roomName={roomCode} userName={userName} />
         </div>
 
         {showChat && (
