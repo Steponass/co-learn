@@ -45,6 +45,7 @@ export default function FacilitatorSessionParticipants({
                 end_time: s.end_time ?? "",
                 room_code: s.room_code ?? "",
                 time_zone: s.time_zone ?? "UTC",
+                facilitator_name: s.facilitator_name ?? "",
                 session_participants: (s.session_participants ?? []).map(
                   (sp: unknown) => {
                     const p = sp as Partial<SessionParticipant>;

@@ -9,7 +9,10 @@ export default function ParticipantDashboard({ name, participantId }: Props) {
       <h2>Participant Dashboard</h2>
       <h3 className={classes.welcome_name}>Hey, {name}!</h3>
 
-      <ParentBookingLists participantId={participantId} />
+      <ParentBookingLists
+        participantId={participantId}
+        participantName={name}
+      />
     </div>
   );
 }

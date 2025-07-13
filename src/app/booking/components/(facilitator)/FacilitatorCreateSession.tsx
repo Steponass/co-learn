@@ -6,8 +6,10 @@ import classes from "../(participant)/BookingList.module.css";
 
 export default function FacilitatorCreateSession({
   facilitatorId,
+  facilitatorName,
 }: {
   facilitatorId: string;
+  facilitatorName: string;
 }) {
   const [formData, formAction, isPending] = useActionState(
     createSession,
@@ -18,8 +20,12 @@ export default function FacilitatorCreateSession({
   return (
     <div className={classes.booking_list}>
       <h3 className={classes.list_heading}>Open New Session</h3>
-      <form className={classes.book_session_form + " stack"} action={formAction}>
+      <form
+        className={classes.book_session_form + " stack"}
+        action={formAction}
+      >
         <input type="hidden" name="facilitator_id" value={facilitatorId} />
+        <input type="hidden" name="facilitator_name" value={facilitatorName} />
         <div className={classes.session_time_input_container}>
           <label htmlFor="start_time">Start Time:</label>
           <input

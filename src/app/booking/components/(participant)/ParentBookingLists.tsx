@@ -10,8 +10,10 @@ import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealt
 
 export default function ParentBookingLists({
   participantId,
+  participantName,
 }: {
   participantId: string;
+  participantName: string;
 }) {
   const [availableSessions, setAvailableSessions] = useState<Session[]>([]);
   const [participantSessions, setParticipantSessions] = useState<
@@ -46,7 +48,7 @@ export default function ParentBookingLists({
           }
           const count = participants ? participants.length : 0;
           const isBooked = bookedSessionIds.includes(session.id);
-          
+
           // Session Available only if under 6 people have already booked it
           const isFull = count >= 6;
           if (!isBooked && !isFull) {
@@ -74,6 +76,7 @@ export default function ParentBookingLists({
                 end_time: r.sessions?.end_time ?? "",
                 room_code: r.sessions?.room_code ?? "",
                 time_zone: r.sessions?.time_zone ?? "UTC",
+                facilitator_name: r.sessions?.facilitator_name ?? "",
               },
             };
           }
@@ -104,7 +107,11 @@ export default function ParentBookingLists({
 
   // If no participantId, render nothing
   if (!participantId) {
-    return <div><p>Please sign in to view your bookings.</p></div>; 
+    return (
+      <div>
+        <p>Please sign in to view your bookings.</p>
+      </div>
+    );
   }
 
   // When a booking or cancellation occurs, refresh both lists
@@ -114,6 +121,7 @@ export default function ParentBookingLists({
     <>
       <AvailableSessionsList
         participantId={participantId}
+        participantName={participantName}
         sessions={availableSessions}
         fetchSessions={fetchAvailableSessions}
         onBooked={handleBookedOrCancelled}

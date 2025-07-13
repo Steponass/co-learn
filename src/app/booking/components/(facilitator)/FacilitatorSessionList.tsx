@@ -37,6 +37,7 @@ export default function FacilitatorSessionList({
               end_time: s.end_time ?? "",
               room_code: s.room_code ?? "",
               time_zone: s.time_zone ?? "UTC",
+              facilitator_name: s.facilitator_name ?? "",
             };
           });
           setSessions(typedSessions);
@@ -104,28 +105,30 @@ export default function FacilitatorSessionList({
             const sessionCancelState = cancelState[session.id];
             return (
               <li className={classes.booking_item} key={session.id}>
-                 <div className={classes.booking_item_details}>
+                <div className={classes.booking_item_details}>
                   {formatSessionTimeWithZone(
-                     session.start_time,
+                    session.start_time,
                     session.end_time,
                     session.time_zone ?? "UTC"
                   )}
                   <span> ({session.time_zone ?? "UTC"})</span>
-                   </div>
-                 <div className={classes.start_or_cancel_session_container}>
-                  <button
-                      className="secondary_button"
-                     onClick= {() => handleCancelSession(session.id)}
-                    disabled= {sessionCancelState ?.isPending}
-                   >
-                      {sessionCancelState?.isPending ? "Cancelling..." : "Cancel Session"}
-                </button>
                 </div>
-            {sessionCancelState?.error ? (
+                <div className={classes.start_or_cancel_session_container}>
+                  <button
+                    className="secondary_button"
+                    onClick={() => handleCancelSession(session.id)}
+                    disabled={sessionCancelState?.isPending}
+                  >
+                    {sessionCancelState?.isPending
+                      ? "Cancelling..."
+                      : "Cancel Session"}
+                  </button>
+                </div>
+                {sessionCancelState?.error ? (
                   <div>
                     <p>{sessionCancelState.error}</p>
                   </div>
-              ) : sessionCancelState?.message ? (
+                ) : sessionCancelState?.message ? (
                   <div className="success_msg">
                     <p>{sessionCancelState.message}</p>
                   </div>

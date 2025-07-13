@@ -8,6 +8,7 @@ export async function createSession(
 ) {
   const supabase = await createClient();
   const facilitator_id = formData.get("facilitator_id") as string;
+  const facilitator_name = formData.get("facilitator_name") as string;
   const start_time_local = formData.get("start_time") as string; // e.g. "2025-07-09T22:30"
   const end_time_local = formData.get("end_time") as string;
   const time_zone = formData.get("time_zone") as string;
@@ -21,15 +22,21 @@ export async function createSession(
     .toUTC()
     .toISO();
 
-  const { data, error } = await supabase
-    .from("sessions")
-    .insert([{ facilitator_id, start_time, end_time, room_code, time_zone }]);
+  const { data, error } = await supabase.from("sessions").insert([
+    {
+      facilitator_id,
+      facilitator_name,
+      start_time,
+      end_time,
+      room_code,
+      time_zone,
+    },
+  ]);
 
   if (error) {
     console.error("[createSession] Error:", error.message);
     return { error: error.message };
   }
-  console.log("[createSession] Success:", data);
   return { message: "Session created!", data };
 }
 
@@ -37,6 +44,8 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   const supabase = await createClient();
   const session_id = formData.get("session_id") as string;
   const participant_id = formData.get("participant_id") as string;
+  const participant_name = formData.get("participant_name") as string;
+  const facilitator_name = formData.get("facilitator_name") as string;
 
   // Check current bookings
   const { data: participants, error: participantsError } = await supabase
@@ -45,8 +54,6 @@ export async function bookSession(previousState: unknown, formData: FormData) {
     .eq("session_id", session_id);
 
   const count = participants ? participants.length : 0;
-
-  console.log("[bookSession] Booking count:", count);
 
   if (participantsError) {
     console.error("[bookSession] Error:", participantsError?.message);
@@ -59,13 +66,14 @@ export async function bookSession(previousState: unknown, formData: FormData) {
 
   const { data, error } = await supabase
     .from("session_participants")
-    .insert([{ session_id, participant_id }]);
+    .insert([
+      { session_id, participant_id, participant_name, facilitator_name },
+    ]);
 
   if (error) {
     console.error("[bookSession] Error:", error.message);
     return { error: error.message };
   }
-  console.log("[bookSession] Success:", data);
   return { message: "Booking successful!", data };
 }
 
@@ -77,8 +85,6 @@ export async function getFacilitatorSessions(facilitatorId: string) {
       .from("sessions")
       .select("*")
       .eq("facilitator_id", facilitatorId);
-
-    console.log("[getFacilitatorSessions]", data, error);
 
     if (error) {
       console.error("[getFacilitatorSessions] Error:", error);
@@ -198,7 +204,6 @@ export async function cancelBooking(
     .eq("participant_id", participant_id);
 
   if (error) {
-    console.error("[cancelBooking] Error:", error.message);
     return { error: error.message };
   }
   return { message: "Booking cancelled" };
@@ -229,7 +234,6 @@ export async function cancelSession(
   }
 
   if (session.facilitator_id !== facilitator_id) {
-    console.error("[cancelSession] Unauthorized access attempt");
     return { error: "Unauthorized to cancel this session" };
   }
 
@@ -260,7 +264,5 @@ export async function cancelSession(
     );
     return { error: sessionDeleteError.message };
   }
-
-  console.log("[cancelSession] Success: Session and all bookings cancelled");
   return { message: "Session cancelled successfully" };
 }

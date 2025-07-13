@@ -21,7 +21,7 @@ function areStreamsEqual(
   b: Map<string, MediaStreamInfo>
 ): boolean {
   if (a.size !== b.size) return false;
-  
+
   // Simple check - just compare keys and stream IDs
   for (const [key, aInfo] of a.entries()) {
     const bInfo = b.get(key);
@@ -61,70 +61,70 @@ export const useSFUConnection = (
     presentUserIdsRef.current = presentUserIds;
   }, [presentUserIds]);
 
- // Initialize SFU connection
-useEffect(() => {
-  const initializeSFU = async () => {
-    try {
-      const options: ConnectionOptions = {
-        userId,
-        roomId,
-        iceServers, // Use imported config
-      };
+  // Initialize SFU connection
+  useEffect(() => {
+    const initializeSFU = async () => {
+      try {
+        const options: ConnectionOptions = {
+          userId,
+          roomId,
+          iceServers, // Use imported config
+        };
 
-      const sfuService = new SFUService(
-        SFU_CONFIG,
-        {
-          onRemoteTrack: () => {
-            const updatedStreams = sfuService.getRemoteStreams();
-            updatedStreams.forEach((info, sessionId) => {
-              info.userName = userMapRef.current[sessionId];
-            });
-            setRemoteStreams((prev) =>
-              areStreamsEqual(prev, updatedStreams)
-                ? prev
-                : new Map(updatedStreams)
-            );
+        const sfuService = new SFUService(
+          SFU_CONFIG,
+          {
+            onRemoteTrack: () => {
+              const updatedStreams = sfuService.getRemoteStreams();
+              updatedStreams.forEach((info, sessionId) => {
+                info.userName = userMapRef.current[sessionId];
+              });
+              setRemoteStreams((prev) =>
+                areStreamsEqual(prev, updatedStreams)
+                  ? prev
+                  : new Map(updatedStreams)
+              );
+            },
+            onConnectionStateChange: (state) => {
+              setConnectionState(state);
+            },
           },
-          onConnectionStateChange: (state) => {
-            setConnectionState(state);
-          },
-        },
-        options
-      );
+          options
+        );
 
-      sfuServiceRef.current = sfuService;
-      await sfuService.initialize();
+        sfuServiceRef.current = sfuService;
+        await sfuService.initialize();
 
-      // Get local session ID
-      const sessionId = sfuService.getSessionId();
-      setLocalSessionId(sessionId);
+        // Get local session ID
+        const sessionId = sfuService.getSessionId();
+        setLocalSessionId(sessionId);
 
-      // Get local stream - ONLY SET IT ONCE HERE
-      const stream = sfuService.getLocalStream();
-      if (stream) {
-        setLocalStream(stream);
+        // Get local stream - ONLY SET IT ONCE HERE
+        const stream = sfuService.getLocalStream();
+        if (stream) {
+          setLocalStream(stream);
+        }
+
+        setIsInitialized(true);
+      } catch (error) {
+        setConnectionState({
+          isConnected: false,
+          error:
+            error instanceof Error ? error.message : "Failed to initialize SFU",
+          remoteUserCount: 0,
+        });
       }
+    };
 
-      setIsInitialized(true);
-    } catch (error) {
-      setConnectionState({
-        isConnected: false,
-        error:
-          error instanceof Error ? error.message : "Failed to initialize SFU",
-        remoteUserCount: 0,
-      });
-    }
-  };
+    initializeSFU();
 
-  initializeSFU();
-
-  return () => {
-    if (sfuServiceRef.current) {
-      sfuServiceRef.current.destroy();
-      sfuServiceRef.current = null;
-    }
-  };
-}, [userId, roomId]); // Only re-run if userId or roomId changes
+    return () => {
+      if (sfuServiceRef.current) {
+        sfuServiceRef.current.destroy();
+        sfuServiceRef.current = null;
+      }
+    };
+  }, [userId, roomId]); // Only re-run if userId or roomId changes
 
   // Update remote streams periodically
   useEffect(() => {
@@ -141,13 +141,13 @@ useEffect(() => {
         );
       }
     };
-  
-  // Only start polling after initialization
-  if (isInitialized) {
-    const interval = setInterval(updateRemoteStreams, 4000); // Keep your 4 second interval
-    return () => clearInterval(interval);
-  }
-}, [isInitialized]); // Only depend on isInitialized
+
+    // Only start polling after initialization
+    if (isInitialized) {
+      const interval = setInterval(updateRemoteStreams, 4000); // Keep your 4 second interval
+      return () => clearInterval(interval);
+    }
+  }, [isInitialized]); // Only depend on isInitialized
 
   // Filter out our own stream from remote streams
   const filteredRemoteStreams = new Map(remoteStreams);

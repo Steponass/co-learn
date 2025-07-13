@@ -1,14 +1,17 @@
 .booking_list {
-  padding-block: var(--space-4-8px);
-  padding-inline: var(--space-8-12px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4-8px);
+  padding: var(--space-4-8px) var(--space-8-12px);
   background-color: var(--clr-bg-overlay);
   border-radius: var(--border-radius-8px);
-  /* max-width: 56%; */
   width: max-content;
+  max-width: 100%;
 }
 
 .list_heading {
-  margin-bottom: var(--space-4-8px);
+  margin: 0 0 var(--space-4-8px) 0;
+  flex-shrink: 0;
 }
 
 .booking_item {
@@ -17,11 +20,23 @@
   align-items: center;
   gap: var(--space-16-24px);
   width: 100%;
-
+  min-width: 0;
+  /* Prevents flex item from overflowing */
 }
 
 .booking_item_details {
+  flex: 1;
   min-width: 270px;
+  min-width: 0;
+  /* Allows text wrapping */
+}
+
+.booking_item_details p {
+  margin: 0 0 var(--space-2-4px) 0;
+}
+
+.booking_item_details p:last-child {
+  margin-bottom: 0;
 }
 
 /* !Specific media query widths are TBD when
@@ -33,10 +48,21 @@ fluid typescale is implemented!  */
     align-items: flex-start;
     margin-bottom: var(--space-8px);
   }
+
+  .booking_item_details {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+.facilitator {
+  display: flex;
+  flex-direction: column;
 }
 
 .book_session_form {
- min-width: 296px;
+  flex-shrink: 0;
+  min-width: 296px;
 }
 
 .book_session_and_msg {
@@ -55,17 +81,10 @@ fluid typescale is implemented!  */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-8px);
 }
 
-.datetime_picker {
-  padding: var(--space-8px);
-  border-radius: var(--border-radius-8px);
-  border: 1px solid var(--clr-stroke-strong);
-  background: var(--clr-bg-base);
-  color: var(--clr-txt-strong);
-  max-width: 200px;
-}
-
+.datetime_picker,
 .dropdown {
   padding: var(--space-8px);
   border-radius: var(--border-radius-8px);
@@ -73,4 +92,49 @@ fluid typescale is implemented!  */
   background: var(--clr-bg-base);
   color: var(--clr-txt-strong);
   max-width: 200px;
+  flex: 1;
+}
+
+.booking_row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+}
+
+.session_time {
+  font-size: 1rem;
+  min-width: 160px;
+}
+
+.facilitator {
+  font-size: 1rem;
+  min-width: 120px;
+}
+
+.session_actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.session_actions button,
+.book_session_and_msg button {
+  min-width: 120px;
+  height: 44px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 32rem) {
+  .booking_row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .session_actions {
+    justify-content: flex-start;
+  }
 }
