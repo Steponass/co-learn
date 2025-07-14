@@ -6,9 +6,9 @@
 --clr-txt-weak:     oklch(0.3257 0.0075 84.59);
 --clr-stroke-strong:oklch(0.8239 0.0271 90.13);
 --clr-stroke-weak:  oklch(0.9411 0.0035 67.78);
---clr-bg-base:      oklch(0.9761 0      0);
---clr-bg-raised:    oklch(0.9848 0.0013 106.42);
---clr-bg-overlay:   oklch(0.9769 0.0011 17.18);
+--clr-bg-base:      oklch(0.9702 0      0);
+--clr-bg-raised:    oklch(0.9769 0.0011 17.18);
+--clr-bg-overlay:   oklch(0.9851 0      0);
 --clr-disabled:     oklch(0.8637 0.0042 91.45);
 --clr-success:      oklch(0.451  0.0912 163.34);
 --clr-error:        oklch(0.4472 0.1612 29.84);
@@ -25,9 +25,9 @@
 --clr-txt-weak:     oklch(0.8883 0.0042 91.45);
 --clr-stroke-strong:oklch(0.5502 0.0314 88.81);
 --clr-stroke-weak:  oklch(0.3765 0.0208 88.08);
---clr-bg-base:      oklch(0.1684 0      0);
---clr-bg-raised:    oklch(0.2174 0.0019 106.56);
---clr-bg-overlay:   oklch(0.2599 0.0018 106.53);
+--clr-bg-base:      oklch(0.2054 0.0025 67.69);
+--clr-bg-raised:    oklch(0.2512 0.0037 106.66);
+--clr-bg-overlay:   oklch(0.3018 0.0023 67.74);
 --clr-disabled:     oklch(0.4435 0.0089 80.7);
 --clr-success:      oklch(0.7784 0.1766 159.68);
 --clr-error:        oklch(0.72   0.1721 27.17);
