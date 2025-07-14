@@ -43,14 +43,18 @@ button {
   box-shadow: var(--shadow-elevation-1);
   border-radius: var(--border-radius-4px);
 
-  @media (hover: hover) { &:hover {
+  @media (hover: hover) {
+    &:hover {
       cursor: pointer;
       filter: drop-shadow(var(--drop-shadow-1));
       transform: translateY(-0.75px);
-  }}
+    }
+  }
+
   &&:active {
     transform: translateY(0.75px);
   }
+
   &&:disabled {
     background-color: var(--clr-disabled);
     color: var(--clr-txt-weak);
@@ -76,7 +80,7 @@ button {
   }
 }
 
-label > input[type="radio"] {
+label>input[type="radio"] {
   margin-right: 0.5em;
 }
 
@@ -143,8 +147,20 @@ span {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  }
-  .stack > * + * {
+}
+
+.stack>*+* {
   margin-block-start: var(--space-12-16px);
-  }
-  
+}
+
+.livekit_room_container {
+  /* width: 100%; */
+  margin-inline: auto;
+  padding-inline: var(--space-12-16px);
+  /* background-color: red; */
+}
+
+.toggle_self_view_button {
+  color: var(--clr-txt-weak);
+  background-color: var(--clr-bg-overlay);
+}

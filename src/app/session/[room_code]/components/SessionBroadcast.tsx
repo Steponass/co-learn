@@ -70,29 +70,30 @@ export default function SessionBroadcast({
         <div className={classes.video_container}>
           <LiveKitRoom roomName={roomCode} userName={userName} />
         </div>
-          <div className={classes.chat_container}>
-            <div className={classes.session_participants_list}>
-              <h3>Present in Room</h3>
-              <ul>
-                {Array.from(
-                  new Map(onlineUsers.map((u) => [u.userId, u])).values()
-                ).map((u) => (
-                  <li key={u.userId}>
-                    {u.userName} {u.userId === userId ? "(You)" : null}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Chat
-              channel={channel}
-              userId={userId}
-              userName={userName}
-              subscribed={subscribed}
-              roomCode={roomCode}
-              userMap={userMap}
-              presentUserIds={presentUserIds}
-            />
+
+        <div className={classes.chat_container}>
+          <div className={classes.session_participants_list}>
+            <h3>Present in Room</h3>
+            <ul>
+              {Array.from(
+                new Map(onlineUsers.map((u) => [u.userId, u])).values()
+              ).map((u) => (
+                <li key={u.userId}>
+                  {u.userName} {u.userId === userId ? "(You)" : null}
+                </li>
+              ))}
+            </ul>
           </div>
+          <Chat
+            channel={channel}
+            userId={userId}
+            userName={userName}
+            subscribed={subscribed}
+            roomCode={roomCode}
+            userMap={userMap}
+            presentUserIds={presentUserIds}
+          />
+        </div>
       </div>
     </div>
   );
