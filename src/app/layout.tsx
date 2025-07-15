@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Signika } from 'next/font/google';
 import "./styles/css-reset.css";
 import "./styles/variables.css";
 import "./styles/fonts.css"
@@ -12,13 +13,21 @@ export const metadata: Metadata = {
   description: "Is good, I like much.",
 };
 
+const signika = Signika({
+  subsets: ['latin', 'latin-ext'], 
+  weight: 'variable',
+  variable: '--font-signika',
+  display: 'swap',
+});
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={signika.variable}>
       <body>
         <ThemeProvider>
           <Header />
