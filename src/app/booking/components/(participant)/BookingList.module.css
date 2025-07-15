@@ -138,3 +138,144 @@ fluid typescale is implemented!  */
     justify-content: flex-start;
   }
 }
+
+.session_title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--clr-txt-strong);
+  font-size: 1.1em;
+}
+
+.session_time {
+  margin-bottom: 8px;
+}
+
+.timezone {
+  color: var(--clr-txt-weak);
+  font-size: 0.9em;
+}
+
+.session_description {
+  font-size: 0.9em;
+  color: var(--clr-txt-weak);
+  margin-bottom: 8px;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+.participant_info {
+  margin-bottom: 8px;
+}
+
+.participant_count {
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.full_badge {
+  background-color: var(--clr-error);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.recurring_badge {
+  background-color: var(--clr-brand);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+.participant_list {
+  margin-top: 8px;
+  padding-left: 16px;
+  list-style-type: disc;
+}
+
+.participant_item {
+  margin-bottom: 2px;
+  color: var(--clr-txt-strong);
+}
+
+.participant_item span {
+  color: var(--clr-txt-strong);
+  font-style: normal;
+}
+
+.recurring_section {
+  padding: var(--space-12-16px);
+  background-color: var(--clr-bg-base);
+  border-radius: var(--border-radius-8px);
+  border: 1px solid var(--clr-stroke-weak);
+}
+
+.recurring_checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8px);
+  font-weight: 500;
+  margin-bottom: var(--space-8px);
+}
+
+.recurring_checkbox input[type="checkbox"] {
+  margin: 0;
+}
+
+.recurring_options {
+  margin-top: var(--space-12px);
+  padding-top: var(--space-12px);
+  border-top: 1px solid var(--clr-stroke-weak);
+}
+
+.days_selection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8px);
+}
+
+.weekday_buttons {
+  display: flex;
+  gap: var(--space-4px);
+  flex-wrap: wrap;
+}
+
+.weekday_label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4px);
+  padding: var(--space-4px) var(--space-8px);
+  background-color: var(--clr-bg-overlay);
+  border: 1px solid var(--clr-stroke-strong);
+  border-radius: var(--border-radius-4px);
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.weekday_label:hover {
+  background-color: var(--clr-brand-opacity-25);
+}
+
+.weekday_label input[type="checkbox"] {
+  margin: 0;
+}
+
+.weekday_label input[type="checkbox"]:checked+span,
+.weekday_label:has(input[type="checkbox"]:checked) {
+  background-color: var(--clr-brand);
+  color: white;
+}
+
+/* Textarea styling */
+textarea.datetime_picker {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}

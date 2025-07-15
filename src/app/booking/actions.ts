@@ -2,6 +2,13 @@
 import { createClient } from "@/utils/supabase/server";
 import { DateTime } from "luxon";
 
+import {
+  mapRawSessionWithParticipants,
+  mapRawSessionToSession,
+  type RawSessionData,
+  type RawSessionWithParticipantsData,
+} from "./types/sessions";
+
 export async function createSession(
   previousState: unknown,
   formData: FormData
@@ -9,32 +16,70 @@ export async function createSession(
   const supabase = await createClient();
   const facilitator_id = formData.get("facilitator_id") as string;
   const facilitator_name = formData.get("facilitator_name") as string;
-  const start_time_local = formData.get("start_time") as string; // e.g. "2025-07-09T22:30"
+  // Fix: Better handling of optional fields
+  const titleRaw = formData.get("title") as string;
+  const descriptionRaw = formData.get("description") as string;
+  const title = titleRaw && titleRaw.trim() ? titleRaw.trim() : null;
+  const description =
+    descriptionRaw && descriptionRaw.trim() ? descriptionRaw.trim() : null;
+  const start_time_local = formData.get("start_time") as string;
   const end_time_local = formData.get("end_time") as string;
   const time_zone = formData.get("time_zone") as string;
+  const max_participants =
+    parseInt(formData.get("max_participants") as string) || 6;
+  // Enhanced recurring session handling
+  const is_recurring = formData.get("is_recurring") === "true";
+  let recurrence_pattern = null;
+  if (is_recurring) {
+    const frequency = formData.get("frequency") as string;
+    const daysOfWeekRaw = formData.getAll("daysOfWeek");
+    const endDate = formData.get("endDate") as string;
+    const maxOccurrences = formData.get("maxOccurrences") as string;
+    if (frequency && daysOfWeekRaw.length > 0) {
+      recurrence_pattern = {
+        frequency,
+        daysOfWeek: daysOfWeekRaw.map((day) => parseInt(day as string)),
+        ...(endDate && { endDate }),
+        ...(maxOccurrences && { maxOccurrences: parseInt(maxOccurrences) }),
+      };
+    }
+  }
   const room_code = crypto.randomUUID();
-
-  // Convert local datetime + time zone to UTC ISO string
+  // Convert to UTC
   const start_time = DateTime.fromISO(start_time_local, { zone: time_zone })
     .toUTC()
     .toISO();
   const end_time = DateTime.fromISO(end_time_local, { zone: time_zone })
     .toUTC()
     .toISO();
-
+  console.log("[createSession] Inserting data:", {
+    facilitator_id,
+    facilitator_name,
+    title,
+    description,
+    max_participants,
+    is_recurring,
+    recurrence_pattern,
+  });
   const { data, error } = await supabase.from("sessions").insert([
     {
       facilitator_id,
       facilitator_name,
+      title,
+      description,
       start_time,
       end_time,
       room_code,
       time_zone,
+      max_participants,
+      is_recurring: is_recurring || false,
+      recurrence_pattern,
+      parent_session_id: null,
     },
   ]);
-
   if (error) {
     console.error("[createSession] Error:", error.message);
+    console.error("[createSession] Error details:", error);
     return { error: error.message };
   }
   return { message: "Session created!", data };
@@ -102,11 +147,28 @@ export async function getFacilitatorSessions(facilitatorId: string) {
 export async function getFacilitatorSessionParticipants(facilitatorId: string) {
   try {
     const supabase = await createClient();
-
-    // First get all sessions for this facilitator
+    // Get all sessions for this facilitator with ALL fields
     const { data: sessions, error: sessionsError } = await supabase
       .from("sessions")
-      .select("*")
+      .select(
+        `
+      id,
+      facilitator_id,
+      facilitator_name,
+      start_time,
+      end_time,
+      time_zone,
+      room_code,
+      created_at,
+      updated_at,
+      title,
+      description,
+      is_recurring,
+      recurrence_pattern,
+      parent_session_id,
+      max_participants
+    `
+      )
       .eq("facilitator_id", facilitatorId);
 
     if (sessionsError) {
@@ -121,22 +183,22 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
       return { data: [], error: null };
     }
 
-    // For each session, get the participants with their user info
-    const sessionsWithParticipants = [];
+    // For each session, get participants and combine with FULL session data
+    const sessionsWithParticipants: RawSessionWithParticipantsData[] = [];
 
-    for (const session of sessions) {
+    for (const session of sessions as RawSessionData[]) {
       const { data: participants, error: participantsError } = await supabase
         .from("session_participants")
         .select(
           `
-          participant_id,
-          user_info (
-            user_id,
-            email,
-            name,
-            role
-          )
-        `
+        participant_id,
+        user_info (
+          user_id,
+          email,
+          name,
+          role
+        )
+      `
         )
         .eq("session_id", session.id);
 
@@ -148,23 +210,35 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
         continue;
       }
 
+      // Include ALL session data, not just partial
       sessionsWithParticipants.push({
-        id: session.id,
-        start_time: session.start_time,
-        end_time: session.end_time,
-        room_code: session.room_code,
-        time_zone: session.time_zone,
-        session_participants: participants || [],
+        ...session, // This includes title, description, etc.
+        session_participants: (participants || []).map(
+          (p: {
+            participant_id: string;
+            user_info: {
+              user_id?: string;
+              email?: string;
+              name?: string;
+              role?: string;
+            }[];
+          }) => ({
+            participant_id: p.participant_id,
+            user_info: Array.isArray(p.user_info)
+              ? p.user_info[0]
+              : p.user_info,
+          })
+        ),
       });
     }
 
-    // Filter out sessions with no participants
+    // Filter sessions with participants and map properly
     const filteredSessions = sessionsWithParticipants.filter(
       (s) => s.session_participants && s.session_participants.length > 0
     );
 
-    console.log("[getFacilitatorSessionParticipants]", filteredSessions);
-    return { data: filteredSessions, error: null };
+    const mappedSessions = filteredSessions.map(mapRawSessionWithParticipants);
+    return { data: mappedSessions, error: null };
   } catch (err) {
     console.error("[getFacilitatorSessionParticipants] Exception:", err);
     return { data: null, error: "Failed to fetch sessions with participants" };
@@ -177,17 +251,55 @@ export async function getParticipantSessions(participantId: string) {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("session_participants")
-      .select("session_id, sessions(*)")
+      .select(
+        `
+        session_id,
+        sessions (
+          id,
+          facilitator_id,
+          facilitator_name,
+          start_time,
+          end_time,
+          time_zone,
+          room_code,
+          created_at,
+          updated_at,
+          title,
+          description,
+          is_recurring,
+          recurrence_pattern,
+          parent_session_id,
+          max_participants
+        )
+      `
+      )
       .eq("participant_id", participantId);
-
-    console.log("[getParticipantSessions]", data, error);
     if (error) {
-      return { data: [], error: null };
+      console.error("[getParticipantSessions] Error:", error);
+      return { data: [], error: error.message };
     }
-    return { data: data || [], error: null };
+
+    // Map the nested sessions data with proper typing
+    const participantSessions = (data || []).map(
+      (item: {
+        session_id: string;
+        sessions: RawSessionData | RawSessionData[];
+      }) => {
+        // Handle if sessions is an array (should only take the first)
+        const sessionObj = Array.isArray(item.sessions)
+          ? item.sessions[0]
+          : item.sessions;
+        return {
+          session_id: item.session_id,
+          sessions: mapRawSessionToSession(sessionObj),
+        };
+      }
+    );
+
+    return { data: participantSessions, error: null };
   } catch (err) {
     console.error("[getParticipantSessions] Exception:", err);
-    return { data: [], error: null };
+    return { data: [], error: "Failed to fetch participant sessions" };
   }
 }
 

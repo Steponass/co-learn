@@ -1,11 +1,15 @@
 "use client";
-
 import { useCallback, useEffect, useState } from "react";
 import AvailableSessionsList from "./AvailableSessionsList";
 import ParticipantSessionList from "./ParticipantSessionList";
 import { getParticipantSessions } from "../../actions";
 import { createClient } from "@/utils/supabase/client";
-import type { Session, ParticipantSession } from "../../types/sessions";
+import {
+  mapRawSessionToSession,
+  type Session,
+  type ParticipantSession,
+  type RawSessionData,
+} from "../../types/sessions";
 import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 
 export default function ParentBookingLists({
@@ -24,7 +28,9 @@ export default function ParentBookingLists({
     const supabase = createClient();
     supabase
       .from("sessions")
-      .select("*")
+      .select(
+        `id, facilitator_id, facilitator_name, start_time, end_time, time_zone, room_code, created_at, updated_at, title, description, is_recurring, recurrence_pattern, parent_session_id, max_participants`
+      )
       .then(async ({ data: allSessions, error }) => {
         if (error) {
           console.error("[AvailableSessionsList] Error:", error.message);
@@ -35,26 +41,36 @@ export default function ParentBookingLists({
           .from("session_participants")
           .select("session_id")
           .eq("participant_id", participantId);
+
         const bookedSessionIds = myBookings?.map((b) => b.session_id) ?? [];
-        // For each session, count participants
+
+        // For each session, count participants and check availability
         const available: Session[] = [];
-        for (const session of (allSessions ?? []) as Session[]) {
+
+        for (const sessionRaw of (allSessions ?? []) as RawSessionData[]) {
           const { data: participants, error: partError } = await supabase
             .from("session_participants")
             .select("*")
-            .eq("session_id", session.id);
+            .eq("session_id", sessionRaw.id);
+
           if (partError) {
             continue;
           }
-          const count = participants ? participants.length : 0;
-          const isBooked = bookedSessionIds.includes(session.id);
 
-          // Session Available only if under 6 people have already booked it
-          const isFull = count >= 6;
+          const count = participants ? participants.length : 0;
+          const isBooked = bookedSessionIds.includes(sessionRaw.id);
+
+          // Use the session's actual max_participants instead of hardcoded 6
+          const maxParticipants = sessionRaw.max_participants || 6;
+          const isFull = count >= maxParticipants;
+
           if (!isBooked && !isFull) {
-            available.push(session);
+            // Map the raw session data to proper Session object
+            const mappedSession = mapRawSessionToSession(sessionRaw);
+            available.push(mappedSession);
           }
         }
+
         setAvailableSessions(available);
       });
   }, [participantId]);
@@ -66,26 +82,10 @@ export default function ParentBookingLists({
     }
     getParticipantSessions(participantId).then((res) => {
       if (res && res.data) {
-        const typedSessions: ParticipantSession[] = res.data.map(
-          (row: unknown) => {
-            const r = row as Partial<ParticipantSession>;
-            return {
-              session_id: r.session_id ?? "",
-              sessions: {
-                start_time: r.sessions?.start_time ?? "",
-                end_time: r.sessions?.end_time ?? "",
-                room_code: r.sessions?.room_code ?? "",
-                time_zone: r.sessions?.time_zone ?? "UTC",
-                facilitator_name: r.sessions?.facilitator_name ?? "",
-              },
-            };
-          }
-        );
-        setParticipantSessions(typedSessions);
+        setParticipantSessions(res.data);
       } else if (res && res.error) {
         console.error(res.error);
       } else {
-        // Defensive: handle completely unexpected response
         setParticipantSessions([]);
         console.error("Unexpected response from getParticipantSessions:", res);
       }
@@ -115,7 +115,10 @@ export default function ParentBookingLists({
   }
 
   // When a booking or cancellation occurs, refresh both lists
-  const handleBookedOrCancelled = () => {};
+  const handleBookedOrCancelled = () => {
+    fetchAvailableSessions();
+    fetchParticipantSessions();
+  };
 
   return (
     <>

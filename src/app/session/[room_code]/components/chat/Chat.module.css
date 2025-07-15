@@ -10,6 +10,13 @@
   white-space: pre-wrap;
   scrollbar-color: var(--clr-stroke-strong) var(--clr-stroke-weak);
 }
+.chat_msg {
+  margin-bottom: var(--space-4-8px);
+}
+
+.chat_msg_username {
+  color: var(--clr-txt-weak);
+}
 
 .chat_msg_timestamp {
   font-size: 10px;
@@ -26,4 +33,10 @@
   border: 1px solid var(--clr-stroke-strong);
   padding: var(--space-4-8px);
   width: 100%;
+}
+
+.chat_history_msg {
+  text-align: center;
+  padding: var(--space-4-8px);
+  color: var(--clr-txt-weak);
 }

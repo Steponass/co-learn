@@ -1,8 +1,8 @@
 .session_container {
-  padding-block: var(--space-16-24px);
+  padding-block: var(--space-12-16px);
   width: 100%;
   height: 100%;
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 
 .video_and_chat_container {
@@ -26,6 +26,98 @@
   flex-direction: column;
 }
 
+.chat_wrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+.chat_toggle_input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chat_container {
+  position: relative;
+  padding-inline: var(--space-8-12px);
+  padding-block: var(--space-16-24px);
+  border-radius: var(--border-radius-8px);
+  box-shadow: var(--shadow-elevation-2);
+  background-color: var(--clr-bg-raised);
+  min-width: 320px;
+  max-width: 400px;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0);
+}
+
+/* Toggle button */
+.chat_toggle_button {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-16-24px);
+  height: var(--space-24-32px);
+  padding: var(--space-4px);
+  background-color: var(--clr-bg-overlay);
+  border-radius: var(--border-radius-4px) 0 0 var(--border-radius-4px);
+  box-shadow: var(--shadow-elevation-1);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin-top: var(--space-16-24px);
+}
+
+.chat_toggle_button:hover {
+  background-color: var(--clr-bg-overlay);
+  transform: translateX(-1px);
+}
+
+/* Arrow icons */
+.arrow_right,
+.arrow_left {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-txt-strong);
+  transition: opacity 0.3s ease-in-out;
+}
+
+.arrow_right {
+  opacity: 1;
+}
+
+.arrow_left {
+  opacity: 0;
+}
+
+.chat_toggle_input:not(:checked) ~ .chat_container {
+  transform: translateX(108%);
+}
+
+.chat_toggle_input:not(:checked) ~ .chat_toggle_button {
+  border-radius: var(--border-radius-8px);
+  transform: translateX(5px);
+}
+
+.chat_toggle_input:not(:checked) ~ .chat_toggle_button .arrow_right {
+  opacity: 0;
+}
+
+.chat_toggle_input:not(:checked) ~ .chat_toggle_button .arrow_left {
+  opacity: 1;
+}
+
+
+
+.session_participants_list ul {
+  color: var(--clr-txt-weak);
+  padding-bottom: var(--space-12-16px);
+}
+
+
 .video_container {
   /* flex: 1 1 0; */
   min-width: 0;
@@ -36,11 +128,7 @@
   margin-inline: auto;
 }
 
-/* Override LiveKit video container to fill parent */
-
-
-/* Responsive: stack vertically on small screens */
-@media (max-width: 800px) {
+@media (max-width: 480px) {
   .video_and_chat_container {
     flex-direction: column;
     height: auto;

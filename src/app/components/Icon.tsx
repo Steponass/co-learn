@@ -177,29 +177,18 @@ export const FullScreenOffIcon: React.FC<Omit<IconProps, "children">> = (
   </Icon>
 );
 
-export const BackgroundBlurOnIcon: React.FC<Omit<IconProps, "children">> = (
+export const ChevronRightIcon: React.FC<Omit<IconProps, "children">> = (
   props
 ) => (
   <Icon {...props}>
-    <ellipse cx="12" cy="15.6" rx="4.8" ry="3.6" />
-    <circle cx="12" cy="10.6" r="2.4" />
-    <circle cx="8" cy="8" r="1.2" />
-    <circle cx="18" cy="9" r="1.44" />
-    <circle cx="9.6" cy="19.6" r="0.96" />
-    <circle cx="17.2" cy="19.6" r="0.84" />
+    <path d="M9 18l6-6-6-6"/>
   </Icon>
 );
 
-export const BackgroundBlurOffIcon: React.FC<Omit<IconProps, "children">> = (
+export const ChevronLeftIcon: React.FC<Omit<IconProps, "children">> = (
   props
 ) => (
   <Icon {...props}>
-    <ellipse cx="12" cy="15.6" rx="4.8" ry="3.6" />
-    <circle cx="12" cy="10.6" r="2.4" />
-    <circle cx="8" cy="8" r="1.2" />
-    <circle cx="18" cy="9" r="1.44" />
-    <circle cx="9.6" cy="19.6" r="0.96" />
-    <circle cx="17.2" cy="19.6" r="0.84" />
-    <line x1="4" y1="4" x2="20" y2="20" />
+    <path d="M15 18l-6-6 6-6"/>
   </Icon>
 );
