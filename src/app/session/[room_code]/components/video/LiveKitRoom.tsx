@@ -5,6 +5,7 @@ import {
 } from "@livekit/components-react";
 import '@livekit/components-styles';
 import { BackgroundBlur } from '@livekit/track-processors';
+import "../../../../styles/livekit-overrides.css"
 
 interface LiveKitRoomWrapperProps {
   roomName: string;

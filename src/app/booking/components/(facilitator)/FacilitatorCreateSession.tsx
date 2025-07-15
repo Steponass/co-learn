@@ -109,14 +109,14 @@ action={formAction}
       <select 
         name="max_participants" 
         className={classes.dropdown} 
-        defaultValue="6"
+        defaultValue="1"
       >
-        <option value="4">4</option>
-        <option value="6">6</option>
-        <option value="8">8</option>
+        <option value="4">1</option>
+        <option value="6">4</option>
+        <option value="8">6</option>
         <option value="10">10</option>
-        <option value="12">12</option>
-        <option value="15">15</option>
+        <option value="12">20</option>
+        <option value="15">30</option>
       </select>
     </div>
 
