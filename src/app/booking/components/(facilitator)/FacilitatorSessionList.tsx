@@ -91,7 +91,7 @@ export default function FacilitatorSessionList({
                 endTime={""}
                 timeZone={session.time_zone}
                 description={session.description}
-                recurringText={recurringText}
+                recurringText={recurringText ?? undefined}
                 isRecurring={isRecurringSession(session)}
                 maxParticipants={session.max_participants}
                 actions={
