@@ -5,7 +5,7 @@ import HeaderClient from "./HeaderClient";
 import SignOutButton from "./SignOutButton";
 
 
-export default async function Header({ isRoomPage }: HeaderProps) {
+export default async function Header() {
   const supabase = await createClient();
   const {
     data: { user },
