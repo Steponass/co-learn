@@ -10,6 +10,7 @@ import LiveKitRoom from "./video/LiveKitRoom";
 import SessionParticipantsList from "./SessionParticipantsList";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@/app/components/Icon";
+import Dictionary from "./dictionary/Dictionary";
 
 interface Props {
   roomCode: string;
@@ -62,7 +63,7 @@ export default function SessionBroadcast({
   }, [roomCode, userId, userName]);
 
   return (
-    <div>
+    <div  className={classes.session_container}>
       <div className={classes.video_and_chat_container}>
         <div className={classes.video_container}>
           <LiveKitRoom roomName={roomCode} userName={userName} />
@@ -105,6 +106,7 @@ export default function SessionBroadcast({
       </label>
     </div>
       </div>
+      <Dictionary />
     </div>
   );
 }
