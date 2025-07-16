@@ -198,7 +198,7 @@ export default function Chat({
 
   return (
     <div className="stack">
-      <h3>Chat</h3>
+      <h5>Chat</h5>
       <div
         className={classes.chat_window}
         ref={chatWindowRef}

@@ -80,16 +80,24 @@ export default function ParentBookingLists({
       setParticipantSessions([]);
       return;
     }
-    getParticipantSessions(participantId).then((res) => {
-      if (res && res.data) {
-        setParticipantSessions(res.data);
-      } else if (res && res.error) {
-        console.error(res.error);
-      } else {
+    getParticipantSessions(participantId)
+      .then((res) => {
+        if (res && res.data) {
+          setParticipantSessions(res.data);
+        } else if (res && res.error) {
+          console.error(res.error);
+        } else {
+          setParticipantSessions([]);
+          console.error(
+            "Unexpected response from getParticipantSessions:",
+            res
+          );
+        }
+      })
+      .catch((err) => {
         setParticipantSessions([]);
-        console.error("Unexpected response from getParticipantSessions:", res);
-      }
-    });
+        console.error("getParticipantSessions threw an error:", err);
+      });
   }, [participantId]);
 
   useEffect(() => {

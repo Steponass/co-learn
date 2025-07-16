@@ -1,8 +1,52 @@
-:where(h1, h2, h3, h4, h5) {
+/* Fluid typescale: https://utopia.fyi/type/calculator/?c=360,15,1.25,1440,18,1.25,6,1,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
+
+:root {
+  /* 12px → 14.4px */
+  --fontsize-s: clamp(0.75rem, 0.7rem + 0.2222vw, 0.9rem);
+  /* 15px → 18px */
+  --fontsize-p: clamp(0.9375rem, 0.875rem + 0.2778vw, 1.125rem);
+  /* 18.75px → 22.5px */
+  --fontsize-h6: clamp(1.1719rem, 1.0938rem + 0.3472vw, 1.4063rem);
+  /* 23.4375px → 28.125px */
+  --fontsize-h5: clamp(1.4648rem, 1.3672rem + 0.434vw, 1.7578rem);
+  /* 29.2969px → 35.1563px */
+  --fontsize-h4: clamp(1.8311rem, 1.709rem + 0.5425vw, 2.1973rem);
+  /* 36.6211px → 43.9453px */
+  --fontsize-h3: clamp(2.2888rem, 2.1362rem + 0.6782vw, 2.7466rem);
+  /* 45.7764px → 54.9316px */
+  --fontsize-h2: clamp(2.861rem, 2.6703rem + 0.8477vw, 3.4332rem);
+  /* 57.2205px → 68.6646px */
+  --fontsize-h1: clamp(3.5763rem, 3.3379rem + 1.0596vw, 4.2915rem);
+}
+
+* {
+  font-family: var(--font-signika), Arial, sans-serif;
+}
+
+:where(p, ul, ol, li, a, button, label, input, textarea) {
+  font-size: var(--fontsize-p);
+  font-weight: 400;
+  color: var(--clr-text);
+}
+
+:where(h1) {font-size: var(--fontsize-h1)}
+:where(h2) {font-size: var(--fontsize-h2)}
+:where(h3) {font-size: var(--fontsize-h3)}
+:where(h4) {font-size: var(--fontsize-h4)}
+:where(h5) {font-size: var(--fontsize-h5)}
+:where(h6) {font-size: var(--fontsize-h6)}
+
+
+:where(h1, h2, h3, h4, h5, h6) {
   font-family: var(--font-signika), Arial, Helvetica, sans-serif;
   line-height: 1.2;
 }
 
 :where(p) {
   line-height: 1.5;
+}
+
+.logotype {
+  font-weight: 555;
+  letter-spacing: -1.5px;
 }

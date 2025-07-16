@@ -9,8 +9,6 @@ body {
 }
 
 * {
-  font-family: var(--font-signika), Arial, Helvetica, sans-serif;
-
   transition-property: background-color, color, border-color, fill, stroke, box-shadow, -webkit-box-shadow, -webkit-text-fill-color;
   transition-duration: 300ms;
   transition-timing-function: ease-in-out;

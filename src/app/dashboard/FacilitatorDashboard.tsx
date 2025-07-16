@@ -10,7 +10,7 @@ type Props = { userEmail: string; name: string; facilitatorId: string };
 export default function FacilitatorDashboard({ name, facilitatorId }: Props) {
   return (
     <div className={classes.dashboard + " stack"}>
-      <div className={classes.dashboard_title}>
+      <div className={classes.dashboard_header}>
         <h1>Facilitator Dashboard</h1>
         <h2 className={classes.welcome_name}>Hey, {name}!</h2>
       </div>

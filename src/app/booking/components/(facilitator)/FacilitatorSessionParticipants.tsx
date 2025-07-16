@@ -11,6 +11,12 @@ import type {
 } from "../../types/sessions";
 import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 import classes from "../(participant)/BookingList.module.css";
+import SessionRow from "../SessionRow";
+import {
+  getRecurringDisplayText,
+  isRecurringSession,
+} from "../../utils/sessionHelpers";
+
 export default function FacilitatorSessionParticipants({
   facilitatorId,
 }: {
@@ -115,39 +121,16 @@ export default function FacilitatorSessionParticipants({
       fetchSessions();
     }
   };
-  const renderSessionHeader = (session: SessionWithParticipants) => {
-    return (
-      <>
-        {session.title && (
-          <h4 className={classes.session_title}>{session.title}</h4>
-        )}
-        <div className={classes.session_time}>
-          {formatSessionTimeWithZone(
-            session.start_time,
-            session.end_time,
-            session.time_zone,
-            true // include weekday
-          )}
-          <span className={classes.timezone}> ({session.time_zone})</span>
-        </div>
-
-        {session.description && (
-          <p className={classes.session_description}>{session.description}</p>
-        )}
-      </>
-    );
-  };
   const renderParticipantInfo = (session: SessionWithParticipants) => {
     const participantCount = session.session_participants.length;
     const maxParticipants = session.max_participants;
     const isFull = participantCount >= maxParticipants;
     return (
-      <div className={classes.participant_info}>
+      <>
         <span className={classes.participant_count}>
           Participants: {participantCount}/{maxParticipants}
           {isFull && <span className={classes.full_badge}>(Full)</span>}
         </span>
-
         {participantCount > 0 && (
           <ul className={classes.participant_list}>
             {session.session_participants.map((sp) => (
@@ -159,13 +142,13 @@ export default function FacilitatorSessionParticipants({
             ))}
           </ul>
         )}
-      </div>
+      </>
     );
   };
   const renderSessionActions = (session: SessionWithParticipants) => {
     const sessionCancelState = cancelState[session.id];
     return (
-      <div className={classes.start_or_cancel_session_container}>
+      <div>
         <button
           className="primary_button"
           onClick={() => {
@@ -177,7 +160,6 @@ export default function FacilitatorSessionParticipants({
         >
           Start Session
         </button>
-
         <button
           className="secondary_button"
           onClick={() => handleCancelSession(session.id)}
@@ -185,13 +167,11 @@ export default function FacilitatorSessionParticipants({
         >
           {sessionCancelState?.isPending ? "Cancelling..." : "Cancel Session"}
         </button>
-
         {sessionCancelState?.error && (
           <div className="error_msg">
             <p>{sessionCancelState.error}</p>
           </div>
         )}
-
         {sessionCancelState?.message && (
           <div className="success_msg">
             <p>{sessionCancelState.message}</p>
@@ -208,14 +188,25 @@ export default function FacilitatorSessionParticipants({
       ) : (
         <ul className="stack">
           {sessions.map((session) => (
-            <li className={classes.booking_item} key={session.id}>
-              <div className={classes.booking_item_details}>
-                {renderSessionHeader(session)}
-                {renderParticipantInfo(session)}
-              </div>
-
-              {renderSessionActions(session)}
-            </li>
+            <SessionRow
+              key={session.id}
+              rowKey={session.id}
+              title={session.title}
+              startTime={formatSessionTimeWithZone(
+                session.start_time,
+                session.end_time,
+                session.time_zone,
+                true
+              )}
+              endTime={""}
+              timeZone={session.time_zone}
+              description={session.description}
+              recurringText={getRecurringDisplayText(session) || ""}
+              isRecurring={isRecurringSession(session)}
+              maxParticipants={session.max_participants}
+              participantInfo={renderParticipantInfo(session)}
+              actions={renderSessionActions(session)}
+            />
           ))}
         </ul>
       )}

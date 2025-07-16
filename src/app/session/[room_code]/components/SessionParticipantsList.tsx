@@ -19,7 +19,7 @@ const SessionParticipantsList: React.FC<SessionParticipantsListProps> = ({
   );
   return (
     <>
-      <h3>Present in Room</h3>
+      <h5>Present in Room</h5>
       <ul>
         {uniqueUsers.map((u) => (
           <li key={u.userId}>
