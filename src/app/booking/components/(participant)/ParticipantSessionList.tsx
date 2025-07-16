@@ -44,7 +44,7 @@ export default function ParticipantSessionList({
               endTime={""}
               timeZone={row.sessions.time_zone}
               description={row.sessions.description}
-              recurringText={recurringText}
+              recurringText={recurringText ?? undefined}
               isRecurring={isRecurringSession(row.sessions)}
               facilitatorName={row.sessions.facilitator_name || "Unknown"}
               actions={
