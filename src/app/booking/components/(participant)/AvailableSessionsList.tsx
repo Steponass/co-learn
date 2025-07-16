@@ -45,7 +45,7 @@ export default function AvailableSessionsList({
               endTime={""}
               timeZone={session.time_zone}
               description={session.description}
-              recurringText={recurringText}
+              recurringText={recurringText ?? undefined}
               isRecurring={isRecurringSession(session)}
               facilitatorName={session.facilitator_name as string | undefined}
               actions={

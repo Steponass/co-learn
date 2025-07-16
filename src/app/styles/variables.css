@@ -78,7 +78,7 @@ https://utopia.fyi/space/calculator?c=360,16,1.25,1240,16,1.333,5,2,&s=0.75%7C0.
 /* SHADOWS */
 /* 1st - "direct"
    2nd - "ambient" */
-:root {
+[data-theme="light"] {
 /* Button (reg) */
 --shadow-elevation-1: 
 0    2px 3px -1px hsla(0, 0%, 26%, 0.3),
@@ -100,5 +100,4 @@ https://utopia.fyi/space/calculator?c=360,16,1.25,1240,16,1.333,5,2,&s=0.75%7C0.
 0 10px 16px -3px hsla(0, 0%, 30%, 0.4);
 
 --drop-shadow-1: 0 1px 1px hsla(0, 0%, 10%, 0.2);
-
 }

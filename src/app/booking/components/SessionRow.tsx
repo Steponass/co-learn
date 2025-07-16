@@ -13,8 +13,6 @@ export interface SessionRowProps {
   actions?: React.ReactNode;
   participantInfo?: React.ReactNode; // For facilitator's participant list
   maxParticipants?: number;
-  participantCount?: number;
-  isFull?: boolean;
   rowKey: string | number;
 }
 
@@ -30,8 +28,6 @@ export const SessionRow: React.FC<SessionRowProps> = ({
   actions,
   participantInfo,
   maxParticipants,
-  participantCount,
-  isFull,
   rowKey,
 }) => {
   return (
@@ -64,7 +60,7 @@ export const SessionRow: React.FC<SessionRowProps> = ({
       {participantInfo && (
         <div className={classes.participant_info}>{participantInfo}</div>
       )}
-      <div className={classes.session_actions}>{actions}</div>
+      {actions}
     </li>
   );
 };

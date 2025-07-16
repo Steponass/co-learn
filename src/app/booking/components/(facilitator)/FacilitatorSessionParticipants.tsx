@@ -148,7 +148,7 @@ export default function FacilitatorSessionParticipants({
   const renderSessionActions = (session: SessionWithParticipants) => {
     const sessionCancelState = cancelState[session.id];
     return (
-      <div>
+      <div className={classes.session_actions}>
         <button
           className="primary_button"
           onClick={() => {
