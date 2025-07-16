@@ -430,3 +430,34 @@
 .lk-chat-toggle {
   display: none !important;
 }
+
+
+
+
+/* Video Controls Panel at the top */
+.video_controls_panel {
+  position: fixed;
+  top: var(--space-48-64px);
+  left: var(--space-12-16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4px);
+  z-index: 10;
+}
+
+.video_control_button {
+  padding: var(--space-8px) var(--space-12px);
+  background-color: var(--clr-bg-overlay);
+  color: var(--clr-txt-strong);
+  border: 1px solid var(--clr-stroke-weak);
+  border-radius: var(--border-radius-8px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* white-space: nowrap; */
+  /* min-width: 120px; */
+}
+
+/* Enhanced self-view when minimized */
+[data-lk-local-participant="true"].minimized {
+  transition: all 0.3s ease-in-out;
+}
