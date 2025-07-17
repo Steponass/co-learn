@@ -46,7 +46,19 @@
   line-height: 1.5;
 }
 
+/* BEWARE! "GRAD" AXIS (must be enabled on layout.tsx) makes font file ~42kb -> 48-58kb. So if you find enough value in thinner letters in dark mode, keep it. */
+
+[data-theme="dark"] {
+  :where(h1, h2, h3, h4, h5, h6) {
+    font-variation-settings: "GRAD" -15;
+  }
+  :where(p) {
+    font-variation-settings: "GRAD" -15;
+  }
+}
+
 .logotype {
   font-weight: 555;
   letter-spacing: -1.5px;
+  font-variation-settings: "GRAD" -15;
 }

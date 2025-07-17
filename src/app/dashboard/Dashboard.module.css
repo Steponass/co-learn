@@ -1,5 +1,5 @@
 .dashboard {
-  width: min(95%, 768px);
+  width: min(97%, 680px);
   height: fit-content;
   padding: var(--space-16-24px);
   border-radius: var(--border-radius-12px);

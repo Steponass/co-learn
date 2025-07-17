@@ -21,3 +21,16 @@ export function formatSessionTimeWithZone(
 
   return `${dateStr} ${startTime} – ${endTime}`;
 }
+
+// Returns only the time range (start–end) in HH:mm format, no date or weekday
+export function formatSessionTimeOnly(
+  startUTC: string,
+  endUTC: string,
+  timeZone: string
+): string {
+  const start = DateTime.fromISO(startUTC, { zone: "utc" }).setZone(timeZone);
+  const end = DateTime.fromISO(endUTC, { zone: "utc" }).setZone(timeZone);
+  const startTime = start.toFormat("HH:mm");
+  const endTime = end.toFormat("HH:mm");
+  return `${startTime} – ${endTime}`;
+}

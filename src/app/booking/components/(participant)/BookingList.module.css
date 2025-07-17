@@ -9,78 +9,78 @@
 }
 
 .list_heading {
-  margin: 0 0 var(--space-4-8px) 0;
-  flex-shrink: 0;
+  margin-bottom: var(--space-4-8px);
 }
 
-.booking_item {
+.booking_row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: var(--space-16-24px);
-  width: 100%;
-  min-width: 0;
-  /* Prevents flex item from overflowing */
+  box-shadow: var(--shadow-elevation-1);
+  border-radius: var(--border-radius-8px);
+  background-color: var(--clr-bg-overlay);
+  padding-block: var(--space-12-16px);
+  padding-inline: var(--space-12-16px);
 }
 
-.booking_item_details {
-  flex: 1;
-  min-width: 270px;
-  min-width: 0;
-  /* Allows text wrapping */
+.booking_row_details {
+  display: flex;
+  max-width: 400px;
+  flex-direction: column;
+  gap: var(--space-4-8px);
 }
 
-.booking_item_details p {
-  margin: 0 0 var(--space-2-4px) 0;
+.session_title_and_facilitator {}
+
+.facilitator_name {
+  color: var(--clr-txt-weak);
 }
 
-.booking_item_details p:last-child {
-  margin-bottom: 0;
+.session_label_and_details {
+  display: flex;
 }
 
-/* !Specific media query widths are TBD when
-fluid typescale is implemented!  */
-@media (max-width: 32rem) {
-  .booking_item {
-    flex-direction: column;
-    gap: var(--space-8px);
-    align-items: flex-start;
-    margin-bottom: var(--space-8px);
-  }
-
-  .booking_item_details {
-    min-width: 0;
-    width: 100%;
-  }
+.session_label {
+  min-width: 7ch;
 }
 
-.facilitator {
+
+.session_details {
+  font-weight: 600;
+}
+
+.timezone {
+  color: var(--clr-txt-weak);
+  margin-left: var(--space-4-8px);
+}
+
+.session_description {
+  max-width: 40ch;
+}
+
+.session_actions {
   display: flex;
   flex-direction: column;
+  gap: var(--space-4-8px);
+  padding-top: var(--space-4px);
 }
 
-.book_session_form {
-  flex-shrink: 0;
-  min-width: 296px;
+.session_actions button {
+  min-width: 128px;
+  min-height: 40px;
 }
 
-.book_session_and_msg {
+
+/* Facilitator - Create Session */
+
+.session_input_container {
   display: flex;
+  /* justify-content: space-between; */
   align-items: center;
-  gap: var(--space-8-12px);
-}
-
-.start_or_cancel_session_container {
-  display: flex;
-  flex-direction: column;
   gap: var(--space-8px);
 }
 
-.session_time_input_container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-8px);
+.session_input_container label {
+  min-width: 16ch;
 }
 
 .datetime_picker,
@@ -90,91 +90,29 @@ fluid typescale is implemented!  */
   border: 1px solid var(--clr-stroke-strong);
   background: var(--clr-bg-base);
   color: var(--clr-txt-strong);
-  max-width: 200px;
   flex: 1;
-}
-
-.booking_row {
-  display: grid;
-  grid-template-columns: 3fr 1fr 1fr;
-  align-items: center;
-  /* display: flex;
-  align-items: center;
-  justify-content: space-between; */
-  gap: var(--space-16-24px);
-  padding-block: var(--space-12-16px);
-  padding-inline: var(--space-8-12px);
-  box-shadow: var(--shadow-elevation-1);
-  background-color: var(--clr-bg-overlay);
-  border-radius: var(--border-radius-4px);
-}
-
-.session_actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4px);
-}
-
-.session_actions button {
-  min-width: 160px;
-  height: 44px;
-  /* font-size: 1rem; */
-  /* box-sizing: border-box; */
 }
 
 
 .full_badge {
-  background-color: var(--clr-error);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.8em;
-  margin-left: 8px;
-  font-weight: 500;
-}
-
-.recurring_badge {
-  background-color: var(--clr-brand-opacity-25);
-  color: var(--clr-txt-strong);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.8em;
-  margin-left: 8px;
-  font-weight: 500;
+  color: var(--clr-error);
 }
 
 .participant_list {
-  margin-top: 8px;
-  padding-left: 16px;
-  list-style-type: disc;
-}
-
-.participant_item {
-  margin-bottom: 2px;
-  color: var(--clr-txt-strong);
-}
-
-.participant_item span {
-  color: var(--clr-txt-strong);
-  font-style: normal;
+  padding-left: var(--space-12-16px);
+  list-style-type: upper-roman;
 }
 
 .recurring_section {
-  padding: var(--space-12-16px);
-  background-color: var(--clr-bg-base);
-  border-radius: var(--border-radius-8px);
+  padding-block: var(--space-8-12px);
 }
 
 .recurring_checkbox {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-8px);
-  font-weight: 500;
-  margin-bottom: var(--space-8px);
-}
-
-.recurring_checkbox input[type="checkbox"] {
-  margin: 0;
+  margin-bottom: var(--space-4-8px);
 }
 
 .recurring_options {
@@ -191,7 +129,7 @@ fluid typescale is implemented!  */
 
 .weekday_buttons {
   display: flex;
-  gap: var(--space-4px);
+  gap: var(--space-12-16px);
   flex-wrap: wrap;
 }
 
@@ -203,7 +141,6 @@ fluid typescale is implemented!  */
   background-color: var(--clr-bg-overlay);
   border: 1px solid var(--clr-stroke-strong);
   border-radius: var(--border-radius-4px);
-  font-size: 0.9em;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -212,19 +149,13 @@ fluid typescale is implemented!  */
   background-color: var(--clr-brand-opacity-25);
 }
 
-.weekday_label input[type="checkbox"] {
-  margin: 0;
-}
-
 .weekday_label input[type="checkbox"]:checked+span,
 .weekday_label:has(input[type="checkbox"]:checked) {
   background-color: var(--clr-brand);
   color: white;
 }
 
-/* Textarea styling */
 textarea.datetime_picker {
   resize: vertical;
-  min-height: 60px;
-  font-family: inherit;
+  min-height: 3lh;
 }

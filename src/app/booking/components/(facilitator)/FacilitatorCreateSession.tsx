@@ -44,19 +44,18 @@ action={formAction}
 <input type="hidden" name="facilitator_name" value={facilitatorName} />
 <input type="hidden" name="is_recurring" value={isRecurring.toString()} />
     {/* Title field */}
-    <div className={classes.session_time_input_container}>
+    <div className={classes.session_input_container}>
       <label htmlFor="title">Session Title:</label>
       <input
         type="text"
         name="title"
-        placeholder="e.g., React Fundamentals Workshop"
-        maxLength={50}
+        maxLength={40}
         className={classes.datetime_picker}
       />
     </div>
     
     {/* Description field */}
-    <div className={classes.session_time_input_container}>
+    <div className={classes.session_input_container}>
       <label htmlFor="description">Description:</label>
       <textarea
         name="description"
@@ -67,7 +66,7 @@ action={formAction}
       />
     </div>
     
-    <div className={classes.session_time_input_container}>
+    <div className={classes.session_input_container}>
       <label htmlFor="start_time">Start Time:</label>
       <input
         type="datetime-local"
@@ -77,7 +76,7 @@ action={formAction}
       />
     </div>
     
-    <div className={classes.session_time_input_container}>
+    <div className={classes.session_input_container}>
       <label>End Time:</label>
       <input
         type="datetime-local"
@@ -87,7 +86,7 @@ action={formAction}
       />
     </div>
     
-    <div className={classes.session_time_input_container}>
+    <div className={classes.session_input_container}>
       <label>Time Zone:</label>
       <select
         name="time_zone"
@@ -104,7 +103,7 @@ action={formAction}
       </select>
     </div>
     
-    <div className={classes.session_time_input_container}>
+    <div className={classes.session_input_container}>
       <label>Max Participants:</label>
       <select 
         name="max_participants" 
@@ -128,7 +127,7 @@ action={formAction}
           checked={isRecurring}
           onChange={(e) => setIsRecurring(e.target.checked)}
         />
-        Make this a recurring session
+        Recurring session
       </label>
 
       {isRecurring && (

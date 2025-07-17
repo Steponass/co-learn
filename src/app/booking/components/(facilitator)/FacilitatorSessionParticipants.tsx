@@ -3,7 +3,7 @@ import {
   getFacilitatorSessionParticipants,
   cancelSession,
 } from "../../actions";
-import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
+import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import type {
   SessionWithParticipants,
   SessionParticipant,
@@ -12,10 +12,7 @@ import type {
 import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
-import {
-  getRecurringDisplayText,
-  isRecurringSession,
-} from "../../utils/sessionHelpers";
+import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
@@ -125,11 +122,17 @@ export default function FacilitatorSessionParticipants({
     const participantCount = session.session_participants.length;
     const maxParticipants = session.max_participants;
     const isFull = participantCount >= maxParticipants;
+    // If maxParticipants is 1 and no participants, show only 'Participants 0/1'
+    if (maxParticipants === 1 && participantCount === 0) {
+      return (
+        <span className={classes.participant_count}>Participants: 0/1</span>
+      );
+    }
     return (
       <>
         <span className={classes.participant_count}>
           Participants: {participantCount}/{maxParticipants}
-          {isFull && <span className={classes.full_badge}>(Full)</span>}
+          {isFull && <span className={classes.full_badge}> (Full)</span>}
         </span>
         {participantCount > 0 && (
           <ul className={classes.participant_list}>
@@ -162,7 +165,13 @@ export default function FacilitatorSessionParticipants({
         </button>
         <button
           className="secondary_button"
-          onClick={() => handleCancelSession(session.id)}
+          onClick={() => {
+            if (
+              window.confirm("Are you sure you want to cancel this session?")
+            ) {
+              handleCancelSession(session.id);
+            }
+          }}
           disabled={sessionCancelState?.isPending}
         >
           {sessionCancelState?.isPending ? "Cancelling..." : "Cancel Session"}
@@ -192,17 +201,14 @@ export default function FacilitatorSessionParticipants({
               key={session.id}
               rowKey={session.id}
               title={session.title}
-              startTime={formatSessionTimeWithZone(
+              startTime={formatSessionTimeOnly(
                 session.start_time,
                 session.end_time,
-                session.time_zone,
-                true
+                session.time_zone
               )}
-              endTime={""}
               timeZone={session.time_zone}
               description={session.description}
-              recurringText={getRecurringDisplayText(session) || ""}
-              isRecurring={isRecurringSession(session)}
+              dateDisplay={getSessionDateDisplay(session)}
               maxParticipants={session.max_participants}
               participantInfo={renderParticipantInfo(session)}
               actions={renderSessionActions(session)}

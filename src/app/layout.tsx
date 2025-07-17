@@ -10,12 +10,13 @@ import Footer from "./components/layout/Footer/Footer";
 
 export const metadata: Metadata = {
   title: "Co-Learn",
-  description: "Is good, I like much.",
+  description: "Is good. I like, much.",
 };
 
 const signika = Signika({
   subsets: ['latin', 'latin-ext'], 
   weight: 'variable',
+  axes: ['GRAD'],
   variable: '--font-signika',
   display: 'swap',
 });

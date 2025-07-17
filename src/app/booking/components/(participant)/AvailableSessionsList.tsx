@@ -1,11 +1,7 @@
 "use client";
 import { useEffect } from "react";
-import ParticipantBookSessionButton from "./ParticipantBookSessionButton";
-import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
-import {
-  getRecurringDisplayText,
-  isRecurringSession,
-} from "../../utils/sessionHelpers";
+import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
+import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import type { Session } from "../../types/sessions";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
@@ -30,33 +26,28 @@ export default function AvailableSessionsList({
       <h4 className={classes.list_heading}>Available Sessions</h4>
       <ul className="stack">
         {sessions.map((session) => {
-          const recurringText = getRecurringDisplayText(session);
           return (
             <SessionRow
               key={session.id}
               rowKey={session.id}
               title={session.title}
-              startTime={formatSessionTimeWithZone(
+              startTime={formatSessionTimeOnly(
                 session.start_time,
                 session.end_time,
-                session.time_zone,
-                true
+                session.time_zone
               )}
-              endTime={""}
               timeZone={session.time_zone}
               description={session.description}
-              recurringText={recurringText ?? undefined}
-              isRecurring={isRecurringSession(session)}
+              dateDisplay={getSessionDateDisplay(session)}
               facilitatorName={session.facilitator_name as string | undefined}
-              actions={
-                <ParticipantBookSessionButton
-                  sessionId={session.id}
-                  participantId={participantId}
-                  participantName={participantName}
-                  facilitatorName={session.facilitator_name || ""}
-                  onBooked={onBooked}
-                />
-              }
+              showBookButton={true}
+              bookButtonProps={{
+                sessionId: session.id,
+                participantId,
+                participantName,
+                facilitatorName: session.facilitator_name || "",
+                onBooked,
+              }}
             />
           );
         })}

@@ -1,11 +1,8 @@
 "use client";
 import { cancelBooking } from "../../actions";
 import type { ParticipantSession } from "../../types/sessions";
-import { formatSessionTimeWithZone } from "../../utils/formatSessionTime";
-import {
-  getRecurringDisplayText,
-  isRecurringSession,
-} from "../../utils/sessionHelpers";
+import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
+import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
 export default function ParticipantSessionList({
@@ -26,29 +23,25 @@ export default function ParticipantSessionList({
   };
   return (
     <div className={classes.booking_list}>
-      <h3 className={classes.list_heading}>My Bookings</h3>
+      <h4 className={classes.list_heading}>My Bookings</h4>
       <ul className="stack">
         {sessions.map((row) => {
-          const recurringText = getRecurringDisplayText(row.sessions);
           return (
             <SessionRow
               key={row.session_id}
               rowKey={row.session_id}
               title={row.sessions.title}
-              startTime={formatSessionTimeWithZone(
+              startTime={formatSessionTimeOnly(
                 row.sessions.start_time,
                 row.sessions.end_time,
-                row.sessions.time_zone,
-                true
+                row.sessions.time_zone
               )}
-              endTime={""}
               timeZone={row.sessions.time_zone}
               description={row.sessions.description}
-              recurringText={recurringText ?? undefined}
-              isRecurring={isRecurringSession(row.sessions)}
+              dateDisplay={getSessionDateDisplay(row.sessions)}
               facilitatorName={row.sessions.facilitator_name || "Unknown"}
               actions={
-                <>
+                <div className={classes.session_actions}>
                   <button
                     className="primary_button"
                     onClick={() => {
@@ -72,7 +65,7 @@ export default function ParticipantSessionList({
                   >
                     Cancel
                   </button>
-                </>
+                </div>
               }
             />
           );

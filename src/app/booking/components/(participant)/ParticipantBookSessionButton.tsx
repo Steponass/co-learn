@@ -30,13 +30,20 @@ export default function ParticipantBookSessionButton({
   }, [formData, onBooked]);
 
   return (
-    <form action={formAction}>
+    <form
+      action={formAction}
+      onSubmit={(e) => {
+        if (!window.confirm("Are you sure you want to book this session?")) {
+          e.preventDefault();
+        }
+      }}
+    >
       <input type="hidden" name="session_id" value={sessionId} />
       <input type="hidden" name="participant_id" value={participantId} />
       <input type="hidden" name="participant_name" value={participantName} />
       <input type="hidden" name="facilitator_name" value={facilitatorName} />
       <div className={classes.book_session_and_msg}>
-        <button className="primary_button" disabled={isPending}>
+        <button className="primary_button" disabled={isPending} type="submit">
           Book Session
         </button>
         {formData?.error && (
