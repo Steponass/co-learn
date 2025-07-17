@@ -78,10 +78,10 @@ function VideoControls({
       isMinimized
         ? `
       [data-lk-local-participant="true"] {
-        width: 128px !important;
-        height: 128px !important;
+        width: 96px !important;
+        height: 96px !important;
         position: fixed !important;
-        top: 128px !important;
+        top: 112px !important;
         left: 16px !important;
         z-index: 10 !important;
         border-radius: var(--border-radius-12px) !important;

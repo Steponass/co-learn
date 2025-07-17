@@ -189,7 +189,7 @@
 .lk-participant-metadata-item {
   display: flex;
   align-items: center;
-  padding: var(--space-8-12px);
+  padding: var(--space-4px);
   background-color: var(--clr-brand-opacity-75);
   color: var(--clr-txt-strong);
   border-radius: 0 var(--border-radius-8px) 0 0;
@@ -198,7 +198,7 @@
 .lk-connection-quality {
   position: absolute;
   color: var(--clr-txt-strong);
-  bottom: 1px;
+  bottom: 0;
   right: 0;
   padding: var(--space-4px);
   border-radius: var(--border-radius-8px) 0 0 0;

@@ -10,6 +10,7 @@
   white-space: pre-wrap;
   scrollbar-color: var(--clr-stroke-strong) var(--clr-stroke-weak);
 }
+
 .chat_msg {
   margin-bottom: var(--space-4-8px);
 }
@@ -21,6 +22,21 @@
 .chat_msg_timestamp {
   font-size: 10px;
   color: var(--clr-txt-weak);
+}
+
+.chat_link {
+  color: var(--clr-brand);
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.chat_link:hover {
+  color: var(--clr-brand-opacity-75);
+  text-decoration: none;
+}
+
+.chat_link:visited {
+  color: var(--clr-brand);
 }
 
 .chat_input_container {

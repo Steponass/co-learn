@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import type { ChatMessage } from "../types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import classes from "./Chat.module.css";
+import { SafeLinkifiedText } from "@/app/components/SafeLinkifiedText";
 
 const supabase = createClient();
 
@@ -191,7 +192,9 @@ export default function Chat({
     return (
       <div className="stack">
         <h3>Chat</h3>
-        <div>Loading chat...</div>
+        <div>
+          <span>Loading chat...</span>
+        </div>
       </div>
     );
   }
@@ -218,7 +221,7 @@ export default function Chat({
           </div>
         )}
 
-        {/* Your existing message display logic */}
+        {/* Messages with linkified text */}
         {chatMessages.map((msg) => (
           <div className={classes.chat_msg} key={msg.id}>
             <strong className={classes.chat_msg_username}>
@@ -230,7 +233,12 @@ export default function Chat({
                 timeStyle: "short",
               })}
             </span>
-            <p>{msg.content}</p>
+            <p>
+              <SafeLinkifiedText
+                text={msg.content}
+                linkClassName={classes.chat_link}
+              />
+            </p>
           </div>
         ))}
       </div>

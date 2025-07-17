@@ -61,8 +61,8 @@ export default function FacilitatorCreateSession({
           <label htmlFor="description">Description:</label>
           <textarea
             name="description"
-            placeholder="(max 80 chars)"
-            maxLength={80}
+            placeholder="(max 120 characters)"
+            maxLength={120}
             className={classes.datetime_picker}
             rows={2}
           />
