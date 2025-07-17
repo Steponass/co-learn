@@ -5,7 +5,6 @@ import type { Session } from "../../types/sessions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import {
   getSessionDateDisplay,
-  isRecurringSession,
 } from "../../utils/sessionHelpers";
 import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 import classes from "../(participant)/BookingList.module.css";
