@@ -20,12 +20,15 @@
   background-color: var(--clr-bg-overlay);
   padding-block: var(--space-12-16px);
   padding-inline: var(--space-12-16px);
+  flex-wrap: wrap;
+  gap: var(--space-8-12px);
 }
 
 .booking_row_details {
   display: flex;
-  max-width: 400px;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
   gap: var(--space-4-8px);
 }
 
@@ -55,6 +58,8 @@
 
 .session_description {
   max-width: 40ch;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .session_actions {
@@ -67,6 +72,7 @@
 .session_actions button {
   min-width: 128px;
   min-height: 40px;
+  white-space: nowrap;
 }
 
 

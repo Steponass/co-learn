@@ -34,7 +34,7 @@ export default function UpdatePasswordForm() {
   return (
     // Combine module classes with globals like below. MUST use space in front of global class string
     <div className={classes.auth_container + " stack"}>
-      <h1>Update Password</h1>
+      <h2>Update Password</h2>
       <form className="stack" action={formAction}>
         <div className={classes.input_container}>
           <label htmlFor="password">New Password:</label>

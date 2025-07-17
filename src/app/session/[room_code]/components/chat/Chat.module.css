@@ -1,9 +1,9 @@
 .chat_window {
   padding: var(--space-4-8px);
   border: 1px solid var(--clr-stroke-strong);
+  background-color: var(--clr-bg-overlay);
   border-radius: var(--border-radius-4px);
   height: 8lh;
-  max-width: 320px;
   overflow-y: scroll;
   overflow-x: hidden;
   word-break: break-word;

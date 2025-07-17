@@ -21,7 +21,7 @@ export default function SignupForm() {
 
   return (
     <div className="stack">
-      <h1>Sign Up</h1>
+      <h2>Sign Up</h2>
       <form className="stack" action={formAction}>
         <div className={classes.input_container}>
           <label htmlFor="name">Name:</label>

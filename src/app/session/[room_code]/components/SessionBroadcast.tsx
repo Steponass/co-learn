@@ -93,6 +93,7 @@ export default function SessionBroadcast({
           subscribed={subscribed}
           roomCode={roomCode}
         />
+        <Dictionary/>
       </div>
 
       {/* The toggle button */}
@@ -106,7 +107,6 @@ export default function SessionBroadcast({
       </label>
     </div>
       </div>
-      <Dictionary />
     </div>
   );
 }

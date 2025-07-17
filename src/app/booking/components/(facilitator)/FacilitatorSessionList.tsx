@@ -92,7 +92,7 @@ export default function FacilitatorSessionList({
   };
   return (
     <div className={classes.booking_list}>
-      <h3 className={classes.list_heading}>Open Sessions</h3>
+      <h4 className={classes.list_heading}>Open Sessions</h4>
       {sessions.length === 0 ? (
         <p>No sessions created yet.</p>
       ) : (
@@ -118,6 +118,7 @@ export default function FacilitatorSessionList({
                   timeZone={session.time_zone}
                   description={session.description}
                   dateDisplay={getSessionDateDisplay(session)}
+                  facilitatorName={session.facilitator_name as string | undefined}
                   maxParticipants={session.max_participants}
                   participantInfo={
                     <span className={classes.participant_count}>

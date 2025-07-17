@@ -191,7 +191,7 @@ export default function FacilitatorSessionParticipants({
   };
   return (
     <div className={classes.booking_list}>
-      <h3 className={classes.list_heading}>Booked Sessions</h3>
+      <h4 className={classes.list_heading}>Booked Sessions</h4>
       {sessions.length === 0 ? (
         <p>No sessions with participants yet.</p>
       ) : (

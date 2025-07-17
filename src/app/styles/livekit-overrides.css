@@ -47,24 +47,24 @@
   --lk-grid-gap: var(--space-8-12px);
   --lk-control-bar-height: var(--space-48-64px);
 }
+
 /* ROOM CONTAINER - START */
 .lk-room-container {
   position: relative;
-  height: 78vh;
+  height: 100%;
+  width: 100%;
 }
+
 .lk-video-conference {
-  /* position: relative; */
-  /* display: flex; */
-  /* align-items: stretch; */
-  /* height: 2000px; */
+  height: 100%;
+  width: 100%;
 }
+
 .lk-video-conference-inner {
   display: flex;
   flex-direction: column;
-  align-content: space-between;
-  /* align-items: stretch; */
-  /* width: 75vw; */
   height: 100%;
+  width: 100%;
 }
 
 /* ROOM CONTAINER - END */
@@ -77,7 +77,9 @@
   gap: .375rem;
   overflow: hidden;
   border-radius: var(--border-radius-12px);
+  transition: width 0.3s, height 0.3s, flex-basis 0.3s;
 }
+
 .lk-participant-tile::after {
   content: "";
   position: absolute;
@@ -92,12 +94,14 @@
   transition-duration: .4s;
   pointer-events: none;
 }
+
 .lk-participant-tile[data-lk-speaking=true]:not([data-lk-source=screen_share])::after {
   transition-delay: 0s;
   transition-duration: .2s;
   border-width: var(--lk-speaking-indicator-width);
-  
+
 }
+
 .lk-participant-tile .lk-focus-toggle-button {
   position: absolute;
   top: .5rem;
@@ -109,25 +113,30 @@
   transition: opacity .2s ease-in-out;
   transition-delay: .2s;
 }
+
 .lk-participant-tile:hover .lk-focus-toggle-button,
 .lk-participant-tile:focus .lk-focus-toggle-button {
   opacity: 1;
   transition-delay: 0
 }
+
 .lk-participant-tile .lk-connection-quality {
   opacity: 0;
   transition: opacity .2s ease-in-out;
   transition-delay: .2s
 }
+
 .lk-participant-tile .lk-connection-quality[data-lk-quality=poor] {
   opacity: 1;
   transition-delay: 0
 }
+
 .lk-participant-tile:hover .lk-connection-quality,
 .lk-participant-tile:focus .lk-connection-quality {
   opacity: 1;
   transition-delay: 0
 }
+
 .lk-participant-tile .lk-participant-placeholder {
   position: absolute;
   inset: 0;
@@ -140,6 +149,7 @@
   pointer-events: none;
   border-radius: var(--border-radius-12px);
 }
+
 .lk-participant-tile .lk-participant-placeholder svg {
   height: 70%;
   width: auto;
@@ -161,6 +171,7 @@
 .lk-participant-tile[data-lk-video-muted=true][data-lk-source=camera] .lk-participant-placeholder {
   opacity: 1;
 }
+
 .lk-participant-metadata {
   position: absolute;
   right: 0;
@@ -172,8 +183,9 @@
   justify-content: space-between;
   gap: var(--space-12-16px);
   line-height: 1;
-  
+
 }
+
 .lk-participant-metadata-item {
   display: flex;
   align-items: center;
@@ -182,6 +194,7 @@
   color: var(--clr-txt-strong);
   border-radius: 0 var(--border-radius-8px) 0 0;
 }
+
 .lk-connection-quality {
   position: absolute;
   color: var(--clr-txt-strong);
@@ -190,10 +203,12 @@
   padding: var(--space-4px);
   border-radius: var(--border-radius-8px) 0 0 0;
 }
+
 .lk-participant-name {
   color: var(--clr-txt-strong);
   font-style: normal;
 }
+
 .lk-track-muted-indicator-camera,
 .lk-track-muted-indicator-microphone {
   /* position: relative; */
@@ -202,36 +217,53 @@
   margin-inline-end: var(--space-8px);
   transition: opacity .25s ease-in-out
 }
+
 .lk-track-muted-indicator-camera[data-lk-muted=true] {
   opacity: .8
 }
+
 .lk-track-muted-indicator-microphone {
   --lk-bg: var(--lk-icon-mic)
 }
+
 .lk-track-muted-indicator-microphone[data-lk-muted=true] {
   opacity: .8
 }
+
 /* PARTICIPANT TILE - END */
 /* CONTROL BAR - START */
 .lk-control-bar,
 .lk-agent-control-bar {
   position: fixed;
-  bottom: var(--space-32-48px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  bottom: var(--space-4-8px);
+  margin: 0 auto;
   display: flex;
   gap: var(--space-12-16px);
   align-items: center;
   justify-content: center;
   padding: var(--space-8px);
-  /* border-top: 1px solid var(--lk-border-color); */
   box-shadow: var(--shadow-elevation-2);
   border-radius: var(--border-radius-12px);
-  width: fit-content;
-  margin-inline: auto;
+  width: min(99%, 720px);
   background-color: var(--clr-bg-raised);
-  z-index: 10;
+  z-index: 100;
 }
+
+/* Optional: for vertical centering inside LiveKitRoom, add this modifier class in dev tools if needed */
+.lk-control-bar--centered {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  border-radius: var(--border-radius-12px);
+  width: fit-content;
+  max-width: 90vw;
+}
+
 .lk-button,
 .lk-disconnect-button {
   position: relative;
@@ -248,59 +280,72 @@
   cursor: pointer;
   white-space: nowrap
 }
+
 .lk-button:not(:disabled):hover,
 .lk-disconnect-button:not(:disabled):hover {
   background-color: var(--lk-control-hover-bg)
 }
+
 .lk-button>svg,
 .lk-disconnect-button>svg {
   overflow: visible
 }
+
 .lk-button[aria-pressed=true],
 [aria-pressed=true].lk-disconnect-button {
   background-color: var(--lk-control-active-bg)
 }
+
 .lk-button[aria-pressed=true]:hover,
 [aria-pressed=true].lk-disconnect-button:hover {
   background-color: var(--lk-control-active-hover-bg)
 }
+
 .lk-button[data-lk-source=screen_share][data-lk-enabled=true],
 [data-lk-source=screen_share][data-lk-enabled=true].lk-disconnect-button {
   background-color: var(--clr-brand-opacity-75);
   color: var(--clr-txt-strong);
 }
+
 .lk-button[data-lk-source=screen_share][data-lk-enabled=true]:hover,
 [data-lk-source=screen_share][data-lk-enabled=true].lk-disconnect-button:hover {
   background-color: var(--clr-brand-opacity-25);
 }
+
 .lk-button:disabled,
 .lk-disconnect-button:disabled {
   opacity: .5
 }
+
 .lk-button-group {
   display: inline-flex;
   align-items: stretch;
   height: 100%
 }
+
 .lk-button-group>.lk-button:first-child,
 .lk-button-group>.lk-disconnect-button:first-child {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0
 }
+
 .lk-button-group-menu {
   position: relative;
   flex-shrink: 0
 }
+
 .lk-button-group-menu>.lk-button,
 .lk-button-group-menu>.lk-disconnect-button {
   height: 100%;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0
 }
+
 .lk-button-group-menu>.lk-button::after,
 .lk-button-group-menu>.lk-disconnect-button::after {
   margin-left: 0
 }
+
 .lk-button-menu::after {
   display: inline-block;
   content: "";
@@ -313,30 +358,37 @@
   transform: rotate(-45deg);
   transform-origin: center center
 }
+
 .lk-media-device-select:not(:last-child) {
   padding-bottom: .5rem;
   margin-bottom: .75rem;
   border-bottom: 1px solid var(--lk-border-color)
 }
+
 .lk-media-device-select li:not(:last-child) {
   margin-bottom: .25rem
 }
+
 .lk-media-device-select li>.lk-button {
   width: 100%;
   justify-content: start;
   padding-block: .5rem
 }
+
 .lk-media-device-select li:not([data-lk-active=true])>.lk-button:not(:disabled):hover {
   background-color: var(--clr-brand-opacity-25);
 }
+
 .lk-media-device-select [data-lk-active=false]>.lk-button:hover {
   cursor: pointer;
   background-color: rgba(0, 0, 0, .05)
 }
+
 .lk-media-device-select [data-lk-active=true]>.lk-button {
-  color: var(--lk-accent-fg);
-  background-color: var(--lk-accent-bg)
+  color: var(--clr-txt-strong);
+  background-color: var(--clr-brand-opacity-75);
 }
+
 .lk-device-menu {
   width: max-content;
   position: absolute;
@@ -352,11 +404,13 @@
   border-radius: .75rem;
   box-shadow: var(--lk-box-shadow)
 }
+
 .lk-device-menu-heading {
   padding: .25rem .5rem;
   font-weight: bold;
   opacity: .65
 }
+
 /* CONTROL BAR - END */
 /* PAGINATION - FOR 0 PARTICIPANT TILES OR FUCKTON OF 'EM */
 .lk-pagination-control {
@@ -371,27 +425,34 @@
   transition: opacity ease-in-out .15s;
   opacity: 0
 }
+
 .lk-pagination-control:hover {
   opacity: 1
 }
+
 .lk-pagination-control>.lk-button:first-child {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0
 }
+
 .lk-pagination-control>.lk-button:first-child>svg {
   transform: rotate(180deg)
 }
+
 .lk-pagination-control>.lk-button:last-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0
 }
+
 .lk-pagination-count {
   padding: .5rem .875rem;
   border-inline: 1px solid var(--lk-bg)
 }
+
 [data-lk-user-interaction=true].lk-pagination-control {
   opacity: 1
 }
+
 .lk-pagination-indicator {
   position: absolute;
   height: var(--lk-grid-gap);
@@ -407,6 +468,7 @@
   gap: .2rem;
   align-items: center
 }
+
 .lk-pagination-indicator span {
   display: inline-block;
   width: .4rem;
@@ -416,6 +478,7 @@
   opacity: .35;
   transition: opacity linear .2s
 }
+
 .lk-pagination-indicator span[data-lk-active] {
   opacity: .9
 }
@@ -427,6 +490,7 @@
 .lk-start-audio-button {
   display: none !important;
 }
+
 .lk-chat-toggle {
   display: none !important;
 }
@@ -440,7 +504,7 @@
   top: var(--space-48-64px);
   left: var(--space-12-16px);
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   gap: var(--space-4px);
   z-index: 10;
 }
@@ -453,8 +517,6 @@
   border-radius: var(--border-radius-8px);
   cursor: pointer;
   transition: all 0.3s ease;
-  /* white-space: nowrap; */
-  /* min-width: 120px; */
 }
 
 /* Enhanced self-view when minimized */

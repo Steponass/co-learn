@@ -20,7 +20,7 @@ export default function LoginForm() {
 
   return (
     <div className="stack">
-      <h1>Log in</h1>
+      <h2>Log in</h2>
 
       <form className="stack" action={formAction}>
         <div className={classes.input_container}>

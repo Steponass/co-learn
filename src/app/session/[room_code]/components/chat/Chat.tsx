@@ -235,13 +235,12 @@ export default function Chat({
         ))}
       </div>
 
-      {/* Your existing form (unchanged) */}
       <form className={classes.chat_input_container} onSubmit={sendMessage}>
         <input
           className={classes.chat_input}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type here… or don't!"
+          placeholder="…"
         />
         <button
           className="primary_button"

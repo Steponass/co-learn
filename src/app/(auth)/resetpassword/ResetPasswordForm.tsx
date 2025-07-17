@@ -12,12 +12,12 @@ export default function ResetPasswordForm() {
 
   return (
     <div className="stack">
-      <h1>Reset Password</h1>
+      <h2>Reset Password</h2>
       <p className="explain_info">
         You&apos;ll receive an email with a link to reset your password
       </p>
       <form className="stack" action={formAction}>
-        <div className={classes.input_container + " stack"}>
+        <div className={classes.input_container}>
           <label htmlFor="email">Email:</label>
           <input
             className={classes.input}
@@ -38,7 +38,7 @@ export default function ResetPasswordForm() {
           </div>
         )}
         <button className="primary_button" disabled={isPending}>
-          Reset that thang
+          Reset password
         </button>
       </form>
     </div>

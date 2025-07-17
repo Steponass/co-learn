@@ -82,19 +82,19 @@ https://utopia.fyi/space/calculator?c=360,16,1.25,1240,16,1.333,5,2,&s=0.75%7C0.
 /* Button (reg) */
 --shadow-elevation-1: 
 0    2px 3px -1px hsla(0, 0%, 26%, 0.3),
-0 -0.5px 1px      hsla(0, 0%, 10%, 0.2);
+0 -0.5px 1px      hsla(0, 0%, 10%, 0.1);
 /* Button:hover */
 --shadow-elevation-2: 
 0 3px 6px hsla(0, 0%, 16%, 0.3),
-0 2px 4px hsla(0, 0%, 18%, 0.2);
+0 2px 4px hsla(0, 0%, 18%, 0.15);
 
 --shadow-elevation-3: 
 0 8px 16px hsla(0, 0%, 16%, 0.35),
-0 3px  6px hsla(0, 0%, 12%, 0.2);
+0 3px  6px hsla(0, 0%, 12%, 0.15);
 
 --shadow-elevation-4: 
 0 8px 12px -1px hsla(0, 0%, 30%, 0.4),
-0  2px 4px -1px hsla(0, 0%, 16%, 0.2);
+0  2px 4px -1px hsla(0, 0%, 16%, 0.15);
 
 --shadow-elevation-5: 
 0 10px 16px -3px hsla(0, 0%, 30%, 0.4);

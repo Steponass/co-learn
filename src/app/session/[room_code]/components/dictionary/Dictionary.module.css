@@ -1,4 +1,4 @@
-.dictionary_wrapper {
+/* .dictionary_wrapper {
   margin-left: auto;
   margin-right: 0;
   min-width: 240px;
@@ -15,12 +15,17 @@
   box-shadow: var(--shadow-elevation-2);
   background-color: var(--clr-bg-raised);
   transition: transform 0.3s ease-in-out;
+} */
+
+.dictionary_wrapper {
+  margin-top: var(--space-16-24px);
 }
 
 .search_container {
   display: flex;
   gap: var(--space-8px);
   align-items: center;
+  justify-content: flex-end;
 }
 
 .search_input {
@@ -31,6 +36,7 @@
   padding: var(--space-8px);
   flex: 1;
   font-size: var(--fontsize-p);
+  min-width: 0;
 }
 
 .search_input:focus {
