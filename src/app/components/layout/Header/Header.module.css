@@ -16,7 +16,18 @@
   box-shadow: none;
 }
 
-.header_panel {
+.header_panel_left {
+  display: flex;
+  gap: var(--space-12-16px);
+  align-items: center;
+}
+
+.header_session_title {
+  color: var(--clr-txt-weak);
+}
+
+
+.header_panel_right {
   display: flex;
   gap: var(--space-12-16px);
   align-items: center;

@@ -27,22 +27,16 @@ export default async function SessionRoomPage(props: {
   }
 
   return (
-    <div className={classes.session_container}>
-      {/* <h1>Session Room</h1>
-      <p>
-        Time:{" "}
-        {formatSessionTimeWithZone(
-          session.start_time,
-          session.end_time,
-          session.time_zone ?? "UTC"
-        )}{" "}
-        ({session.time_zone ?? "UTC"})
-      </p> */}
-      <SessionBroadcast
-        roomCode={params.room_code}
-        userId={user.id}
-        userName={name || user.email || user.id}
-      />
-    </div>
+    <>
+      <main>
+        <div className={classes.session_container}>
+          <SessionBroadcast
+            roomCode={params.room_code}
+            userId={user.id}
+            userName={name || user.email || user.id}
+          />
+        </div>
+      </main>
+    </>
   );
 }

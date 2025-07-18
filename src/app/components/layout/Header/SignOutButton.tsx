@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { signOut } from "@/app/(auth)/login/actions";
+import { signOut } from "@/app/(main)/(auth)/login/actions";
 import { SignOutIcon } from "../../Icon";
 import classes from "./Header.module.css";
 

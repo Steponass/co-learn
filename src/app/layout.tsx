@@ -5,8 +5,6 @@ import "./styles/variables.css";
 import "./styles/fonts.css"
 import "./styles/globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import Header from "./components/layout/Header/Header";
-import Footer from "./components/layout/Footer/Footer";
 
 export const metadata: Metadata = {
   title: "Co-Learn",
@@ -31,11 +29,7 @@ export default function RootLayout({
     <html lang="en" className={signika.variable}>
       <body>
         <ThemeProvider>
-          <Header />
-          <main>
           {children}
-          </main>
-          <Footer />
         </ThemeProvider>
       </body>
     </html>
