@@ -112,12 +112,12 @@ export default function FacilitatorCreateSession({
             className={classes.dropdown}
             defaultValue="1"
           >
-            <option value="4">1</option>
-            <option value="6">4</option>
-            <option value="8">6</option>
+            <option value="1">1</option>
+            <option value="4">4</option>
+            <option value="6">6</option>
             <option value="10">10</option>
-            <option value="12">20</option>
-            <option value="15">30</option>
+            <option value="16">16</option>
+            <option value="24">24</option>
           </select>
         </div>
 

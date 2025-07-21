@@ -48,6 +48,10 @@
   --lk-control-bar-height: var(--space-48-64px);
 }
 
+.join_session_button {
+  
+}
+
 /* ROOM CONTAINER - START */
 .lk-room-container {
   position: relative;
