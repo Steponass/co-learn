@@ -26,8 +26,11 @@ function VideoControls({
 
   // State for all three toggles - now uses the prop as initial value
   const [userHideSelfView, setUserHideSelfView] = useState(initialHideSelfView);
-  const [backgroundBlurEnabled, setBackgroundBlurEnabled] = useState(true); // Default blur on
+  // Change default state to false
+  const [backgroundBlurEnabled, setBackgroundBlurEnabled] = useState(false); // Default blur off
   const [isMinimized, setIsMinimized] = useState(false);
+  // Add error state for video track/processor
+  const [videoError, setVideoError] = useState<string | null>(null);
 
   // Ref to store the current blur processor instance
   const blurProcessorRef = useRef<ReturnType<typeof BackgroundBlur> | null>(
@@ -43,7 +46,11 @@ function VideoControls({
     );
     const videoTrack = cameraTrack?.track as LocalVideoTrack | undefined;
 
-    if (!videoTrack) return;
+    if (!videoTrack) {
+      setVideoError("No video track found. Please check your camera.");
+      console.error("[VideoControls] No video track found.");
+      return;
+    }
 
     try {
       if (backgroundBlurEnabled) {
@@ -57,7 +64,11 @@ function VideoControls({
         blurProcessorRef.current = blurProcessor;
       }
       setBackgroundBlurEnabled(!backgroundBlurEnabled);
+      setVideoError(null);
     } catch (error) {
+      setVideoError(
+        "Failed to toggle background blur. See console for details."
+      );
       console.error("[VideoControls] Failed to toggle background blur:", error);
     }
   }, [localParticipant, backgroundBlurEnabled]);
@@ -116,7 +127,7 @@ function VideoControls({
               : "Enable background blur"
           }
         >
-          {backgroundBlurEnabled ? "Blur Off" : "Blur On"}
+          {backgroundBlurEnabled ? "Disable Blur" : "Enable Blur"}
         </button>
 
         <button
@@ -127,6 +138,12 @@ function VideoControls({
           {isMinimized ? "Restore" : "Minimize"}
         </button>
       </div>
+      {/* Show video error if present */}
+      {videoError && (
+        <div className="video_error_msg">
+          <p>{videoError}</p>
+        </div>
+      )}
     </>
   );
 }
@@ -171,9 +188,9 @@ export default function LiveKitRoomWrapper({
   if (!joined) {
     return (
       <div>
-        <button 
-        className="join_session_button"
-        onClick={() => setJoined(true)}>Join Session</button>
+        <button className="join_session_button" onClick={() => setJoined(true)}>
+          Join Session
+        </button>
       </div>
     );
   }
@@ -187,7 +204,7 @@ export default function LiveKitRoomWrapper({
         data-lk-theme="default"
         options={{
           videoCaptureDefaults: {
-            processor: BackgroundBlur(25),
+            // Remove default processor so blur is not on by default
           },
         }}
       >

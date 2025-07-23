@@ -48,9 +48,7 @@
   --lk-control-bar-height: var(--space-48-64px);
 }
 
-.join_session_button {
-  
-}
+.join_session_button {}
 
 /* ROOM CONTAINER - START */
 .lk-room-container {
@@ -66,14 +64,32 @@
 
 .lk-video-conference-inner {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   height: 100%;
   width: 100%;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--lk-grid-gap, 12px);
+}
+
+@media (max-width: 768px) {
+  .lk-video-conference-inner {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
 }
 
 /* ROOM CONTAINER - END */
 /* PARTICIPANT TILE - START */
 .lk-participant-tile {
+  min-width: 96px;
+  /* max-width: 512px; */
+  aspect-ratio: 16/10;
+  flex: 1 1 256px;
+  box-sizing: border-box;
   --lk-speaking-indicator-width: var(--space-4px);
   position: relative;
   display: flex;
@@ -82,6 +98,14 @@
   overflow: hidden;
   border-radius: var(--border-radius-12px);
   transition: width 0.3s, height 0.3s, flex-basis 0.3s;
+}
+
+@media (max-width: 768px) {
+  .lk-participant-tile {
+    min-width: 100%;
+    max-width: 100%;
+    flex-basis: 100%;
+  }
 }
 
 .lk-participant-tile::after {
@@ -161,11 +185,8 @@
 }
 
 .lk-participant-tile .lk-participant-placeholder svg {
-  /* color: red !important; */
-  /* fill: red !important; */
   stroke: var(--clr-stroke-strong) !important;
   stroke-width: 2px;
-  /* background-color: red !important; */
   background: var(--clr-stroke-weak) !important;
   border-radius: var(--border-radius-8px);
   fill: red;
