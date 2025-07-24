@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtDecode } from "jwt-decode";
-import { isAllowed } from "./role-check";
 
 type DecodedJWT = {
   user_role?: string;
@@ -60,14 +59,12 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  //  Redirect if not logged in
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Decode the user_role claim if token exists
   const token = session?.access_token;
   let userRole: string | undefined;
   if (token) {
@@ -84,25 +81,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // IF ABOVE DON'T WORK, TRY THIS OG WITHOUT DEFINED TYPES
-  // let userRole: string | undefined
-  // if (token) {
-  //   try {
-  //     const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET!)
-  //     userRole = (decoded as any)['user_role']
-  //   } catch (err) {
-  //     console.error('JWT verification failed:', err)
-  //   }
-  // }
 
-  // Role-based redirects
-
-  // Use the role guard helper
-  if (!isAllowed(userRole, pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/unauthorized";
-    return NextResponse.redirect(url);
-  }
+  // Supabase comment below:
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:

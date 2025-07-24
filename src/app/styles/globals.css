@@ -145,6 +145,19 @@ span {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  /* max height needs numeric value
+  if I want a max-height transition */
+  max-height: 10000px;
+  transition: max-height 0.3s, opacity 0.3s;
+pointer-events: auto;
+opacity: 1;
+}
+
+.stackCollapsed {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .stack>*+* {
