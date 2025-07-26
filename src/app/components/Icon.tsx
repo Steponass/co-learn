@@ -193,6 +193,22 @@ export const ChevronLeftIcon: React.FC<Omit<IconProps, "children">> = (
   </Icon>
 );
 
+export const ChevronDownIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
+  <Icon {...props}>
+    <path d="M6 9l6 6 6-6"/>
+  </Icon>
+);
+
+export const ChevronUpIcon: React.FC<Omit<IconProps, "children">> = (
+  props
+) => (
+  <Icon {...props}>
+    <path d="M18 15l-6-6-6 6"/>
+  </Icon>
+);
+
 export const PlayAudioIcon: React.FC<Omit<IconProps, "children">> = (
   props
 ) => (

@@ -8,8 +8,24 @@
   max-width: 100%;
 }
 
+.list_header_with_toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .list_heading {
   margin-bottom: var(--space-4-8px);
+}
+
+.list_view_toggle_button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .booking_row {
@@ -46,7 +62,6 @@
   min-width: 7ch;
 }
 
-
 .session_details {
   font-weight: 600;
 }
@@ -75,7 +90,6 @@
   white-space: nowrap;
 }
 
-
 /* Facilitator - Create Session */
 
 .session_input_container {
@@ -98,7 +112,6 @@
   color: var(--clr-txt-strong);
   flex: 1;
 }
-
 
 .full_badge {
   color: var(--clr-error);

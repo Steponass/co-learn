@@ -13,6 +13,8 @@ import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealt
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
+import ListViewToggleButton from "../ListViewToggleButton";
+
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
@@ -23,6 +25,7 @@ export default function FacilitatorSessionParticipants({
   const [cancelState, setCancelState] = useState<{
     [key: string]: { isPending: boolean; message?: string; error?: string };
   }>({});
+  const [showList, setShowList] = useState(true);
   const fetchSessions = useCallback(() => {
     if (!facilitatorId) {
       setSessions([]);
@@ -166,9 +169,7 @@ export default function FacilitatorSessionParticipants({
         <button
           className="secondary_button"
           onClick={() => {
-            if (
-              window.confirm("Are you sure you want to cancel this session?")
-            ) {
+            if (window.confirm("Sure you want to cancel this session?")) {
               handleCancelSession(session.id);
             }
           }}
@@ -191,11 +192,22 @@ export default function FacilitatorSessionParticipants({
   };
   return (
     <div className={classes.booking_list}>
-      <h4 className={classes.list_heading}>Booked Sessions</h4>
+      <div className={classes.list_header_with_toggle}>
+        <h4 className={classes.list_heading}>Booked Sessions</h4>
+        <ListViewToggleButton
+          showList={showList}
+          onClick={() => setShowList((v) => !v)}
+          className={classes.list_view_toggle_button}
+        />
+      </div>
       {sessions.length === 0 ? (
         <p>No sessions with participants yet.</p>
       ) : (
-        <ul className="stack">
+        <ul
+  className={
+    "stack" + (showList ? "" : " stackCollapsed")
+  }
+        >
           {sessions.map((session) => (
             <SessionRow
               key={session.id}
