@@ -26,7 +26,7 @@ export default function SessionPageClient({
     // Set the dynamic subtitle for the header
     const title = sessionTitle || `Session by ${facilitatorName}`;
     const subtitle = sessionTitle 
-      ? `Hosted by ${facilitatorName}` 
+      ? "" 
       : undefined;
     
     const fullSubtitle = subtitle ? `${title} • ${subtitle}` : title;

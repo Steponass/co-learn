@@ -9,18 +9,23 @@ export function usePageSubtitle() {
   const { subtitle, setSubtitle } = useSubtitle();
   
   useEffect(() => {
+
+    if (pathname.startsWith('/session/')) {
+      return; // Don't set any default subtitle for session pages
+    }
+    
     // Route-based default subtitles
     const routeSubtitles: Record<string, string | undefined> = {
-      '/': 'Home',
+      '/': undefined,
       '/dashboard': 'Dashboard',
       '/login': undefined,
     };
     
-    if (subtitle === undefined) {
-      const defaultSubtitle = routeSubtitles[pathname];
-      setSubtitle(defaultSubtitle);
-    }
-  }, [pathname, subtitle, setSubtitle]);
+    const defaultSubtitle = routeSubtitles[pathname];
+    console.log('[usePageSubtitle] Setting subtitle for', pathname, ':', defaultSubtitle);
+    setSubtitle(defaultSubtitle);
+    
+  }, [pathname, setSubtitle]);
   
   return { subtitle, setSubtitle };
 }
