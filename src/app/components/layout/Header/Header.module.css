@@ -16,16 +16,16 @@
   box-shadow: none;
 }
 
+.header_subtitle {
+  padding-top: var(--space-4px);
+  color: var(--clr-txt-weak);
+}
+
 .header_panel_left {
   display: flex;
   gap: var(--space-12-16px);
   align-items: center;
 }
-
-.header_session_title {
-  color: var(--clr-txt-weak);
-}
-
 
 .header_panel_right {
   display: flex;

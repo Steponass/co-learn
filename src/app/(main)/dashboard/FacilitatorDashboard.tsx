@@ -11,7 +11,6 @@ export default function FacilitatorDashboard({ name, facilitatorId }: Props) {
   return (
     <div className={classes.dashboard + " stack"}>
       <div className={classes.dashboard_header}>
-        <h2>Facilitator Dashboard</h2>
         <h3 className={classes.welcome_name}>Hey, {name}!</h3>
       </div>
 

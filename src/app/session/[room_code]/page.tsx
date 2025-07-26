@@ -1,19 +1,49 @@
+import { Metadata } from 'next';
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-// import { formatSessionTimeWithZone } from "../../booking/utils/formatSessionTime";
-import SessionBroadcast from "./components/SessionBroadcast";
+import SessionPageClient from "./components/SessionPageClient";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
-import classes from "./SessionPage.module.css";
 
-export default async function SessionRoomPage(props: {
+interface Props {
   params: Promise<{ room_code: string }>;
-}) {
-  const params = await props.params;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
   const supabase = await createClient();
+  
+  const { data: session, error } = await supabase
+    .from("sessions")
+    .select("title, facilitator_name, description")
+    .eq("room_code", resolvedParams.room_code)
+    .single();
+
+  // If session not found, return basic metadata
+  if (!session || error) {
+    return {
+      title: 'Session Not Found | Co~Learn',
+      description: 'The requested session could not be found.'
+    };
+  }
+
+  const sessionTitle = session.title || `Session by ${session.facilitator_name}`;
+  const sessionDescription = session.description || 
+    `Join the ${sessionTitle} learning session hosted by ${session.facilitator_name}`;
+
+  return {
+    title: `${sessionTitle} | Co~Learn`,
+    description: sessionDescription
+  };
+}
+
+export default async function SessionRoomPage({ params }: Props) {
+  const resolvedParams = await params;
+  const supabase = await createClient();
+  
   const { data: session, error } = await supabase
     .from("sessions")
     .select("*")
-    .eq("room_code", params.room_code)
+    .eq("room_code", resolvedParams.room_code)
     .single();
 
   if (!session || error) {
@@ -27,16 +57,12 @@ export default async function SessionRoomPage(props: {
   }
 
   return (
-    <>
-      <main>
-        <div className={classes.session_container}>
-          <SessionBroadcast
-            roomCode={params.room_code}
-            userId={user.id}
-            userName={name || user.email || user.id}
-          />
-        </div>
-      </main>
-    </>
+    <SessionPageClient
+      roomCode={resolvedParams.room_code}
+      userId={user.id}
+      userName={name || user.email || user.id}
+      sessionTitle={session.title}
+      facilitatorName={session.facilitator_name}
+    />
   );
 }

@@ -1,6 +1,13 @@
-"use client";
-
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Home | Co~Learn",
+  description: "Welcome to Co~Learn, your collaborative learning platform"
+};
+
+
+
 
 export default function HomePage() {
   return (

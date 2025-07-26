@@ -1,8 +1,13 @@
+import { Metadata } from "next";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 import AdminDashboard from "./AdminDashboard";
 import FacilitatorDashboard from "./FacilitatorDashboard";
 import ParticipantDashboard from "./ParticipantDashboard";
 
+export const metadata: Metadata = {
+  title: "Dashboard | Co~Learn",
+  description: "Access your sessions and resources on Co~Learn"
+};
 
 export default async function DashboardPage() {
   const { user, role, name } = await getUserWithRole();

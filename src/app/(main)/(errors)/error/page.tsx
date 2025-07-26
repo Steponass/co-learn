@@ -1,3 +1,10 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Error | Co~Learn",
+  description: "Something went wrong… Try again later?"
+};
+
 export default function ErrorPage() {
   return (
     <div>

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Signika } from 'next/font/google';
+import { Signika } from "next/font/google";
 import "./styles/css-reset.css";
 import "./styles/variables.css";
-import "./styles/fonts.css"
+import "./styles/fonts.css";
 import "./styles/globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SubtitleProvider } from "@/contexts/SubtitleContext";
+import LayoutContent from "@/app/components/layout/LayoutContent";
 
 export const metadata: Metadata = {
   title: "Co-Learn",
@@ -12,13 +14,12 @@ export const metadata: Metadata = {
 };
 
 const signika = Signika({
-  subsets: ['latin', 'latin-ext'], 
-  weight: 'variable',
-  axes: ['GRAD'],
-  variable: '--font-signika',
-  display: 'swap',
+  subsets: ["latin", "latin-ext"],
+  weight: "variable",
+  axes: ["GRAD"],
+  variable: "--font-signika",
+  display: "swap",
 });
-
 
 export default function RootLayout({
   children,
@@ -29,7 +30,9 @@ export default function RootLayout({
     <html lang="en" className={signika.variable}>
       <body>
         <ThemeProvider>
-          {children}
+          <SubtitleProvider>
+            <LayoutContent>{children}</LayoutContent>
+          </SubtitleProvider>
         </ThemeProvider>
       </body>
     </html>

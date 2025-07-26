@@ -1,30 +1,24 @@
 import classes from "./Header.module.css";
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import HeaderClient from "./HeaderClient";
 import SignOutButton from "./SignOutButton";
+import type { User } from "@supabase/supabase-js";
 
-interface HeaderProps {
-  sessionTitle?: string;
+interface ClientHeaderProps {
+  subtitle?: string;
+  user: User | null;
 }
 
-
-export default async function Header({ sessionTitle }: HeaderProps) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export default function Header({ subtitle, user }: ClientHeaderProps) {
   return (
     <header className={classes.header}>
       <div className={classes.header_panel_left}>
-      <Link href="/">
-        <h4 className="logotype">
-          Co~Learn
-        </h4>
-      </Link>
-      <h5 className={classes.header_session_title}
-       >{sessionTitle}</h5>
+        <Link href="/">
+          <h4 className="logotype">Co~Learn</h4>
+        </Link>
+        {subtitle && (
+            <h5 className={classes.header_subtitle}>{subtitle}</h5>
+        )}
       </div>
       <div className={classes.header_panel_right}>
         <HeaderClient />
