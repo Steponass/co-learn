@@ -21,11 +21,9 @@ export async function signup(previousState: unknown, formData: FormData) {
     password,
     options: {
       data: {
-        user_role: 
-        role, 
+        user_role: role, 
         name,
       },
-      // The below might fuck up where user is redirected after clicking confirm signup button in email
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
   });
@@ -39,8 +37,7 @@ export async function signup(previousState: unknown, formData: FormData) {
   }
 
   return {
-    message:
-      "Signup successful! Please check your email to confirm your account.",
+    message: "Signup successful! Please check your email to confirm your account.",
     redirectTo: "/login",
     delay: 1500,
   };

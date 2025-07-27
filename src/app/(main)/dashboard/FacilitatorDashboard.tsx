@@ -18,7 +18,6 @@ export default function FacilitatorDashboard({ name, facilitatorId }: Props) {
       <FacilitatorSessionList facilitatorId={facilitatorId} />
       <FacilitatorCreateSession
         facilitatorId={facilitatorId}
-        facilitatorName={name}
       />
     </div>
   );

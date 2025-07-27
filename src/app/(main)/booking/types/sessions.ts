@@ -36,7 +36,6 @@ export interface Session {
   description?: string;
   is_recurring: boolean;
   recurrence_pattern?: RecurrencePattern;
-  parent_session_id?: string;
   max_participants: number;
 }
 
@@ -105,7 +104,6 @@ export interface ParticipantSessionResponse {
 export interface RawSessionData {
   id: string;
   facilitator_id: string;
-  facilitator_name: string;
   start_time: string;
   end_time: string;
   time_zone: string;
@@ -116,8 +114,11 @@ export interface RawSessionData {
   description?: string;
   is_recurring?: boolean;
   recurrence_pattern?: RecurrencePattern;
-  parent_session_id?: string;
   max_participants?: number;
+  facilitator?: Array<{
+    name: string;
+    email: string;
+  }>;
 }
 
 // Raw participant data from database
@@ -141,7 +142,7 @@ export function mapRawSessionToSession(raw: RawSessionData): Session {
   return {
     id: raw.id,
     facilitator_id: raw.facilitator_id,
-    facilitator_name: raw.facilitator_name,
+    facilitator_name: (raw.facilitator && raw.facilitator[0]?.name) || 'Unknown',
     start_time: raw.start_time,
     end_time: raw.end_time,
     time_zone: raw.time_zone,
@@ -152,7 +153,6 @@ export function mapRawSessionToSession(raw: RawSessionData): Session {
     description: raw.description,
     is_recurring: raw.is_recurring || false,
     recurrence_pattern: raw.recurrence_pattern,
-    parent_session_id: raw.parent_session_id,
     max_participants: raw.max_participants || 6,
   };
 }

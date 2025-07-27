@@ -7,8 +7,6 @@ import classes from "./BookingList.module.css";
 export default function ParticipantBookSessionButton({
   sessionId,
   participantId,
-  participantName,
-  facilitatorName,
   onBooked,
 }: {
   sessionId: string;
@@ -40,8 +38,6 @@ export default function ParticipantBookSessionButton({
     >
       <input type="hidden" name="session_id" value={sessionId} />
       <input type="hidden" name="participant_id" value={participantId} />
-      <input type="hidden" name="participant_name" value={participantName} />
-      <input type="hidden" name="facilitator_name" value={facilitatorName} />
       <div className={classes.book_session_and_msg}>
         <button className="primary_button" disabled={isPending} type="submit">
           Book Session

@@ -57,7 +57,6 @@ export default function FacilitatorSessionParticipants({
                 title: s.title,
                 description: s.description,
                 recurrence_pattern: s.recurrence_pattern,
-                parent_session_id: s.parent_session_id,
                 session_participants: (s.session_participants ?? []).map(
                   (sp: unknown) => {
                     const p = sp as Partial<SessionParticipant>;

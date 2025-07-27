@@ -24,13 +24,14 @@ export default function ParentBookingLists({
     ParticipantSession[]
   >([]);
 
-  const fetchAvailableSessions = useCallback(() => {
-    const supabase = createClient();
-    supabase
-      .from("sessions")
-      .select(
-        `id, facilitator_id, facilitator_name, start_time, end_time, time_zone, room_code, created_at, updated_at, title, description, is_recurring, recurrence_pattern, parent_session_id, max_participants`
-      )
+const fetchAvailableSessions = useCallback(() => {
+  const supabase = createClient();
+  supabase
+    .from("sessions")
+    .select(`
+      id, facilitator_id, start_time, end_time, time_zone, room_code, created_at, updated_at, title, description, is_recurring, max_participants,
+      facilitator:user_info!facilitator_id(name, email)
+    `)
       .then(async ({ data: allSessions, error }) => {
         if (error) {
           console.error("[AvailableSessionsList] Error:", error.message);
@@ -66,8 +67,12 @@ export default function ParentBookingLists({
 
           if (!isBooked && !isFull) {
             // Map the raw session data to proper Session object
-            const mappedSession = mapRawSessionToSession(sessionRaw);
-            available.push(mappedSession);
+            const mappedSession = {
+  ...mapRawSessionToSession(sessionRaw),
+  facilitator_name: (sessionRaw.facilitator && sessionRaw.facilitator[0]?.name) || 'Unknown'
+
+};
+available.push(mappedSession);
           }
         }
 

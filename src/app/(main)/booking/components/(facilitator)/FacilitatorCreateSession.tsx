@@ -5,10 +5,8 @@ import { timeZones } from "../../utils/timezones";
 import classes from "../(participant)/BookingList.module.css";
 export default function FacilitatorCreateSession({
   facilitatorId,
-  facilitatorName,
 }: {
   facilitatorId: string;
-  facilitatorName: string;
 }) {
   const [formData, formAction, isPending] = useActionState(
     createSession,
@@ -39,7 +37,6 @@ export default function FacilitatorCreateSession({
         action={formAction}
       >
         <input type="hidden" name="facilitator_id" value={facilitatorId} />
-        <input type="hidden" name="facilitator_name" value={facilitatorName} />
         <input
           type="hidden"
           name="is_recurring"

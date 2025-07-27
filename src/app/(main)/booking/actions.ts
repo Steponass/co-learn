@@ -4,7 +4,6 @@ import { DateTime } from "luxon";
 
 import {
   mapRawSessionWithParticipants,
-  mapRawSessionToSession,
   type RawSessionData,
   type RawSessionWithParticipantsData,
 } from "./types/sessions";
@@ -15,7 +14,6 @@ export async function createSession(
 ) {
   const supabase = await createClient();
   const facilitator_id = formData.get("facilitator_id") as string;
-  const facilitator_name = formData.get("facilitator_name") as string;
   // Fix: Better handling of optional fields
   const titleRaw = formData.get("title") as string;
   const descriptionRaw = formData.get("description") as string;
@@ -52,19 +50,9 @@ export async function createSession(
   const end_time = DateTime.fromISO(end_time_local, { zone: time_zone })
     .toUTC()
     .toISO();
-  console.log("[createSession] Inserting data:", {
-    facilitator_id,
-    facilitator_name,
-    title,
-    description,
-    max_participants,
-    is_recurring,
-    recurrence_pattern,
-  });
   const { data, error } = await supabase.from("sessions").insert([
     {
       facilitator_id,
-      facilitator_name,
       title,
       description,
       start_time,
@@ -74,7 +62,6 @@ export async function createSession(
       max_participants,
       is_recurring: is_recurring || false,
       recurrence_pattern,
-      parent_session_id: null,
     },
   ]);
   if (error) {
@@ -89,8 +76,6 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   const supabase = await createClient();
   const session_id = formData.get("session_id") as string;
   const participant_id = formData.get("participant_id") as string;
-  const participant_name = formData.get("participant_name") as string;
-  const facilitator_name = formData.get("facilitator_name") as string;
 
   // Check current bookings
   const { data: participants, error: participantsError } = await supabase
@@ -112,7 +97,7 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   const { data, error } = await supabase
     .from("session_participants")
     .insert([
-      { session_id, participant_id, participant_name, facilitator_name },
+      { session_id, participant_id } 
     ]);
 
   if (error) {
@@ -126,17 +111,39 @@ export async function bookSession(previousState: unknown, formData: FormData) {
 export async function getFacilitatorSessions(facilitatorId: string) {
   try {
     const supabase = await createClient();
+    
+    console.log("[getFacilitatorSessions] Querying for facilitator:", facilitatorId);
+    
     const { data, error } = await supabase
       .from("sessions")
-      .select("*")
+      .select(`
+        *,
+        facilitator:user_info!facilitator_id(name, email)
+      `)
       .eq("facilitator_id", facilitatorId);
+
+    console.log("[getFacilitatorSessions] Raw data:", data);
+    console.log("[getFacilitatorSessions] Error:", error);
 
     if (error) {
       console.error("[getFacilitatorSessions] Error:", error);
       return { data: null, error: error.message };
     }
 
-    return { data: data || [], error: null };
+    // Add backward compatibility
+    const mappedData = data?.map(session => {
+      console.log("[getFacilitatorSessions] Processing session:", session);
+      console.log("[getFacilitatorSessions] Facilitator data:", session.facilitator);
+      
+      return {
+        ...session,
+        facilitator_name: session.facilitator?.name || 'Unknown'
+      };
+    });
+
+    console.log("[getFacilitatorSessions] Final mapped data:", mappedData);
+
+    return { data: mappedData || [], error: null };
   } catch (err) {
     console.error("[getFacilitatorSessions] Exception:", err);
     return { data: null, error: "Failed to fetch sessions" };
@@ -154,7 +161,6 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
         `
       id,
       facilitator_id,
-      facilitator_name,
       start_time,
       end_time,
       time_zone,
@@ -165,7 +171,6 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
       description,
       is_recurring,
       recurrence_pattern,
-      parent_session_id,
       max_participants
     `
       )
@@ -251,13 +256,12 @@ export async function getParticipantSessions(participantId: string) {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("session_participants")
-      .select(
-        `
+      .select(`
         session_id,
+        joined_at,
         sessions (
           id,
           facilitator_id,
-          facilitator_name,
           start_time,
           end_time,
           time_zone,
@@ -268,33 +272,30 @@ export async function getParticipantSessions(participantId: string) {
           description,
           is_recurring,
           recurrence_pattern,
-          parent_session_id,
-          max_participants
+          max_participants,
+          facilitator:user_info!facilitator_id(name, email)
         )
-      `
-      )
+      `)
       .eq("participant_id", participantId);
+      
     if (error) {
       console.error("[getParticipantSessions] Error:", error);
       return { data: [], error: error.message };
     }
 
-    // Map the nested sessions data with proper typing
-    const participantSessions = (data || []).map(
-      (item: {
-        session_id: string;
-        sessions: RawSessionData | RawSessionData[];
-      }) => {
-        // Handle if sessions is an array (should only take the first)
-        const sessionObj = Array.isArray(item.sessions)
-          ? item.sessions[0]
-          : item.sessions;
-        return {
-          session_id: item.session_id,
-          sessions: mapRawSessionToSession(sessionObj),
-        };
-      }
-    );
+    // Map the nested sessions data with proper type conversion
+    const participantSessions = (data || []).map((item) => {
+      const sessionObj = Array.isArray(item.sessions) ? item.sessions[0] : item.sessions;
+      
+      return {
+        session_id: item.session_id,
+        sessions: {
+          ...sessionObj,
+          // Convert facilitator array to facilitator_name string
+          facilitator_name: (sessionObj.facilitator && sessionObj.facilitator[0]?.name) || 'Unknown'
+        }
+      };
+    });
 
     return { data: participantSessions, error: null };
   } catch (err) {

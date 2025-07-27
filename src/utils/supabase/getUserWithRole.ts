@@ -13,9 +13,10 @@ export async function getUserWithRole() {
     return { user: null, role: null, name: null }
   }
 
+  // Changed from 'user_roles' to 'user_info'
   const { data, error } = await supabase
-    .from('user_roles')
-    .select('role, name')
+    .from('user_info')  // ← This is the key change
+    .select('role, name, email')
     .eq('user_id', user.id)
     .single()
 
