@@ -19,7 +19,7 @@ export interface SessionRowProps {
     participantId: string;
     participantName: string;
     facilitatorName: string;
-    onBooked?: () => void;
+
   };
 }
 

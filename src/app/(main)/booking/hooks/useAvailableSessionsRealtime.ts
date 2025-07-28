@@ -74,18 +74,31 @@ export function useAvailableSessionsRealtime(
   // Filter available sessions
   const availableSessions = useMemo(() => {
     if (!allSessions.length) return [];
-
+  
+    console.log("[useAvailableSessionsRealtime] All sessions:", allSessions.length);
+    console.log("[useAvailableSessionsRealtime] User booked sessions:", userBookedSessionIds);
+    console.log("[useAvailableSessionsRealtime] Participant counts:", participantCounts);
+  
     return allSessions.filter((session) => {
       // Skip if user already booked this session
       if (userBookedSessionIds.includes(session.id)) {
+        console.log(`[useAvailableSessionsRealtime] Session ${session.id} already booked by user`);
         return false;
       }
-
+  
       // Check if session is full
       const currentCount = participantCounts[session.id] || 0;
       const maxParticipants = session.max_participants || 6;
       const isFull = currentCount >= maxParticipants;
-
+  
+      console.log(`[useAvailableSessionsRealtime] Session ${session.id}:`, {
+        title: session.title,
+        currentCount,
+        maxParticipants,
+        isFull,
+        willShow: !isFull
+      });
+  
       return !isFull;
     });
   }, [allSessions, userBookedSessionIds, participantCounts]);

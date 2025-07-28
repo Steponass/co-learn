@@ -78,20 +78,27 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   const session_id = formData.get("session_id") as string;
   const participant_id = formData.get("participant_id") as string;
 
+  // First get the session to check max_participants
+  const { data: session, error: sessionError } = await supabase
+    .from("sessions")
+    .select("max_participants")
+    .eq("id", session_id)
+    .single();
+
+  if (sessionError) {
+    return { error: "Session not found." };
+  }
+
   // Check current bookings
-  const { data: participants, error: participantsError } = await supabase
+  const { data: participants } = await supabase
     .from("session_participants")
     .select("*")
     .eq("session_id", session_id);
 
   const count = participants ? participants.length : 0;
+  const maxParticipants = session.max_participants || 6;
 
-  if (participantsError) {
-    console.error("[bookSession] Error:", participantsError?.message);
-    return { error: participantsError?.message };
-  }
-
-  if (typeof count === "number" && count >= 6) {
+  if (typeof count === "number" && count >= maxParticipants) {
     return { error: "Session is full." };
   }
 

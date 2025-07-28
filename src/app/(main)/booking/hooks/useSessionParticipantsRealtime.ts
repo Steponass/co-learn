@@ -29,21 +29,28 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
     try {
       setError(null);
       
+      console.log("[useSessionParticipantsRealtime] Fetching participant counts...");
+      
       const { data, error: fetchError } = await supabase
         .from("session_participants")
         .select("session_id");
-
+  
+      console.log("[useSessionParticipantsRealtime] Raw data:", data);
+      console.log("[useSessionParticipantsRealtime] Error:", fetchError);
+  
       if (fetchError) {
         throw new Error(fetchError.message);
       }
-
+  
       // Count participants per session
       const counts: ParticipantCounts = {};
       (data || []).forEach((participant) => {
         const sessionId = participant.session_id;
         counts[sessionId] = (counts[sessionId] || 0) + 1;
       });
-
+  
+      console.log("[useSessionParticipantsRealtime] Computed counts:", counts);
+      
       setParticipantCounts(counts);
       setLoading(false);
     } catch (err) {

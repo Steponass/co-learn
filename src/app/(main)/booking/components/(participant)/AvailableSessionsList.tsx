@@ -11,7 +11,7 @@ interface AvailableSessionsListProps {
   sessions: Session[];
   loading: boolean;
   error: string | null;
-  onBooked: () => void;
+
 }
 
 export default function AvailableSessionsList({
@@ -20,7 +20,7 @@ export default function AvailableSessionsList({
   sessions,
   loading,
   error,
-  onBooked,
+
 }: AvailableSessionsListProps) {
   
   // Show loading state
@@ -73,7 +73,7 @@ export default function AvailableSessionsList({
                 participantId,
                 participantName,
                 facilitatorName: session.facilitator_name || "",
-                onBooked,
+
               }}
             />
           ))}

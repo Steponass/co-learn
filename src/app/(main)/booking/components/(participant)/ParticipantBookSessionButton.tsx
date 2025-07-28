@@ -9,30 +9,22 @@ interface ParticipantBookSessionButtonProps {
   participantId: string;
   participantName: string;
   facilitatorName: string;
-  onBooked?: () => void; // Keep as optional for backward compatibility
+
 }
 
 export default function ParticipantBookSessionButton({
   sessionId,
   participantId,
-  onBooked,
 }: ParticipantBookSessionButtonProps) {
   const [formData, formAction, isPending] = useActionState(
     bookSession,
     undefined
   );
 
-  // Call onBooked callback if provided (for manual refresh if needed)
-  // Real-time hooks will handle most updates automatically
   const handleSubmit = (e: React.FormEvent) => {
     if (!window.confirm("Are you sure you want to book this session?")) {
       e.preventDefault();
       return;
-    }
-    
-    // If booking succeeds and callback provided, call it
-    if (formData?.message && onBooked) {
-      onBooked();
     }
   };
 

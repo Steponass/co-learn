@@ -18,14 +18,14 @@ export default function ParentBookingLists({
     sessions: availableSessions,
     loading: availableLoading,
     error: availableError,
-    refetch: refetchAvailable,
+
   } = useAvailableSessionsRealtime(participantId);
 
   const {
     sessions: participantSessions,
     loading: participantLoading,
     error: participantError,
-    refetch: refetchParticipant,
+
   } = useParticipantSessionsRealtime(participantId);
 
   // Handle case when no participant ID
@@ -37,12 +37,6 @@ export default function ParentBookingLists({
     );
   }
 
-  // Combined refresh function for manual refreshes (though rarely needed now)
-  const handleBookedOrCancelled = () => {
-    refetchAvailable();
-    refetchParticipant();
-  };
-
   return (
     <>
       <AvailableSessionsList
@@ -51,14 +45,12 @@ export default function ParentBookingLists({
         sessions={availableSessions}
         loading={availableLoading}
         error={availableError}
-        onBooked={handleBookedOrCancelled}
       />
       <ParticipantSessionList
         participantId={participantId}
         sessions={participantSessions}
         loading={participantLoading}
         error={participantError}
-        onBooked={handleBookedOrCancelled}
       />
     </>
   );

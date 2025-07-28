@@ -11,7 +11,7 @@ interface ParticipantSessionListProps {
   sessions: ParticipantSession[];
   loading: boolean;
   error: string | null;
-  onBooked: () => void;
+
 }
 
 export default function ParticipantSessionList({
@@ -19,13 +19,13 @@ export default function ParticipantSessionList({
   sessions,
   loading,
   error,
-  onBooked,
+
 }: ParticipantSessionListProps) {
   
   const handleCancel = async (sessionId: string) => {
     try {
       await cancelBooking(sessionId, participantId);
-      onBooked(); // Trigger manual refresh if needed
+
     } catch (err) {
       console.error("[ParticipantSessionList] Cancel error:", err);
       // Could add error toast notification here
