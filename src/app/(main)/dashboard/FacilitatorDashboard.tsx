@@ -1,3 +1,4 @@
+// src/app/(main)/dashboard/FacilitatorDashboard.tsx
 "use client";
 
 import FacilitatorSessionList from "../booking/components/(facilitator)/FacilitatorSessionList";
@@ -5,9 +6,15 @@ import FacilitatorCreateSession from "../booking/components/(facilitator)/Facili
 import FacilitatorSessionParticipants from "../booking/components/(facilitator)/FacilitatorSessionParticipants";
 import classes from "./Dashboard.module.css";
 
-type Props = { userEmail: string; name: string; facilitatorId: string };
+interface FacilitatorDashboardProps {
+  name: string;
+  facilitatorId: string;
+}
 
-export default function FacilitatorDashboard({ name, facilitatorId }: Props) {
+export default function FacilitatorDashboard({ 
+  name, 
+  facilitatorId 
+}: FacilitatorDashboardProps) {
   return (
     <div className={classes.dashboard + " stack"}>
       <div className={classes.dashboard_header}>
@@ -15,10 +22,10 @@ export default function FacilitatorDashboard({ name, facilitatorId }: Props) {
       </div>
 
       <FacilitatorSessionParticipants facilitatorId={facilitatorId} />
+      
       <FacilitatorSessionList facilitatorId={facilitatorId} />
-      <FacilitatorCreateSession
-        facilitatorId={facilitatorId}
-      />
+      
+      <FacilitatorCreateSession facilitatorId={facilitatorId} />
     </div>
   );
 }

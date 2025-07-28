@@ -1,3 +1,4 @@
+// src/app/(main)/dashboard/page.t
 import { Metadata } from "next";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 import AdminDashboard from "./AdminDashboard";
@@ -14,28 +15,27 @@ export default async function DashboardPage() {
 
   if (!user) return <p>Please log in.</p>;
 
-  if (role === "admin")
-    return(
-      <AdminDashboard  
-      name={name ?? ""}/>
-      );
+  if (role === "admin") {
+    return <AdminDashboard name={name ?? ""} />;
+  }
 
-  if (role === "facilitator")
+  if (role === "facilitator") {
     return (
       <FacilitatorDashboard
-        userEmail={user.email ?? ""}
         name={name ?? ""}
-        facilitatorId={user.id}/>
+        facilitatorId={user.id}
+      />
     );
+  }
 
-  if (role === "participant")
+  if (role === "participant") {
     return (
       <ParticipantDashboard
-        userEmail={user.email ?? ""}
         name={name ?? ""}
         participantId={user.id}
       />
     );
+  }
 
   return <p>Unknown role.</p>;
 }

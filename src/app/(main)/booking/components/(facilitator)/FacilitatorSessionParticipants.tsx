@@ -1,61 +1,37 @@
-import { useEffect, useState, useCallback } from "react";
-import {
-  getFacilitatorSessionParticipants,
-  cancelSession,
-} from "../../actions";
+"use client";
+
+import { useState } from "react";
+import { cancelSession } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
-import type { SessionWithParticipants } from "../../types/sessions";
-import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
+import { getSessionDateDisplay } from "../../utils/sessionHelpers";
+import { useFacilitatorSessionParticipantsRealtime } from "../../hooks/useFacilitatorSessionParticipantsRealtime";
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
-import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import ListViewToggleButton from "../ListViewToggleButton";
+import type { SessionWithParticipants } from "../../types/sessions";
+
+interface FacilitatorSessionParticipantsProps {
+  facilitatorId: string;
+}
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
-}: {
-  facilitatorId: string;
-}) {
-  const [sessions, setSessions] = useState<SessionWithParticipants[]>([]);
+}: FacilitatorSessionParticipantsProps) {
   const [cancelState, setCancelState] = useState<{
     [key: string]: { isPending: boolean; message?: string; error?: string };
   }>({});
   const [showList, setShowList] = useState(true);
 
-  const fetchSessions = useCallback(() => {
-    if (!facilitatorId) {
-      setSessions([]);
-      return;
-    }
-    getFacilitatorSessionParticipants(facilitatorId)
-      .then((res) => {
-        if (res?.data) {
-          setSessions(res.data);
-        } else {
-          setSessions([]);
-          if (res?.error) {
-            console.error("[FacilitatorSessionParticipants] Error:", res.error);
-          }
-        }
-      })
-      .catch((error) => {
-        console.error("[FacilitatorSessionParticipants] Fetch error:", error);
-        setSessions([]);
-      });
-  }, [facilitatorId]);
-
-  useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
-  
-  useSessionParticipantsRealtime(fetchSessions);
-  
-  if (!facilitatorId) {
-    return <div>Please log in to view your sessions.</div>;
-  }
+  const {
+    sessions,
+    loading,
+    error,
+    refetch,
+  } = useFacilitatorSessionParticipantsRealtime(facilitatorId);
 
   const handleCancelSession = async (sessionId: string) => {
     setCancelState((prev) => ({ ...prev, [sessionId]: { isPending: true } }));
+    
     const formData = new FormData();
     formData.append("session_id", sessionId);
     formData.append("facilitator_id", facilitatorId);
@@ -72,7 +48,7 @@ export default function FacilitatorSessionParticipants({
         ...prev,
         [sessionId]: { isPending: false, message: result.message },
       }));
-      fetchSessions();
+      // No need to manually refetch - real-time will handle it
     }
   };
 
@@ -80,13 +56,14 @@ export default function FacilitatorSessionParticipants({
     const participantCount = session.session_participants.length;
     const maxParticipants = session.max_participants;
     const isFull = participantCount >= maxParticipants;
-    
+
+    // If maxParticipants is 1 and no participants, show only 'Participants 0/1'
     if (maxParticipants === 1 && participantCount === 0) {
       return (
         <span className={classes.participant_count}>Participants: 0/1</span>
       );
     }
-    
+
     return (
       <>
         <span className={classes.participant_count}>
@@ -110,6 +87,7 @@ export default function FacilitatorSessionParticipants({
 
   const renderSessionActions = (session: SessionWithParticipants) => {
     const sessionCancelState = cancelState[session.id];
+    
     return (
       <div className={classes.session_actions}>
         <button
@@ -148,6 +126,39 @@ export default function FacilitatorSessionParticipants({
     );
   };
 
+  if (!facilitatorId) {
+    return <div>Please log in to view your sessions.</div>;
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className={classes.booking_list}>
+        <div className={classes.list_header_with_toggle}>
+          <h4 className={classes.list_heading}>Booked Sessions</h4>
+        </div>
+        <p>Loading sessions with participants...</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={classes.booking_list}>
+        <div className={classes.list_header_with_toggle}>
+          <h4 className={classes.list_heading}>Booked Sessions</h4>
+        </div>
+        <div className="error_msg">
+          <p>{error}</p>
+          <button className="secondary_button" onClick={refetch}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={classes.booking_list}>
       <div className={classes.list_header_with_toggle}>
@@ -158,6 +169,7 @@ export default function FacilitatorSessionParticipants({
           className={classes.list_view_toggle_button}
         />
       </div>
+      
       {sessions.length === 0 ? (
         <p>No sessions with participants yet.</p>
       ) : (
@@ -175,7 +187,6 @@ export default function FacilitatorSessionParticipants({
               timeZone={session.time_zone}
               description={session.description}
               dateDisplay={getSessionDateDisplay(session)}
-              facilitatorName={session.facilitator_name}
               maxParticipants={session.max_participants}
               participantInfo={renderParticipantInfo(session)}
               actions={renderSessionActions(session)}

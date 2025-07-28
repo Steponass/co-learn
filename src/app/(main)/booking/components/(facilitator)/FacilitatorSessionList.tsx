@@ -1,76 +1,34 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { getFacilitatorSessions, cancelSession } from "../../actions";
-import type { Session } from "../../types/sessions";
+
+import { useState } from "react";
+import { cancelSession } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
-import {
-  getSessionDateDisplay,
-} from "../../utils/sessionHelpers";
-import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
+import { getSessionDateDisplay } from "../../utils/sessionHelpers";
+import { useFacilitatorSessionsRealtime } from "../../hooks/useFacilitatorSessionsRealtime";
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
 
+interface FacilitatorSessionListProps {
+  facilitatorId: string;
+}
+
 export default function FacilitatorSessionList({
   facilitatorId,
-}: {
-  facilitatorId: string;
-}) {
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [participantCounts, setParticipantCounts] = useState<
-    Record<string, number>
-  >({});
+}: FacilitatorSessionListProps) {
   const [cancelState, setCancelState] = useState<{
     [key: string]: { isPending: boolean; message?: string; error?: string };
   }>({});
 
-  const fetchSessions = useCallback(() => {
-    if (!facilitatorId) {
-      setSessions([]);
-      setParticipantCounts({});
-      return;
-    }
-    getFacilitatorSessions(facilitatorId)
-      .then(async (res) => {
-        if (res?.data) {
-          setSessions(res.data);
-          // Fetch participant counts for each session
-          const supabase = (
-            await import("@/utils/supabase/client")
-          ).createClient();
-          const counts: Record<string, number> = {};
-          await Promise.all(
-            res.data.map(async (session: Session) => {
-              const { data: participants } = await supabase
-                .from("session_participants")
-                .select("participant_id")
-                .eq("session_id", session.id);
-              counts[session.id] = participants ? participants.length : 0;
-            })
-          );
-          setParticipantCounts(counts);
-        } else {
-          setSessions([]);
-          setParticipantCounts({});
-        }
-      })
-      .catch((error) => {
-        console.error("[FacilitatorSessionList] Fetch error:", error);
-        setSessions([]);
-        setParticipantCounts({});
-      });
-  }, [facilitatorId]);
+  const {
+    sessions,
+    loading,
+    error,
+    refetch,
+  } = useFacilitatorSessionsRealtime(facilitatorId);
 
-  useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
-  useSessionParticipantsRealtime(() => {
-    fetchSessions();
-  });
-  if (!facilitatorId) {
-    return <div>Please log in to view your sessions.</div>;
-  }
   const handleCancelSession = async (sessionId: string) => {
     setCancelState((prev) => ({ ...prev, [sessionId]: { isPending: true } }));
+    
     const formData = new FormData();
     formData.append("session_id", sessionId);
     formData.append("facilitator_id", facilitatorId);
@@ -87,78 +45,99 @@ export default function FacilitatorSessionList({
         ...prev,
         [sessionId]: { isPending: false, message: result.message },
       }));
-      fetchSessions();
+      // No need to manually refetch - real-time will handle it
     }
   };
+
+  if (!facilitatorId) {
+    return <div>Please log in to view your sessions.</div>;
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className={classes.booking_list}>
+        <h4 className={classes.list_heading}>Open Sessions</h4>
+        <p>Loading your sessions...</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={classes.booking_list}>
+        <h4 className={classes.list_heading}>Open Sessions</h4>
+        <div className="error_msg">
+          <p>{error}</p>
+          <button className="secondary_button" onClick={refetch}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>Open Sessions</h4>
+      
       {sessions.length === 0 ? (
-        <p>No sessions created yet.</p>
+        <p>No open sessions. Create a session to get started!</p>
       ) : (
         <ul className="stack">
-          {sessions
-            .filter((session) => {
-              const count = participantCounts[session.id] ?? 0;
-              return count < session.max_participants;
-            })
-            .map((session) => {
-              const sessionCancelState = cancelState[session.id];
-              const count = participantCounts[session.id] ?? 0;
-              return (
-                <SessionRow
-                  key={session.id}
-                  rowKey={session.id}
-                  title={session.title}
-                  startTime={formatSessionTimeOnly(
-                    session.start_time,
-                    session.end_time,
-                    session.time_zone
-                  )}
-                  timeZone={session.time_zone}
-                  description={session.description}
-                  dateDisplay={getSessionDateDisplay(session)}
-                  facilitatorName={session.facilitator_name as string | undefined}
-                  maxParticipants={session.max_participants}
-                  participantInfo={
-                    <span className={classes.participant_count}>
-                      Participants: {count}/{session.max_participants}
-                    </span>
-                  }
-                  actions={
-                    <div className={classes.session_actions}>
-                      <button
-                        className="secondary_button"
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              "Are you sure you want to cancel this session?"
-                            )
-                          ) {
-                            handleCancelSession(session.id);
-                          }
-                        }}
-                        disabled={sessionCancelState?.isPending}
-                      >
-                        {sessionCancelState?.isPending
-                          ? "Cancelling..."
-                          : "Cancel Session"}
-                      </button>
-                      {sessionCancelState?.error && (
-                        <div className="error_msg">
-                          <p>{sessionCancelState.error}</p>
-                        </div>
-                      )}
-                      {sessionCancelState?.message && (
-                        <div className="success_msg">
-                          <p>{sessionCancelState.message}</p>
-                        </div>
-                      )}
-                    </div>
-                  }
-                />
-              );
-            })}
+          {sessions.map((session) => {
+            const sessionCancelState = cancelState[session.id];
+            
+            return (
+              <SessionRow
+                key={session.id}
+                rowKey={session.id}
+                title={session.title}
+                startTime={formatSessionTimeOnly(
+                  session.start_time,
+                  session.end_time,
+                  session.time_zone
+                )}
+                timeZone={session.time_zone}
+                description={session.description}
+                dateDisplay={getSessionDateDisplay(session)}
+                facilitatorName={session.facilitator_name}
+                maxParticipants={session.max_participants}
+                actions={
+                  <div className={classes.session_actions}>
+                    <button
+                      className="secondary_button"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to cancel this session?"
+                          )
+                        ) {
+                          handleCancelSession(session.id);
+                        }
+                      }}
+                      disabled={sessionCancelState?.isPending}
+                    >
+                      {sessionCancelState?.isPending
+                        ? "Cancelling..."
+                        : "Cancel Session"}
+                    </button>
+                    {sessionCancelState?.error && (
+                      <div className="error_msg">
+                        <p>{sessionCancelState.error}</p>
+                      </div>
+                    )}
+                    {sessionCancelState?.message && (
+                      <div className="success_msg">
+                        <p>{sessionCancelState.message}</p>
+                      </div>
+                    )}
+                  </div>
+                }
+              />
+            );
+          })}
         </ul>
       )}
     </div>

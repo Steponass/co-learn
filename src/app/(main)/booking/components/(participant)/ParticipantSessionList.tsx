@@ -5,28 +5,64 @@ import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
+
+interface ParticipantSessionListProps {
+  participantId: string;
+  sessions: ParticipantSession[];
+  loading: boolean;
+  error: string | null;
+  onBooked: () => void;
+}
+
 export default function ParticipantSessionList({
   participantId,
   sessions,
-  fetchSessions,
+  loading,
+  error,
   onBooked,
-}: {
-  participantId: string;
-  sessions: ParticipantSession[];
-  fetchSessions: () => void;
-  onBooked: () => void;
-}) {
+}: ParticipantSessionListProps) {
+  
   const handleCancel = async (sessionId: string) => {
-    await cancelBooking(sessionId, participantId);
-    fetchSessions();
-    onBooked();
+    try {
+      await cancelBooking(sessionId, participantId);
+      onBooked(); // Trigger manual refresh if needed
+    } catch (err) {
+      console.error("[ParticipantSessionList] Cancel error:", err);
+      // Could add error toast notification here
+    }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className={classes.booking_list}>
+        <h4 className={classes.list_heading}>My Bookings</h4>
+        <p>Loading your bookings...</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={classes.booking_list}>
+        <h4 className={classes.list_heading}>My Bookings</h4>
+        <div className="error_msg">
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>My Bookings</h4>
-      <ul className="stack">
-        {sessions.map((row) => {
-          return (
+      
+      {sessions.length === 0 ? (
+        <p>You haven't booked any sessions yet.</p>
+      ) : (
+        <ul className="stack">
+          {sessions.map((row) => (
             <SessionRow
               key={row.session_id}
               rowKey={row.session_id}
@@ -56,9 +92,7 @@ export default function ParticipantSessionList({
                   <button
                     className="secondary_button"
                     onClick={() => {
-                      if (
-                        window.confirm("Sure you want to cancel this session?")
-                      ) {
+                      if (window.confirm("Sure you want to cancel this session?")) {
                         handleCancel(row.session_id);
                       }
                     }}
@@ -68,9 +102,9 @@ export default function ParticipantSessionList({
                 </div>
               }
             />
-          );
-        })}
-      </ul>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

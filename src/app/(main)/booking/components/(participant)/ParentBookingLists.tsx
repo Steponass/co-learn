@@ -1,131 +1,34 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
 import AvailableSessionsList from "./AvailableSessionsList";
 import ParticipantSessionList from "./ParticipantSessionList";
-import { getParticipantSessions } from "../../actions";
-import { createClient } from "@/utils/supabase/client";
-import {
-  mapRawSessionToSession,
-  type Session,
-  type ParticipantSession,
-  type RawSessionData,
-} from "../../types/sessions";
-import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
+import { useAvailableSessionsRealtime } from "../../hooks/useAvailableSessionsRealtime";
+import { useParticipantSessionsRealtime } from "../../hooks/useParticipantSessionsRealtime";
+
+interface ParentBookingListsProps {
+  participantId: string;
+  participantName: string;
+}
 
 export default function ParentBookingLists({
   participantId,
   participantName,
-}: {
-  participantId: string;
-  participantName: string;
-}) {
-  const [availableSessions, setAvailableSessions] = useState<Session[]>([]);
-  const [participantSessions, setParticipantSessions] = useState
-    <ParticipantSession[]>([]);
+}: ParentBookingListsProps) {
+  // Use real-time hooks instead of manual fetching and polling
+  const {
+    sessions: availableSessions,
+    loading: availableLoading,
+    error: availableError,
+    refetch: refetchAvailable,
+  } = useAvailableSessionsRealtime(participantId);
 
-  const fetchAvailableSessions = useCallback(() => {
-    const supabase = createClient();
-    supabase
-      .from("sessions")
-      .select(`
-        id,
-        facilitator_id,
-        start_time,
-        end_time,
-        time_zone,
-        room_code,
-        created_at,
-        updated_at,
-        title,
-        description,
-        is_recurring,
-        max_participants,
-        facilitator:user_info!facilitator_id(name, email)
-      `)
-      .then(async ({ data: allSessions, error }) => {
-        if (error) {
-          console.error("[AvailableSessionsList] Error:", error.message);
-          return;
-        }
-        
-        // Get sessions already booked by this participant
-        const { data: myBookings } = await supabase
-          .from("session_participants")
-          .select("session_id")
-          .eq("participant_id", participantId);
+  const {
+    sessions: participantSessions,
+    loading: participantLoading,
+    error: participantError,
+    refetch: refetchParticipant,
+  } = useParticipantSessionsRealtime(participantId);
 
-        const bookedSessionIds = myBookings?.map((b) => b.session_id) ?? [];
-
-        // For each session, count participants and check availability
-        const available: Session[] = [];
-
-        for (const sessionRaw of (allSessions ?? []) as RawSessionData[]) {
-          const { data: participants, error: partError } = await supabase
-            .from("session_participants")
-            .select("*")
-            .eq("session_id", sessionRaw.id);
-
-          if (partError) {
-            continue;
-          }
-
-          const count = participants ? participants.length : 0;
-          const isBooked = bookedSessionIds.includes(sessionRaw.id);
-
-          // Use the session's actual max_participants instead of hardcoded 6
-          const maxParticipants = sessionRaw.max_participants || 6;
-          const isFull = count >= maxParticipants;
-
-          if (!isBooked && !isFull) {
-            // Use centralized mapping instead of inline facilitator logic
-            const mappedSession = mapRawSessionToSession(sessionRaw);
-            available.push(mappedSession);
-          }
-        }
-
-        setAvailableSessions(available);
-      });
-  }, [participantId]);
-
-  const fetchParticipantSessions = useCallback(() => {
-    if (!participantId) {
-      setParticipantSessions([]);
-      return;
-    }
-    getParticipantSessions(participantId)
-      .then((res) => {
-        if (res && res.data) {
-          setParticipantSessions(res.data);
-        } else if (res && res.error) {
-          console.error(res.error);
-        } else {
-          setParticipantSessions([]);
-          console.error(
-            "Unexpected response from getParticipantSessions:",
-            res
-          );
-        }
-      })
-      .catch((err) => {
-        setParticipantSessions([]);
-        console.error("getParticipantSessions threw an error:", err);
-      });
-  }, [participantId]);
-
-  useEffect(() => {
-    if (!participantId) return;
-    fetchAvailableSessions();
-    fetchParticipantSessions();
-  }, [fetchAvailableSessions, fetchParticipantSessions, participantId]);
-
-  // Realtime updates
-  useSessionParticipantsRealtime(() => {
-    if (!participantId) return;
-    fetchAvailableSessions();
-    fetchParticipantSessions();
-  });
-
-  // If no participantId, render nothing
+  // Handle case when no participant ID
   if (!participantId) {
     return (
       <div>
@@ -134,10 +37,10 @@ export default function ParentBookingLists({
     );
   }
 
-  // When a booking or cancellation occurs, refresh both lists
+  // Combined refresh function for manual refreshes (though rarely needed now)
   const handleBookedOrCancelled = () => {
-    fetchAvailableSessions();
-    fetchParticipantSessions();
+    refetchAvailable();
+    refetchParticipant();
   };
 
   return (
@@ -146,13 +49,15 @@ export default function ParentBookingLists({
         participantId={participantId}
         participantName={participantName}
         sessions={availableSessions}
-        fetchSessions={fetchAvailableSessions}
+        loading={availableLoading}
+        error={availableError}
         onBooked={handleBookedOrCancelled}
       />
       <ParticipantSessionList
         participantId={participantId}
         sessions={participantSessions}
-        fetchSessions={fetchParticipantSessions}
+        loading={participantLoading}
+        error={participantError}
         onBooked={handleBookedOrCancelled}
       />
     </>

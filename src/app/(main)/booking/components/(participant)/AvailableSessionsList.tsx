@@ -1,34 +1,59 @@
 "use client";
-import { useEffect } from "react";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import type { Session } from "../../types/sessions";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
 
+interface AvailableSessionsListProps {
+  participantId: string;
+  participantName: string;
+  sessions: Session[];
+  loading: boolean;
+  error: string | null;
+  onBooked: () => void;
+}
+
 export default function AvailableSessionsList({
   participantId,
   participantName,
   sessions,
-  fetchSessions,
+  loading,
+  error,
   onBooked,
-}: {
-  participantId: string;
-  participantName: string;
-  sessions: Session[];
-  fetchSessions: () => void;
-  onBooked: () => void;
-}) {
-  useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+}: AvailableSessionsListProps) {
   
+  // Show loading state
+  if (loading) {
+    return (
+      <div className={classes.booking_list}>
+        <h4 className={classes.list_heading}>Available Sessions</h4>
+        <p>Loading sessions...</p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={classes.booking_list}>
+        <h4 className={classes.list_heading}>Available Sessions</h4>
+        <div className="error_msg">
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>Available Sessions</h4>
-      <ul className="stack">
-        {sessions.map((session) => {
-          return (
+      
+      {sessions.length === 0 ? (
+        <p>No available sessions at the moment.</p>
+      ) : (
+        <ul className="stack">
+          {sessions.map((session) => (
             <SessionRow
               key={session.id}
               rowKey={session.id}
@@ -51,9 +76,9 @@ export default function AvailableSessionsList({
                 onBooked,
               }}
             />
-          );
-        })}
-      </ul>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
