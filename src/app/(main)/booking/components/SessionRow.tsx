@@ -30,7 +30,7 @@ export const SessionRow: React.FC<SessionRowProps> = ({
   description,
   dateDisplay,
   facilitatorName,
-  actions,
+  actions, 
   participantInfo,
   maxParticipants,
   rowKey,

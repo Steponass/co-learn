@@ -20,23 +20,34 @@ export default function ParentBookingLists({
   participantName: string;
 }) {
   const [availableSessions, setAvailableSessions] = useState<Session[]>([]);
-  const [participantSessions, setParticipantSessions] = useState<
-    ParticipantSession[]
-  >([]);
+  const [participantSessions, setParticipantSessions] = useState
+    <ParticipantSession[]>([]);
 
-const fetchAvailableSessions = useCallback(() => {
-  const supabase = createClient();
-  supabase
-    .from("sessions")
-    .select(`
-      id, facilitator_id, start_time, end_time, time_zone, room_code, created_at, updated_at, title, description, is_recurring, max_participants,
-      facilitator:user_info!facilitator_id(name, email)
-    `)
+  const fetchAvailableSessions = useCallback(() => {
+    const supabase = createClient();
+    supabase
+      .from("sessions")
+      .select(`
+        id,
+        facilitator_id,
+        start_time,
+        end_time,
+        time_zone,
+        room_code,
+        created_at,
+        updated_at,
+        title,
+        description,
+        is_recurring,
+        max_participants,
+        facilitator:user_info!facilitator_id(name, email)
+      `)
       .then(async ({ data: allSessions, error }) => {
         if (error) {
           console.error("[AvailableSessionsList] Error:", error.message);
           return;
         }
+        
         // Get sessions already booked by this participant
         const { data: myBookings } = await supabase
           .from("session_participants")
@@ -66,13 +77,9 @@ const fetchAvailableSessions = useCallback(() => {
           const isFull = count >= maxParticipants;
 
           if (!isBooked && !isFull) {
-            // Map the raw session data to proper Session object
-            const mappedSession = {
-  ...mapRawSessionToSession(sessionRaw),
-  facilitator_name: (sessionRaw.facilitator && sessionRaw.facilitator[0]?.name) || 'Unknown'
-
-};
-available.push(mappedSession);
+            // Use centralized mapping instead of inline facilitator logic
+            const mappedSession = mapRawSessionToSession(sessionRaw);
+            available.push(mappedSession);
           }
         }
 

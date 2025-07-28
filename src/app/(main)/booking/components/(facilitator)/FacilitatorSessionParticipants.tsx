@@ -4,17 +4,12 @@ import {
   cancelSession,
 } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
-import type {
-  SessionWithParticipants,
-  SessionParticipant,
-  UserInfo,
-} from "../../types/sessions";
+import type { SessionWithParticipants } from "../../types/sessions";
 import useSessionParticipantsRealtime from "../hooks/useSessionParticipantsRealtime";
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import ListViewToggleButton from "../ListViewToggleButton";
-
 
 export default function FacilitatorSessionParticipants({
   facilitatorId,
@@ -26,6 +21,7 @@ export default function FacilitatorSessionParticipants({
     [key: string]: { isPending: boolean; message?: string; error?: string };
   }>({});
   const [showList, setShowList] = useState(true);
+
   const fetchSessions = useCallback(() => {
     if (!facilitatorId) {
       setSessions([]);
@@ -33,58 +29,13 @@ export default function FacilitatorSessionParticipants({
     }
     getFacilitatorSessionParticipants(facilitatorId)
       .then((res) => {
-        if (!res) {
-          setSessions([]);
-          return;
-        }
-
-        if (res.data) {
-          const sessionsWithRoomCode: SessionWithParticipants[] = res.data.map(
-            (session: unknown) => {
-              const s = session as Partial<SessionWithParticipants>;
-              return {
-                id: s.id ?? "",
-                facilitator_id: s.facilitator_id ?? "",
-                facilitator_name: s.facilitator_name ?? "",
-                start_time: s.start_time ?? "",
-                end_time: s.end_time ?? "",
-                time_zone: s.time_zone ?? "UTC",
-                room_code: s.room_code ?? "",
-                created_at: s.created_at ?? "",
-                updated_at: s.updated_at ?? "",
-                is_recurring: s.is_recurring ?? false,
-                max_participants: s.max_participants ?? 6,
-                title: s.title,
-                description: s.description,
-                recurrence_pattern: s.recurrence_pattern,
-                session_participants: (s.session_participants ?? []).map(
-                  (sp: unknown) => {
-                    const p = sp as Partial<SessionParticipant>;
-                    const userInfo: UserInfo = {
-                      user_id: p.user_info?.user_id ?? "",
-                      email: p.user_info?.email ?? "",
-                      name: p.user_info?.name ?? "",
-                      role: p.user_info?.role ?? "",
-                    };
-                    return {
-                      participant_id: p.participant_id ?? "",
-                      user_info: userInfo,
-                    };
-                  }
-                ),
-              };
-            }
-          );
-          setSessions(sessionsWithRoomCode);
-        } else if (res.error) {
-          console.error("[FacilitatorSessionParticipants] Error:", res.error);
-          setSessions([]);
+        if (res?.data) {
+          setSessions(res.data);
         } else {
-          console.error(
-            "[FacilitatorSessionParticipants] Unexpected response format:",
-            res
-          );
           setSessions([]);
+          if (res?.error) {
+            console.error("[FacilitatorSessionParticipants] Error:", res.error);
+          }
         }
       })
       .catch((error) => {
@@ -92,13 +43,17 @@ export default function FacilitatorSessionParticipants({
         setSessions([]);
       });
   }, [facilitatorId]);
+
   useEffect(() => {
     fetchSessions();
   }, [fetchSessions]);
+  
   useSessionParticipantsRealtime(fetchSessions);
+  
   if (!facilitatorId) {
     return <div>Please log in to view your sessions.</div>;
   }
+
   const handleCancelSession = async (sessionId: string) => {
     setCancelState((prev) => ({ ...prev, [sessionId]: { isPending: true } }));
     const formData = new FormData();
@@ -120,16 +75,18 @@ export default function FacilitatorSessionParticipants({
       fetchSessions();
     }
   };
+
   const renderParticipantInfo = (session: SessionWithParticipants) => {
     const participantCount = session.session_participants.length;
     const maxParticipants = session.max_participants;
     const isFull = participantCount >= maxParticipants;
-    // If maxParticipants is 1 and no participants, show only 'Participants 0/1'
+    
     if (maxParticipants === 1 && participantCount === 0) {
       return (
         <span className={classes.participant_count}>Participants: 0/1</span>
       );
     }
+    
     return (
       <>
         <span className={classes.participant_count}>
@@ -150,6 +107,7 @@ export default function FacilitatorSessionParticipants({
       </>
     );
   };
+
   const renderSessionActions = (session: SessionWithParticipants) => {
     const sessionCancelState = cancelState[session.id];
     return (
@@ -189,6 +147,7 @@ export default function FacilitatorSessionParticipants({
       </div>
     );
   };
+
   return (
     <div className={classes.booking_list}>
       <div className={classes.list_header_with_toggle}>
@@ -202,11 +161,7 @@ export default function FacilitatorSessionParticipants({
       {sessions.length === 0 ? (
         <p>No sessions with participants yet.</p>
       ) : (
-        <ul
-  className={
-    "stack" + (showList ? "" : " stackCollapsed")
-  }
-        >
+        <ul className={"stack" + (showList ? "" : " stackCollapsed")}>
           {sessions.map((session) => (
             <SessionRow
               key={session.id}
@@ -220,6 +175,7 @@ export default function FacilitatorSessionParticipants({
               timeZone={session.time_zone}
               description={session.description}
               dateDisplay={getSessionDateDisplay(session)}
+              facilitatorName={session.facilitator_name}
               maxParticipants={session.max_participants}
               participantInfo={renderParticipantInfo(session)}
               actions={renderSessionActions(session)}

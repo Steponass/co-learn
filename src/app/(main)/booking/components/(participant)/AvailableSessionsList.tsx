@@ -5,6 +5,7 @@ import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import type { Session } from "../../types/sessions";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
+
 export default function AvailableSessionsList({
   participantId,
   participantName,
@@ -21,6 +22,7 @@ export default function AvailableSessionsList({
   useEffect(() => {
     fetchSessions();
   }, [fetchSessions]);
+  
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>Available Sessions</h4>
@@ -39,7 +41,7 @@ export default function AvailableSessionsList({
               timeZone={session.time_zone}
               description={session.description}
               dateDisplay={getSessionDateDisplay(session)}
-              facilitatorName={session.facilitator_name as string | undefined}
+              facilitatorName={session.facilitator_name}
               showBookButton={true}
               bookButtonProps={{
                 sessionId: session.id,

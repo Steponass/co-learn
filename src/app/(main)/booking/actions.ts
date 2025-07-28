@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { DateTime } from "luxon";
 
 import {
+  mapRawSessionToSession,
   mapRawSessionWithParticipants,
   type RawSessionData,
   type RawSessionWithParticipantsData,
@@ -117,7 +118,19 @@ export async function getFacilitatorSessions(facilitatorId: string) {
     const { data, error } = await supabase
       .from("sessions")
       .select(`
-        *,
+        id,
+        facilitator_id,
+        start_time,
+        end_time,
+        time_zone,
+        room_code,
+        created_at,
+        updated_at,
+        title,
+        description,
+        is_recurring,
+        recurrence_pattern,
+        max_participants,
         facilitator:user_info!facilitator_id(name, email)
       `)
       .eq("facilitator_id", facilitatorId);
@@ -130,15 +143,12 @@ export async function getFacilitatorSessions(facilitatorId: string) {
       return { data: null, error: error.message };
     }
 
-    // Add backward compatibility
-    const mappedData = data?.map(session => {
-      console.log("[getFacilitatorSessions] Processing session:", session);
-      console.log("[getFacilitatorSessions] Facilitator data:", session.facilitator);
+    // Use centralized mapping instead of inline logic
+    const mappedData = data?.map(sessionRaw => {
+      console.log("[getFacilitatorSessions] Processing session:", sessionRaw);
+      console.log("[getFacilitatorSessions] Facilitator data:", sessionRaw.facilitator);
       
-      return {
-        ...session,
-        facilitator_name: session.facilitator?.name || 'Unknown'
-      };
+      return mapRawSessionToSession(sessionRaw as RawSessionData);
     });
 
     console.log("[getFacilitatorSessions] Final mapped data:", mappedData);
@@ -154,95 +164,52 @@ export async function getFacilitatorSessions(facilitatorId: string) {
 export async function getFacilitatorSessionParticipants(facilitatorId: string) {
   try {
     const supabase = await createClient();
-    // Get all sessions for this facilitator with ALL fields
-    const { data: sessions, error: sessionsError } = await supabase
+    
+    // Single query with all the data we need, including facilitator info
+    const { data, error } = await supabase
       .from("sessions")
-      .select(
-        `
-      id,
-      facilitator_id,
-      start_time,
-      end_time,
-      time_zone,
-      room_code,
-      created_at,
-      updated_at,
-      title,
-      description,
-      is_recurring,
-      recurrence_pattern,
-      max_participants
-    `
-      )
-      .eq("facilitator_id", facilitatorId);
+      .select(`
+        id,
+        facilitator_id,
+        start_time,
+        end_time,
+        time_zone,
+        room_code,
+        created_at,
+        updated_at,
+        title,
+        description,
+        is_recurring,
+        recurrence_pattern,
+        max_participants,
+        facilitator:user_info!facilitator_id(name, email),
+        session_participants (
+          participant_id,
+          user_info (
+            user_id,
+            email,
+            name,
+            role
+          )
+        )
+      `)
+      .eq("facilitator_id", facilitatorId)
+      .gt("session_participants.count", 0); // Only sessions with participants
 
-    if (sessionsError) {
-      console.error(
-        "[getFacilitatorSessionParticipants] Sessions error:",
-        sessionsError
-      );
-      return { data: null, error: sessionsError.message };
+    if (error) {
+      console.error("[getFacilitatorSessionParticipants] Error:", error);
+      return { data: null, error: error.message };
     }
 
-    if (!sessions || sessions.length === 0) {
+    if (!data || data.length === 0) {
       return { data: [], error: null };
     }
 
-    // For each session, get participants and combine with FULL session data
-    const sessionsWithParticipants: RawSessionWithParticipantsData[] = [];
-
-    for (const session of sessions as RawSessionData[]) {
-      const { data: participants, error: participantsError } = await supabase
-        .from("session_participants")
-        .select(
-          `
-        participant_id,
-        user_info (
-          user_id,
-          email,
-          name,
-          role
-        )
-      `
-        )
-        .eq("session_id", session.id);
-
-      if (participantsError) {
-        console.error(
-          `[getFacilitatorSessionParticipants] Participants error for session ${session.id}:`,
-          participantsError
-        );
-        continue;
-      }
-
-      // Include ALL session data, not just partial
-      sessionsWithParticipants.push({
-        ...session, // This includes title, description, etc.
-        session_participants: (participants || []).map(
-          (p: {
-            participant_id: string;
-            user_info: {
-              user_id?: string;
-              email?: string;
-              name?: string;
-              role?: string;
-            }[];
-          }) => ({
-            participant_id: p.participant_id,
-            user_info: Array.isArray(p.user_info)
-              ? p.user_info[0]
-              : p.user_info,
-          })
-        ),
-      });
-    }
-
-    // Filter sessions with participants and map properly
-    const filteredSessions = sessionsWithParticipants.filter(
-      (s) => s.session_participants && s.session_participants.length > 0
+    // Use our centralized mapping function
+    const mappedSessions = data.map(sessionRaw => 
+      mapRawSessionWithParticipants(sessionRaw as RawSessionWithParticipantsData)
     );
 
-    const mappedSessions = filteredSessions.map(mapRawSessionWithParticipants);
     return { data: mappedSessions, error: null };
   } catch (err) {
     console.error("[getFacilitatorSessionParticipants] Exception:", err);
@@ -283,17 +250,16 @@ export async function getParticipantSessions(participantId: string) {
       return { data: [], error: error.message };
     }
 
-    // Map the nested sessions data with proper type conversion
+    // Map the nested sessions data using centralized mapping
     const participantSessions = (data || []).map((item) => {
       const sessionObj = Array.isArray(item.sessions) ? item.sessions[0] : item.sessions;
       
+      // Use our centralized mapping function instead of inline logic
+      const mappedSession = mapRawSessionToSession(sessionObj as RawSessionData);
+      
       return {
         session_id: item.session_id,
-        sessions: {
-          ...sessionObj,
-          // Convert facilitator array to facilitator_name string
-          facilitator_name: (sessionObj.facilitator && sessionObj.facilitator[0]?.name) || 'Unknown'
-        }
+        sessions: mappedSession
       };
     });
 

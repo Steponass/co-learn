@@ -1,3 +1,6 @@
+import { parseFacilitatorData } from '@/utils/facilitatorInfo';
+
+
 // User info for a participant or facilitator
 export type UserInfo = {
   user_id: string;
@@ -118,7 +121,7 @@ export interface RawSessionData {
   facilitator?: Array<{
     name: string;
     email: string;
-  }>;
+  }> | null;
 }
 
 // Raw participant data from database
@@ -139,10 +142,12 @@ export interface RawSessionWithParticipantsData extends RawSessionData {
 
 // Utility function to convert raw database data to Session
 export function mapRawSessionToSession(raw: RawSessionData): Session {
+  const facilitatorInfo = parseFacilitatorData(raw.facilitator);
+  
   return {
     id: raw.id,
     facilitator_id: raw.facilitator_id,
-    facilitator_name: (raw.facilitator && raw.facilitator[0]?.name) || 'Unknown',
+    facilitator_name: facilitatorInfo.facilitator_name,
     start_time: raw.start_time,
     end_time: raw.end_time,
     time_zone: raw.time_zone,

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   const { data: session, error } = await supabase
     .from("sessions")
-    .select("title, facilitator_name, description")
+    .select("title, description")
     .eq("room_code", resolvedParams.room_code)
     .single();
 
@@ -26,9 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const sessionTitle = session.title || `Session by ${session.facilitator_name}`;
-  const sessionDescription = session.description || 
-    `Join the ${sessionTitle} learning session hosted by ${session.facilitator_name}`;
+  const sessionTitle = session.title;
+  const sessionDescription = session.description;
 
   return {
     title: `${sessionTitle} | Co~Learn`,
