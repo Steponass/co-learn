@@ -59,7 +59,7 @@ export default function ParticipantSessionList({
       <h4 className={classes.list_heading}>My Bookings</h4>
       
       {sessions.length === 0 ? (
-        <p>You haven't booked any sessions yet.</p>
+        <p>You haven&#39;t booked any sessions yet.</p>
       ) : (
         <ul className="stack">
           {sessions.map((row) => (

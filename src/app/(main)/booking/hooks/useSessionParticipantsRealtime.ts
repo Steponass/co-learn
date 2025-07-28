@@ -19,7 +19,6 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
   const [participantCounts, setParticipantCounts] = useState<ParticipantCounts>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
   
   const supabase = createClient();
   const channelRef = useRef<RealtimeChannel | null>(null);
@@ -72,7 +71,11 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
   }, []);
 
   // Setup real-time subscription
-  const setupSubscription = useCallback(() => {
+  useEffect(() => {
+    fetchParticipantCounts();
+
+    console.log("[useSessionParticipantsRealtime] Setting up subscription...");
+
     const channel = supabase
       .channel("session-participants-realtime")
       .on(
@@ -91,22 +94,13 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
         console.log("[useSessionParticipantsRealtime] Subscription status:", status);
         
         if (status === "SUBSCRIBED") {
-          setIsConnected(true);
           stopPolling();
         } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-          setIsConnected(false);
           startPolling();
         }
       });
 
     channelRef.current = channel;
-    return channel;
-  }, [supabase, fetchParticipantCounts, startPolling, stopPolling]);
-
-  // Setup effect
-  useEffect(() => {
-    fetchParticipantCounts();
-    const channel = setupSubscription();
 
     return () => {
       stopPolling();
@@ -115,7 +109,7 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
         channelRef.current = null;
       }
     };
-  }, [fetchParticipantCounts, setupSubscription, stopPolling, supabase]);
+  }, [fetchParticipantCounts, startPolling, stopPolling, supabase]);
 
   // Manual refetch function
   const refetch = useCallback(() => {
