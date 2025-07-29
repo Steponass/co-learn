@@ -63,49 +63,46 @@ export default function SessionBroadcast({
   }, [roomCode, userId, userName]);
 
   return (
-    <div  className={classes.session_container}>
-      <div className={classes.video_and_chat_container}>
-        <div className={classes.video_container}>
-          <LiveKitRoom roomName={roomCode} userName={userName} />
-        </div>
-
-        <div className={classes.chat_wrapper}>
-
-      {/* Hidden checkbox that controls chat toggle */}
-      <input
-        type="checkbox"
-        id="chat-toggle"
-        className={classes.chat_toggle_input}
-        defaultChecked
-      />
-      
-      <div className={classes.chat_container}>
-        <div className={classes.session_participants_list}>
-          <SessionParticipantsList
-            onlineUsers={onlineUsers}
-            userId={userId}
-          />
-        </div>
-        <Chat
-          channel={channel}
-          userId={userId}
-          userName={userName}
-          subscribed={subscribed}
-          roomCode={roomCode}
-        />
-        <Dictionary/>
+    <div className={classes.video_and_chat_container}>
+      <div className={classes.video_container}>
+        <LiveKitRoom roomName={roomCode} userName={userName} />
       </div>
 
-      {/* The toggle button */}
-      <label htmlFor="chat-toggle" className={classes.chat_toggle_button}>
-        <span className={classes.arrow_right}>
-          <ChevronRightIcon />
-        </span>
-        <span className={classes.arrow_left}>
-          <ChevronLeftIcon />
-        </span>
-      </label>
-    </div>
+      <div className={classes.chat_wrapper}>
+        {/* Hidden checkbox that controls chat toggle */}
+        <input
+          type="checkbox"
+          id="chat-toggle"
+          className={classes.chat_toggle_input}
+          defaultChecked
+        />
+
+        <div className={classes.chat_container}>
+          <div className={classes.session_participants_list}>
+            <SessionParticipantsList
+              onlineUsers={onlineUsers}
+              userId={userId}
+            />
+          </div>
+          <Chat
+            channel={channel}
+            userId={userId}
+            userName={userName}
+            subscribed={subscribed}
+            roomCode={roomCode}
+          />
+          <Dictionary />
+        </div>
+
+        {/* The toggle button */}
+        <label htmlFor="chat-toggle" className={classes.chat_toggle_button}>
+          <span className={classes.arrow_right}>
+            <ChevronRightIcon size="lg" />
+          </span>
+          <span className={classes.arrow_left}>
+            <ChevronLeftIcon size="lg" />
+          </span>
+        </label>
       </div>
     </div>
   );

@@ -184,33 +184,30 @@ export default function LiveKitRoomWrapper({
   const serverUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
   if (!serverUrl) return <div>LiveKit server URL not configured.</div>;
 
-  // Show join button until user clicks
-  if (!joined) {
-    return (
-      <div>
-        <button className="join_session_button" onClick={() => setJoined(true)}>
-          Join Session
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="livekit_room_container">
-      <LiveKitRoom
-        token={token}
-        serverUrl={serverUrl}
-        connect={true}
-        data-lk-theme="default"
-        options={{
-          videoCaptureDefaults: {
-            // Remove default processor so blur is not on by default
-          },
-        }}
-      >
-        <VideoControls initialHideSelfView={hideSelfView} />
-        <VideoConference />
-      </LiveKitRoom>
+      {!joined ? (
+        <div className="join_session_button_container">
+          <button className="join_session_button" onClick={() => setJoined(true)}>
+            Join Session
+          </button>
+        </div>
+      ) : (
+        <LiveKitRoom
+          token={token}
+          serverUrl={serverUrl}
+          connect={true}
+          data-lk-theme="default"
+          options={{
+            videoCaptureDefaults: {
+              // Remove default processor so blur is not on by default
+            },
+          }}
+        >
+          <VideoControls initialHideSelfView={hideSelfView} />
+          <VideoConference />
+        </LiveKitRoom>
+      )}
     </div>
   );
 }

@@ -1,11 +1,14 @@
 html,
 body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
   background: var(--clr-bg-base);
   color: var(--clr-txt-strong);
   overflow-x: hidden;
+}
+
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 * {
@@ -149,8 +152,8 @@ span {
   if I want a max-height transition */
   max-height: 10000px;
   transition: max-height 0.3s, opacity 0.3s;
-pointer-events: auto;
-opacity: 1;
+  pointer-events: auto;
+  opacity: 1;
 }
 
 .stackCollapsed {
@@ -163,4 +166,3 @@ opacity: 1;
 .stack>*+* {
   margin-block-start: var(--space-12-16px);
 }
-

@@ -1,18 +1,25 @@
 .session_container {
   padding-block: var(--space-12-16px);
-  width: 100vw;
-  height: 100vh;
-  /* min-height: 100vh; */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .video_and_chat_container {
   display: flex;
   flex-direction: row;
+  flex: 1;
+  min-height: 0;
 }
 
 @media (max-width: 768px) {
   .video_and_chat_container {
     flex-direction: column;
+  }
+
+  .session_container {
+    padding-block: var(--space-8-12px);
   }
 }
 
@@ -32,6 +39,8 @@
   display: flex;
   align-items: flex-start;
   flex-shrink: 0;
+  height: 100%;
+  transition: width 0.3s ease-in-out;
 }
 
 .chat_toggle_input {
@@ -56,19 +65,19 @@
   box-shadow: var(--shadow-elevation-2);
   box-shadow: var(--shadow-elevation-2);
   background-color: var(--clr-bg-raised);
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
   gap: var(--space-8-12px);
 }
 
 /* Toggle button */
 .chat_toggle_button {
   position: absolute;
-  right: 0;
+  right: var(--space-12-16px);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--space-16-24px);
-  height: var(--space-24-32px);
+  width: var(--space-24-32px);
+  height: var(--space-32-48px);
   padding: var(--space-4px);
   background-color: var(--clr-bg-overlay);
   border-radius: var(--border-radius-4px) 0 0 var(--border-radius-4px);
@@ -103,15 +112,7 @@
 }
 
 .chat_toggle_input:not(:checked)~.chat_container {
-  transform: translateX(108%);
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  height: 0 !important;
-  min-height: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  overflow: hidden !important;
+  transform: translateX(100%);
   opacity: 0;
   pointer-events: none;
 }
@@ -129,6 +130,12 @@
   opacity: 1;
 }
 
+/* When chat is hidden, collapse the chat wrapper but keep toggle button visible */
+.chat_wrapper:has(.chat_toggle_input:not(:checked)) {
+  width: calc(var(--space-24-32px) + var(--space-12-16px));
+  min-width: calc(var(--space-24-32px) + var(--space-12-16px));
+}
+
 
 
 .session_participants_list ul {
@@ -139,18 +146,37 @@
 @media (max-width: 480px) {
   .video_and_chat_container {
     flex-direction: column;
-    height: auto;
+    gap: var(--space-8-12px);
   }
 
   .chat_container {
     width: 100%;
     max-width: none;
     min-width: 0;
-    height: 320px;
-    margin-top: 1rem;
+    height: 300px;
+    margin-top: 0;
+  }
+
+  .chat_toggle_input:not(:checked)~.chat_container {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* On mobile, when chat is hidden, collapse the chat wrapper vertically */
+  .chat_wrapper:has(.chat_toggle_input:not(:checked)) {
+    height: calc(var(--space-32-48px) + var(--space-16-24px));
+    min-height: calc(var(--space-32-48px) + var(--space-16-24px));
+    width: auto;
+    min-width: auto;
   }
 
   .video_container {
-    height: 300px;
+    flex: 1;
+    min-height: 250px;
+  }
+
+  .session_container {
+    padding-block: var(--space-4-8px);
   }
 }
