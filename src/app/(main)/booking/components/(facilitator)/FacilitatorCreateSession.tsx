@@ -2,6 +2,7 @@
 
 import { useState, useActionState, useEffect } from "react";
 import { createSession } from "../../actions";
+import { useSessionStore } from "../../store/SessionStore";
 import { timeZones } from "../../utils/timezones";
 import classes from "../(participant)/BookingList.module.css";
 
@@ -16,7 +17,9 @@ export default function FacilitatorCreateSession({
     createSession,
     undefined
   );
-  
+
+  const { refetchAll } = useSessionStore();
+
   const [selectedTimeZone, setSelectedTimeZone] = useState("UTC");
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
@@ -37,19 +40,24 @@ export default function FacilitatorCreateSession({
     );
   };
 
-  // Reset form state on successful creation
+  // Reset form state and refresh store on successful creation
   useEffect(() => {
-    if (formData?.message) {
+    if (formData && "message" in formData) {
+      console.log(
+        "[FacilitatorCreateSession] Session created successfully, refreshing store"
+      );
       setSelectedTimeZone("UTC");
       setIsRecurring(false);
       setSelectedDays([]);
+      // Trigger store refresh to ensure new session appears immediately
+      refetchAll();
     }
-  }, [formData?.message]);
+  }, [formData, refetchAll]);
 
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>Create New Session</h4>
-      
+
       <form
         className={classes.book_session_form + " stack"}
         action={formAction}
@@ -192,7 +200,9 @@ export default function FacilitatorCreateSession({
               </div>
 
               <div className={classes.session_input_container}>
-                <label htmlFor="maxOccurrences">Max Occurrences (optional):</label>
+                <label htmlFor="maxOccurrences">
+                  Max Occurrences (optional):
+                </label>
                 <input
                   type="number"
                   name="maxOccurrences"
@@ -210,13 +220,13 @@ export default function FacilitatorCreateSession({
           {isPending ? "Creating..." : "Create Session"}
         </button>
 
-        {formData?.error && (
+        {formData && "error" in formData && (
           <div className="error_msg">
             <p>{formData.error}</p>
           </div>
         )}
 
-        {formData?.message && (
+        {formData && "message" in formData && (
           <div className="success_msg">
             <p>{formData.message}</p>
           </div>

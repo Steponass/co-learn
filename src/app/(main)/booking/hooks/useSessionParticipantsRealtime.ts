@@ -16,10 +16,12 @@ interface UseSessionParticipantsRealtimeReturn {
 }
 
 export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtimeReturn {
-  const [participantCounts, setParticipantCounts] = useState<ParticipantCounts>({});
+  const [participantCounts, setParticipantCounts] = useState<ParticipantCounts>(
+    {}
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const supabase = createClient();
   const channelRef = useRef<RealtimeChannel | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -28,34 +30,40 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
   const fetchParticipantCounts = useCallback(async () => {
     try {
       setError(null);
-      
-      console.log("[useSessionParticipantsRealtime] Fetching participant counts...");
-      
+
+      console.log(
+        "[useSessionParticipantsRealtime] Fetching participant counts..."
+      );
+
       const { data, error: fetchError } = await supabase
         .from("session_participants")
         .select("session_id");
-  
+
       console.log("[useSessionParticipantsRealtime] Raw data:", data);
       console.log("[useSessionParticipantsRealtime] Error:", fetchError);
-  
+
       if (fetchError) {
         throw new Error(fetchError.message);
       }
-  
+
       // Count participants per session
       const counts: ParticipantCounts = {};
       (data || []).forEach((participant) => {
         const sessionId = participant.session_id;
         counts[sessionId] = (counts[sessionId] || 0) + 1;
       });
-  
+
       console.log("[useSessionParticipantsRealtime] Computed counts:", counts);
-      
+
       setParticipantCounts(counts);
       setLoading(false);
     } catch (err) {
       console.error("[useSessionParticipantsRealtime] Fetch error:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch participant counts");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch participant counts"
+      );
       setLoading(false);
     }
   }, [supabase]);
@@ -63,9 +71,10 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
   // Start polling fallback
   const startPolling = useCallback(() => {
     if (pollIntervalRef.current) return;
-    
+
     console.log("[useSessionParticipantsRealtime] Starting polling fallback");
-    pollIntervalRef.current = setInterval(fetchParticipantCounts, 10000);
+    // Poll more frequently (every 3 seconds) for better real-time feel
+    pollIntervalRef.current = setInterval(fetchParticipantCounts, 3000);
   }, [fetchParticipantCounts]);
 
   // Stop polling fallback
@@ -93,21 +102,41 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
           table: "session_participants",
         },
         (payload) => {
-          console.log("[useSessionParticipantsRealtime] Real-time change:", payload.eventType);
-          fetchParticipantCounts(); // Refetch on any change
+          console.log(
+            "[useSessionParticipantsRealtime] Real-time change:",
+            payload.eventType,
+            payload
+          );
+          // Force immediate refetch on any change
+          setTimeout(() => {
+            console.log(
+              "[useSessionParticipantsRealtime] Forcing immediate refetch after change"
+            );
+            fetchParticipantCounts();
+          }, 100); // Small delay to ensure database transaction is committed
         }
       )
       .subscribe((status) => {
-        console.log("[useSessionParticipantsRealtime] Subscription status:", status);
-        
+        console.log(
+          "[useSessionParticipantsRealtime] Subscription status:",
+          status
+        );
+
         if (status === "SUBSCRIBED") {
           stopPolling();
-        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        } else if (
+          status === "CHANNEL_ERROR" ||
+          status === "TIMED_OUT" ||
+          status === "CLOSED"
+        ) {
           startPolling();
         }
       });
 
     channelRef.current = channel;
+
+    // Start polling immediately as a fallback until subscription is confirmed
+    startPolling();
 
     return () => {
       stopPolling();

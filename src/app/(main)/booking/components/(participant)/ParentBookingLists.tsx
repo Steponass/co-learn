@@ -1,8 +1,6 @@
 "use client";
 import AvailableSessionsList from "./AvailableSessionsList";
 import ParticipantSessionList from "./ParticipantSessionList";
-import { useAvailableSessionsRealtime } from "../../hooks/useAvailableSessionsRealtime";
-import { useParticipantSessionsRealtime } from "../../hooks/useParticipantSessionsRealtime";
 
 interface ParentBookingListsProps {
   participantId: string;
@@ -13,21 +11,6 @@ export default function ParentBookingLists({
   participantId,
   participantName,
 }: ParentBookingListsProps) {
-  // Use real-time hooks instead of manual fetching and polling
-  const {
-    sessions: availableSessions,
-    loading: availableLoading,
-    error: availableError,
-
-  } = useAvailableSessionsRealtime(participantId);
-
-  const {
-    sessions: participantSessions,
-    loading: participantLoading,
-    error: participantError,
-
-  } = useParticipantSessionsRealtime(participantId);
-
   // Handle case when no participant ID
   if (!participantId) {
     return (
@@ -37,21 +20,19 @@ export default function ParentBookingLists({
     );
   }
 
+  const handleBookingSuccess = () => {
+    // The SessionStore will automatically update via real-time subscriptions
+    console.log("Booking successful - store will update automatically");
+  };
+
   return (
     <>
       <AvailableSessionsList
         participantId={participantId}
         participantName={participantName}
-        sessions={availableSessions}
-        loading={availableLoading}
-        error={availableError}
+        onBookingSuccess={handleBookingSuccess}
       />
-      <ParticipantSessionList
-        participantId={participantId}
-        sessions={participantSessions}
-        loading={participantLoading}
-        error={participantError}
-      />
+      <ParticipantSessionList participantId={participantId} />
     </>
   );
 }

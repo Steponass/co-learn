@@ -12,6 +12,7 @@ export interface SessionRowProps {
   actions?: React.ReactNode;
   participantInfo?: React.ReactNode; // For facilitator's participant list
   maxParticipants?: number;
+  currentParticipantCount?: number; // Add current count
   rowKey: string | number;
   showBookButton?: boolean;
   bookButtonProps?: {
@@ -19,7 +20,7 @@ export interface SessionRowProps {
     participantId: string;
     participantName: string;
     facilitatorName: string;
-
+    onBookingSuccess?: () => void; // Add callback
   };
 }
 
@@ -30,9 +31,10 @@ export const SessionRow: React.FC<SessionRowProps> = ({
   description,
   dateDisplay,
   facilitatorName,
-  actions, 
+  actions,
   participantInfo,
   maxParticipants,
+  currentParticipantCount,
   rowKey,
   showBookButton,
   bookButtonProps,
@@ -53,7 +55,7 @@ export const SessionRow: React.FC<SessionRowProps> = ({
         </div>
 
         <div className={classes.session_label_and_details}>
-          <p className={classes.session_label}>Time:</p> 
+          <p className={classes.session_label}>Time:</p>
           <p className={classes.session_details}>{startTime}</p>
           <span className={classes.timezone}>({timeZone})</span>
         </div>
@@ -62,12 +64,19 @@ export const SessionRow: React.FC<SessionRowProps> = ({
           <p className={classes.session_label}>Details:</p>
           <p className={classes.session_description}>{description}</p>
         </div>
-        
+
         <div className={classes.participant_info}>{participantInfo}</div>
         <div className={classes.session_badges}>
           {typeof maxParticipants === "number" && (
             <span className={classes.participant_count}>
-              {participantInfo ? undefined : `0/${maxParticipants}`}
+              {participantInfo ? undefined : (
+                <>
+                  Participants: {currentParticipantCount || 0}/{maxParticipants}
+                  {(currentParticipantCount || 0) >= maxParticipants && (
+                    <span className={classes.full_badge}> (Full)</span>
+                  )}
+                </>
+              )}
             </span>
           )}
         </div>

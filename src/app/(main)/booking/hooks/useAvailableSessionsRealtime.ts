@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSessionsRealtime } from "./useSessionsRealtime";
 import { useSessionParticipantsRealtime } from "./useSessionParticipantsRealtime";
 import { createClient } from "@/utils/supabase/client";
@@ -11,12 +11,15 @@ interface UseAvailableSessionsRealtimeReturn {
   loading: boolean;
   error: string | null;
   refetch: () => void;
+  participantCounts: { [sessionId: string]: number }; // Add participant counts to return
 }
 
 export function useAvailableSessionsRealtime(
   participantId: string
 ): UseAvailableSessionsRealtimeReturn {
-  const [userBookedSessionIds, setUserBookedSessionIds] = useState<string[]>([]);
+  const [userBookedSessionIds, setUserBookedSessionIds] = useState<string[]>(
+    []
+  );
   const [bookingsLoading, setBookingsLoading] = useState(true);
   const [bookingsError, setBookingsError] = useState<string | null>(null);
 
@@ -37,7 +40,7 @@ export function useAvailableSessionsRealtime(
   const supabase = createClient();
 
   // Fetch user's booked sessions
-  const fetchUserBookings = async () => {
+  const fetchUserBookings = useCallback(async () => {
     if (!participantId) {
       setUserBookedSessionIds([]);
       setBookingsLoading(false);
@@ -46,7 +49,7 @@ export function useAvailableSessionsRealtime(
 
     try {
       setBookingsError(null);
-      
+
       const { data, error } = await supabase
         .from("session_participants")
         .select("session_id")
@@ -60,47 +63,69 @@ export function useAvailableSessionsRealtime(
       setUserBookedSessionIds(bookedIds);
       setBookingsLoading(false);
     } catch (err) {
-      console.error("[useAvailableSessionsRealtime] Bookings fetch error:", err);
-      setBookingsError(err instanceof Error ? err.message : "Failed to fetch user bookings");
+      console.error(
+        "[useAvailableSessionsRealtime] Bookings fetch error:",
+        err
+      );
+      setBookingsError(
+        err instanceof Error ? err.message : "Failed to fetch user bookings"
+      );
       setBookingsLoading(false);
     }
-  };
+  }, [participantId, supabase]);
 
   // Refetch user bookings when participant counts change (someone books/cancels)
   useEffect(() => {
     fetchUserBookings();
-  }, [participantId, participantCounts]); // Re-run when participant counts change
+  }, [participantId, participantCounts, fetchUserBookings]); // Re-run when participant counts change
 
   // Filter available sessions
   const availableSessions = useMemo(() => {
     if (!allSessions.length) return [];
-  
-    console.log("[useAvailableSessionsRealtime] All sessions:", allSessions.length);
-    console.log("[useAvailableSessionsRealtime] User booked sessions:", userBookedSessionIds);
-    console.log("[useAvailableSessionsRealtime] Participant counts:", participantCounts);
-  
-    return allSessions.filter((session) => {
+
+    console.log("[useAvailableSessionsRealtime] Filtering sessions...");
+    console.log(
+      "[useAvailableSessionsRealtime] All sessions:",
+      allSessions.length
+    );
+    console.log(
+      "[useAvailableSessionsRealtime] User booked sessions:",
+      userBookedSessionIds
+    );
+    console.log(
+      "[useAvailableSessionsRealtime] Participant counts:",
+      participantCounts
+    );
+
+    const filtered = allSessions.filter((session) => {
       // Skip if user already booked this session
       if (userBookedSessionIds.includes(session.id)) {
-        console.log(`[useAvailableSessionsRealtime] Session ${session.id} already booked by user`);
+        console.log(
+          `[useAvailableSessionsRealtime] Session ${session.id} already booked by user`
+        );
         return false;
       }
-  
+
       // Check if session is full
       const currentCount = participantCounts[session.id] || 0;
       const maxParticipants = session.max_participants || 6;
       const isFull = currentCount >= maxParticipants;
-  
+
       console.log(`[useAvailableSessionsRealtime] Session ${session.id}:`, {
         title: session.title,
         currentCount,
         maxParticipants,
         isFull,
-        willShow: !isFull
+        willShow: !isFull,
       });
-  
+
       return !isFull;
     });
+
+    console.log(
+      `[useAvailableSessionsRealtime] Filtered ${filtered.length} available sessions from ${allSessions.length} total`
+    );
+    return filtered;
   }, [allSessions, userBookedSessionIds, participantCounts]);
 
   // Combined loading state
@@ -121,5 +146,6 @@ export function useAvailableSessionsRealtime(
     loading,
     error,
     refetch,
+    participantCounts,
   };
 }

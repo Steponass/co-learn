@@ -1,31 +1,24 @@
 "use client";
 import { cancelBooking } from "../../actions";
-import type { ParticipantSession } from "../../types/sessions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
+import { useParticipantSessions } from "../../hooks/useSessionStore";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
 
 interface ParticipantSessionListProps {
   participantId: string;
-  sessions: ParticipantSession[];
-  loading: boolean;
-  error: string | null;
-
 }
 
 export default function ParticipantSessionList({
   participantId,
-  sessions,
-  loading,
-  error,
-
 }: ParticipantSessionListProps) {
-  
+  const { sessions, loading, error } = useParticipantSessions();
+
   const handleCancel = async (sessionId: string) => {
     try {
       await cancelBooking(sessionId, participantId);
-
+      // The SessionStore will automatically update via real-time subscriptions
     } catch (err) {
       console.error("[ParticipantSessionList] Cancel error:", err);
       // Could add error toast notification here
@@ -57,31 +50,31 @@ export default function ParticipantSessionList({
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>My Bookings</h4>
-      
+
       {sessions.length === 0 ? (
         <p>You haven&#39;t booked any sessions yet.</p>
       ) : (
         <ul className="stack">
-          {sessions.map((row) => (
+          {sessions.map((session) => (
             <SessionRow
-              key={row.session_id}
-              rowKey={row.session_id}
-              title={row.sessions.title}
+              key={session.id}
+              rowKey={session.id}
+              title={session.title}
               startTime={formatSessionTimeOnly(
-                row.sessions.start_time,
-                row.sessions.end_time,
-                row.sessions.time_zone
+                session.start_time,
+                session.end_time,
+                session.time_zone
               )}
-              timeZone={row.sessions.time_zone}
-              description={row.sessions.description}
-              dateDisplay={getSessionDateDisplay(row.sessions)}
-              facilitatorName={row.sessions.facilitator_name || "Unknown"}
+              timeZone={session.time_zone}
+              description={session.description}
+              dateDisplay={getSessionDateDisplay(session)}
+              facilitatorName={session.facilitator_name || "Unknown"}
               actions={
                 <div className={classes.session_actions}>
                   <button
                     className="primary_button"
                     onClick={() => {
-                      const url = `/session/${row.sessions.room_code}`;
+                      const url = `/session/${session.room_code}`;
                       if (window.confirm("Open session in a new window?")) {
                         window.open(url, "_blank", "noopener,noreferrer");
                       }
@@ -92,8 +85,10 @@ export default function ParticipantSessionList({
                   <button
                     className="secondary_button"
                     onClick={() => {
-                      if (window.confirm("Sure you want to cancel this session?")) {
-                        handleCancel(row.session_id);
+                      if (
+                        window.confirm("Sure you want to cancel this session?")
+                      ) {
+                        handleCancel(session.id);
                       }
                     }}
                   >

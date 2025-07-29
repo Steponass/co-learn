@@ -22,28 +22,24 @@ export default function FacilitatorSessionParticipants({
   }>({});
   const [showList, setShowList] = useState(true);
 
-  const {
-    sessions,
-    loading,
-    error,
-    refetch,
-  } = useFacilitatorSessionParticipantsRealtime(facilitatorId);
+  const { sessions, loading, error, refetch } =
+    useFacilitatorSessionParticipantsRealtime(facilitatorId);
 
   const handleCancelSession = async (sessionId: string) => {
     setCancelState((prev) => ({ ...prev, [sessionId]: { isPending: true } }));
-    
+
     const formData = new FormData();
     formData.append("session_id", sessionId);
     formData.append("facilitator_id", facilitatorId);
 
     const result = await cancelSession(null, formData);
 
-    if (result.error) {
+    if (result && "error" in result) {
       setCancelState((prev) => ({
         ...prev,
         [sessionId]: { isPending: false, error: result.error },
       }));
-    } else {
+    } else if (result && "message" in result) {
       setCancelState((prev) => ({
         ...prev,
         [sessionId]: { isPending: false, message: result.message },
@@ -87,7 +83,7 @@ export default function FacilitatorSessionParticipants({
 
   const renderSessionActions = (session: SessionWithParticipants) => {
     const sessionCancelState = cancelState[session.id];
-    
+
     return (
       <div className={classes.session_actions}>
         <button
@@ -169,7 +165,7 @@ export default function FacilitatorSessionParticipants({
           className={classes.list_view_toggle_button}
         />
       </div>
-      
+
       {sessions.length === 0 ? (
         <p>No sessions with participants yet.</p>
       ) : (

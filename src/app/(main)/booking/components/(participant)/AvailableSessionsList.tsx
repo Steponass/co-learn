@@ -1,28 +1,24 @@
 "use client";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
-import type { Session } from "../../types/sessions";
+import { useAvailableSessions } from "../../hooks/useSessionStore";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
 
 interface AvailableSessionsListProps {
   participantId: string;
   participantName: string;
-  sessions: Session[];
-  loading: boolean;
-  error: string | null;
-
+  onBookingSuccess?: () => void; // Add callback prop
 }
 
 export default function AvailableSessionsList({
   participantId,
   participantName,
-  sessions,
-  loading,
-  error,
-
+  onBookingSuccess,
 }: AvailableSessionsListProps) {
-  
+  const { sessions, participantCounts, loading, error } =
+    useAvailableSessions();
+
   // Show loading state
   if (loading) {
     return (
@@ -48,7 +44,7 @@ export default function AvailableSessionsList({
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>Available Sessions</h4>
-      
+
       {sessions.length === 0 ? (
         <p>No available sessions at the moment.</p>
       ) : (
@@ -67,13 +63,15 @@ export default function AvailableSessionsList({
               description={session.description}
               dateDisplay={getSessionDateDisplay(session)}
               facilitatorName={session.facilitator_name}
+              maxParticipants={session.max_participants}
+              currentParticipantCount={participantCounts[session.id] || 0}
               showBookButton={true}
               bookButtonProps={{
                 sessionId: session.id,
                 participantId,
                 participantName,
                 facilitatorName: session.facilitator_name || "",
-
+                onBookingSuccess,
               }}
             />
           ))}

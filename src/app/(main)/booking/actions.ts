@@ -89,30 +89,34 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   const session_id = formData.get("session_id") as string;
   const participant_id = formData.get("participant_id") as string;
 
-  // Check session exists and get max_participants
-  const { data: session, error: sessionError } = await supabase
-    .from("sessions")
-    .select("max_participants")
-    .eq("id", session_id)
-    .single();
-  if (sessionError) return { error: "Session not found." };
+  try {
+    // Use a database function that handles the entire booking logic atomically
+    const { data, error } = await supabase.rpc("book_session_safe", {
+      p_session_id: session_id,
+      p_participant_id: participant_id,
+    });
 
-  // Check current bookings
-  const { data: participants } = await supabase
-    .from("session_participants")
-    .select("*")
-    .eq("session_id", session_id);
-  const count = participants ? participants.length : 0;
-  const maxParticipants = session.max_participants || 6;
-  if (typeof count === "number" && count >= maxParticipants) {
-    return { error: "Session is full." };
+    if (error) {
+      // Handle specific error cases based on the error message
+      if (error.message?.includes("Session not found")) {
+        return { error: "Session not found." };
+      }
+      if (error.message?.includes("Already booked")) {
+        return { error: "You have already booked this session." };
+      }
+      if (
+        error.message?.includes("Session is full") ||
+        error.message?.includes("capacity exceeded")
+      ) {
+        return { error: "Session is full." };
+      }
+      return handleError("bookSession", error);
+    }
+
+    return { message: "Booking successful!", data };
+  } catch (err) {
+    return handleError("bookSession", err);
   }
-
-  const { data, error } = await supabase
-    .from("session_participants")
-    .insert([{ session_id, participant_id }]);
-  if (error) return handleError("bookSession", error);
-  return { message: "Booking successful!", data };
 }
 
 /**

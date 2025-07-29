@@ -4,7 +4,8 @@ import { useState } from "react";
 import { cancelSession } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
-import { useFacilitatorSessionsRealtime } from "../../hooks/useFacilitatorSessionsRealtime";
+import { useFacilitatorSessions } from "../../hooks/useSessionStore";
+import { useSessionStore } from "../../store/SessionStore";
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
 
@@ -19,33 +20,63 @@ export default function FacilitatorSessionList({
     [key: string]: { isPending: boolean; message?: string; error?: string };
   }>({});
 
-  const {
-    sessions,
+  const { sessions, loading, error } = useFacilitatorSessions();
+
+  const { refetchAll } = useSessionStore();
+
+  console.log("[FacilitatorSessionList] Component render:", {
+    facilitatorId,
+    sessionsCount: sessions.length,
     loading,
     error,
-    refetch,
-  } = useFacilitatorSessionsRealtime(facilitatorId);
+    sessions: sessions.map((s) => ({
+      id: s.id,
+      title: s.title,
+      facilitator_id: s.facilitator_id,
+    })),
+  });
 
   const handleCancelSession = async (sessionId: string) => {
     setCancelState((prev) => ({ ...prev, [sessionId]: { isPending: true } }));
-    
+
     const formData = new FormData();
     formData.append("session_id", sessionId);
     formData.append("facilitator_id", facilitatorId);
 
-    const result = await cancelSession(null, formData);
+    try {
+      const result = await cancelSession(null, formData);
 
-    if (result.error) {
+      if (result && "error" in result) {
+        setCancelState((prev) => ({
+          ...prev,
+          [sessionId]: { isPending: false, error: result.error },
+        }));
+      } else if (result && "message" in result) {
+        setCancelState((prev) => ({
+          ...prev,
+          [sessionId]: { isPending: false, message: result.message },
+        }));
+        // Trigger store refresh to ensure session disappears immediately
+        console.log(
+          "[FacilitatorSessionList] Session cancelled successfully, refreshing store"
+        );
+        refetchAll();
+      } else {
+        // Handle unexpected result format
+        setCancelState((prev) => ({
+          ...prev,
+          [sessionId]: {
+            isPending: false,
+            error: "Unexpected response format",
+          },
+        }));
+      }
+    } catch (err) {
+      console.error("[FacilitatorSessionList] Cancel session error:", err);
       setCancelState((prev) => ({
         ...prev,
-        [sessionId]: { isPending: false, error: result.error },
+        [sessionId]: { isPending: false, error: "Failed to cancel session" },
       }));
-    } else {
-      setCancelState((prev) => ({
-        ...prev,
-        [sessionId]: { isPending: false, message: result.message },
-      }));
-      // No need to manually refetch - real-time will handle it
     }
   };
 
@@ -70,7 +101,7 @@ export default function FacilitatorSessionList({
         <h4 className={classes.list_heading}>Open Sessions</h4>
         <div className="error_msg">
           <p>{error}</p>
-          <button className="secondary_button" onClick={refetch}>
+          <button className="secondary_button" onClick={refetchAll}>
             Retry
           </button>
         </div>
@@ -81,14 +112,14 @@ export default function FacilitatorSessionList({
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>Open Sessions</h4>
-      
+
       {sessions.length === 0 ? (
         <p>No open sessions. Create a session to get started!</p>
       ) : (
         <ul className="stack">
           {sessions.map((session) => {
             const sessionCancelState = cancelState[session.id];
-            
+
             return (
               <SessionRow
                 key={session.id}
