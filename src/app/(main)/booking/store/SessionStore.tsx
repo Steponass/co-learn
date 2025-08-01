@@ -12,6 +12,7 @@ import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   mapRawSessionToSession,
+  mapSessionToSessionWithParticipants,
   type Session,
   type SessionWithParticipants,
   type RawSessionData,
@@ -34,12 +35,10 @@ interface SessionStoreState {
 
   // Loading states
   sessionsLoading: boolean;
-  participantCountsLoading: boolean;
   userBookingsLoading: boolean;
 
   // Error states
   sessionsError: string | null;
-  participantCountsError: string | null;
   userBookingsError: string | null;
 
   // Computed data (derived from raw data)
@@ -52,7 +51,6 @@ interface SessionStoreState {
 interface SessionStoreActions {
   refetchAll: () => void;
   refetchSessions: () => void;
-  refetchParticipantCounts: () => void;
   refetchUserBookings: () => void;
   setCurrentUser: (userId: string, role: "facilitator" | "participant") => void;
 }
@@ -84,22 +82,14 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
 
   // Raw data state
   const [allSessions, setAllSessions] = useState<Session[]>([]);
-  const [participantCounts, setParticipantCounts] = useState<ParticipantCounts>(
-    {}
-  );
   const [userBookings, setUserBookings] = useState<UserBookings>({});
 
   // Loading states
   const [sessionsLoading, setSessionsLoading] = useState(true);
-  const [participantCountsLoading, setParticipantCountsLoading] =
-    useState(true);
   const [userBookingsLoading, setUserBookingsLoading] = useState(true);
 
   // Error states
   const [sessionsError, setSessionsError] = useState<string | null>(null);
-  const [participantCountsError, setParticipantCountsError] = useState<
-    string | null
-  >(null);
   const [userBookingsError, setUserBookingsError] = useState<string | null>(
     null
   );
@@ -107,14 +97,12 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
   // Realtime subscriptions
   const supabase = createClient();
   const sessionsChannelRef = useRef<RealtimeChannel | null>(null);
-  const participantsChannelRef = useRef<RealtimeChannel | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch all sessions
+  // Fetch all sessions with participant data embedded in JSON
   const fetchSessions = useCallback(async () => {
     try {
       setSessionsError(null);
-      console.log("[SessionStore] Fetching all sessions...");
 
       const { data, error } = await supabase.from("sessions").select(`
           id,
@@ -130,6 +118,7 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
           is_recurring,
           recurrence_pattern,
           max_participants,
+          booked_participants,
           facilitator:user_info!facilitator_id(name, email)
         `);
 
@@ -139,11 +128,9 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
         mapRawSessionToSession(sessionRaw as RawSessionData)
       );
 
-      console.log("[SessionStore] Fetched sessions:", mappedSessions.length);
       setAllSessions(mappedSessions);
       setSessionsLoading(false);
     } catch (err) {
-      console.error("[SessionStore] Sessions fetch error:", err);
       setSessionsError(
         err instanceof Error ? err.message : "Failed to fetch sessions"
       );
@@ -151,40 +138,7 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
     }
   }, [supabase]);
 
-  // Fetch participant counts for all sessions
-  const fetchParticipantCounts = useCallback(async () => {
-    try {
-      setParticipantCountsError(null);
-      console.log("[SessionStore] Fetching participant counts...");
-
-      const { data, error } = await supabase
-        .from("session_participants")
-        .select("session_id");
-
-      if (error) throw new Error(error.message);
-
-      // Count participants per session
-      const counts: ParticipantCounts = {};
-      (data || []).forEach((participant) => {
-        const sessionId = participant.session_id;
-        counts[sessionId] = (counts[sessionId] || 0) + 1;
-      });
-
-      console.log("[SessionStore] Computed participant counts:", counts);
-      setParticipantCounts(counts);
-      setParticipantCountsLoading(false);
-    } catch (err) {
-      console.error("[SessionStore] Participant counts fetch error:", err);
-      setParticipantCountsError(
-        err instanceof Error
-          ? err.message
-          : "Failed to fetch participant counts"
-      );
-      setParticipantCountsLoading(false);
-    }
-  }, [supabase]);
-
-  // Fetch user's bookings
+  // Fetch user's bookings by querying sessions with JSON contains
   const fetchUserBookings = useCallback(async () => {
     if (!currentUserId) {
       setUserBookings({});
@@ -194,25 +148,26 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
 
     try {
       setUserBookingsError(null);
-      console.log("[SessionStore] Fetching user bookings for:", currentUserId);
 
       const { data, error } = await supabase
-        .from("session_participants")
-        .select("session_id")
-        .eq("participant_id", currentUserId);
+        .from("sessions")
+        .select("id")
+        .filter(
+          "booked_participants",
+          "cs",
+          `[{"user_id":"${currentUserId}"}]`
+        );
 
       if (error) throw new Error(error.message);
 
       const bookings: UserBookings = {};
-      (data || []).forEach((booking) => {
-        bookings[booking.session_id] = true;
+      (data || []).forEach((session) => {
+        bookings[session.id] = true;
       });
 
-      console.log("[SessionStore] User bookings:", bookings);
       setUserBookings(bookings);
       setUserBookingsLoading(false);
     } catch (err) {
-      console.error("[SessionStore] User bookings fetch error:", err);
       setUserBookingsError(
         err instanceof Error ? err.message : "Failed to fetch user bookings"
       );
@@ -223,19 +178,13 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
   // Re-fetch user bookings when user ID changes
   useEffect(() => {
     if (currentUserId) {
-      console.log(
-        "[SessionStore] User ID changed, fetching bookings for:",
-        currentUserId
-      );
       fetchUserBookings();
     }
   }, [currentUserId, fetchUserBookings]);
 
   // Setup real-time subscriptions and initial data fetch
   useEffect(() => {
-    console.log("[SessionStore] Setting up real-time subscriptions...");
-
-    // Sessions subscription
+    // Only need sessions subscription since participant data is embedded
     const sessionsChannel = supabase
       .channel("sessions-store")
       .on(
@@ -245,70 +194,45 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
           schema: "public",
           table: "sessions",
         },
-        (payload) => {
-          console.log(
-            "[SessionStore] Sessions real-time change:",
-            payload.eventType
-          );
+        () => {
           fetchSessions();
-        }
-      )
-      .subscribe((status) => {
-        console.log("[SessionStore] Sessions subscription status:", status);
-      });
-
-    // Participants subscription
-    const participantsChannel = supabase
-      .channel("participants-store")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "session_participants",
-        },
-        (payload) => {
-          console.log(
-            "[SessionStore] Participants real-time change:",
-            payload.eventType
-          );
-          // Refetch both participant counts and user bookings
-          fetchParticipantCounts();
           fetchUserBookings();
         }
       )
-      .subscribe((status) => {
-        console.log("[SessionStore] Participants subscription status:", status);
-      });
+      .subscribe(() => {});
 
     sessionsChannelRef.current = sessionsChannel;
-    participantsChannelRef.current = participantsChannel;
 
-    // Initial data fetch - always fetch sessions and participant counts
-    // User bookings will be fetched separately when user ID is available
+    // Initial data fetch
     fetchSessions();
-    fetchParticipantCounts();
 
     // Polling fallback
     pollIntervalRef.current = setInterval(() => {
-      console.log("[SessionStore] Polling fallback refresh");
       fetchSessions();
-      fetchParticipantCounts();
       fetchUserBookings();
-    }, 10000); // Poll every 10 seconds as fallback
+    }, 10000);
 
     return () => {
       if (sessionsChannelRef.current) {
         supabase.removeChannel(sessionsChannelRef.current);
       }
-      if (participantsChannelRef.current) {
-        supabase.removeChannel(participantsChannelRef.current);
-      }
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
       }
     };
-  }, [fetchSessions, fetchParticipantCounts, fetchUserBookings, supabase]);
+  }, [fetchSessions, fetchUserBookings, supabase]);
+
+  // Computed participant counts from JSON arrays
+  const participantCounts: ParticipantCounts = allSessions.reduce(
+    (counts, session) => {
+      const bookedParticipants = session.booked_participants || [];
+      counts[session.id] = Array.isArray(bookedParticipants)
+        ? bookedParticipants.length
+        : 0;
+      return counts;
+    },
+    {} as ParticipantCounts
+  );
 
   // Computed data based on raw data
   const availableSessions = allSessions.filter((session) => {
@@ -317,7 +241,7 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
       return false;
     }
 
-    // Check if session is full
+    // Check if session is full using computed participant count
     const currentCount = participantCounts[session.id] || 0;
     const maxParticipants = session.max_participants || 6;
     return currentCount < maxParticipants;
@@ -325,60 +249,38 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
 
   const facilitatorSessions =
     currentUserRole === "facilitator"
-      ? allSessions.filter(
-          (session) => session.facilitator_id === currentUserId
-        )
-      : [];
+      ? allSessions.filter((session) => {
+          // Must be facilitator's session
+          if (session.facilitator_id !== currentUserId) return false;
 
-  // Debug facilitator sessions
-  if (currentUserRole === "facilitator" && allSessions.length > 0) {
-    console.log("[SessionStore] Computing facilitator sessions:");
-    console.log("- Current user ID:", currentUserId);
-    console.log("- Current user role:", currentUserRole);
-    console.log("- All sessions count:", allSessions.length);
-    console.log(
-      "- All sessions facilitator IDs:",
-      allSessions.map((s) => s.facilitator_id)
-    );
-    console.log("- Filtered facilitator sessions:", facilitatorSessions.length);
-  }
+          // Must not be full
+          const currentCount = participantCounts[session.id] || 0;
+          const maxParticipants = session.max_participants || 6;
+          return currentCount < maxParticipants;
+        })
+      : [];
 
   const participantSessions = Object.keys(userBookings)
     .map((sessionId) => allSessions.find((session) => session.id === sessionId))
     .filter((session): session is Session => session !== undefined);
 
-  // For facilitator sessions with participant details, we'd need another fetch
-  // For now, keeping it simple
-  const facilitatorSessionsWithParticipants: SessionWithParticipants[] = [];
+  // Convert facilitator sessions to sessions with participant details
+  const facilitatorSessionsWithParticipants: SessionWithParticipants[] =
+    facilitatorSessions.map(mapSessionToSessionWithParticipants);
 
   // Actions
   const setCurrentUser = useCallback(
     (userId: string, role: "facilitator" | "participant") => {
-      console.log("[SessionStore] Setting current user:", userId, role);
-      console.log("[SessionStore] Previous state:", {
-        currentUserId,
-        currentUserRole,
-      });
       setCurrentUserId(userId);
       setCurrentUserRole(role);
-
-      // Force immediate re-computation of facilitator sessions
-      if (role === "facilitator") {
-        console.log(
-          "[SessionStore] User is facilitator, will filter sessions for:",
-          userId
-        );
-      }
     },
-    [] // No dependencies to avoid infinite loops
+    []
   );
 
   const refetchAll = useCallback(() => {
-    console.log("[SessionStore] Manual refetch all");
     fetchSessions();
-    fetchParticipantCounts();
     fetchUserBookings();
-  }, [fetchSessions, fetchParticipantCounts, fetchUserBookings]);
+  }, [fetchSessions, fetchUserBookings]);
 
   const contextValue: SessionStoreContext = {
     // Raw data
@@ -388,12 +290,10 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
 
     // Loading states
     sessionsLoading,
-    participantCountsLoading,
     userBookingsLoading,
 
     // Error states
     sessionsError,
-    participantCountsError,
     userBookingsError,
 
     // Computed data
@@ -405,7 +305,6 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
     // Actions
     refetchAll,
     refetchSessions: fetchSessions,
-    refetchParticipantCounts: fetchParticipantCounts,
     refetchUserBookings: fetchUserBookings,
     setCurrentUser,
   };

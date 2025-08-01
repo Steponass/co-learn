@@ -39,7 +39,7 @@ export function useAvailableSessionsRealtime(
 
   const supabase = createClient();
 
-  // Fetch user's booked sessions
+  // Fetch user's booked sessions using the new JSON contains query
   const fetchUserBookings = useCallback(async () => {
     if (!participantId) {
       setUserBookedSessionIds([]);
@@ -51,15 +51,15 @@ export function useAvailableSessionsRealtime(
       setBookingsError(null);
 
       const { data, error } = await supabase
-        .from("session_participants")
-        .select("session_id")
-        .eq("participant_id", participantId);
+        .from("sessions")
+        .select("id")
+        .contains("booked_participants", [{"user_id": participantId}]);
 
       if (error) {
         throw new Error(error.message);
       }
 
-      const bookedIds = (data || []).map((booking) => booking.session_id);
+      const bookedIds = (data || []).map((session) => session.id);
       setUserBookedSessionIds(bookedIds);
       setBookingsLoading(false);
     } catch (err) {

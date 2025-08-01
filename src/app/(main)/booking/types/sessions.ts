@@ -1,5 +1,4 @@
-import { parseFacilitatorData } from '@/utils/facilitatorInfo';
-
+import { parseFacilitatorData } from "@/utils/facilitatorInfo";
 
 // User info for a participant or facilitator
 export type UserInfo = {
@@ -9,7 +8,15 @@ export type UserInfo = {
   role: string;
 };
 
-// Participant in a session
+// JSON participant data as stored in the database
+export type BookedParticipant = {
+  user_id: string;
+  name: string;
+  email: string;
+  joined_at: string;
+};
+
+// Participant in a session (transformed from BookedParticipant for compatibility)
 export type SessionParticipant = {
   participant_id: string;
   user_info: UserInfo;
@@ -40,6 +47,8 @@ export interface Session {
   is_recurring: boolean;
   recurrence_pattern?: RecurrencePattern;
   max_participants: number;
+  // JSON participant data from database
+  booked_participants?: BookedParticipant[];
 }
 
 // Session with participants (used in facilitator views)
@@ -118,32 +127,17 @@ export interface RawSessionData {
   is_recurring?: boolean;
   recurrence_pattern?: RecurrencePattern;
   max_participants?: number;
+  booked_participants?: BookedParticipant[];
   facilitator?: Array<{
     name: string;
     email: string;
   }> | null;
 }
 
-// Raw participant data from database
-export interface RawParticipantData {
-  participant_id: string;
-  user_info?: {
-    user_id?: string;
-    email?: string;
-    name?: string;
-    role?: string;
-  };
-}
-
-// Raw session data with participants
-export interface RawSessionWithParticipantsData extends RawSessionData {
-  session_participants?: RawParticipantData[];
-}
-
 // Utility function to convert raw database data to Session
 export function mapRawSessionToSession(raw: RawSessionData): Session {
   const facilitatorInfo = parseFacilitatorData(raw.facilitator);
-  
+
   return {
     id: raw.id,
     facilitator_id: raw.facilitator_id,
@@ -159,31 +153,35 @@ export function mapRawSessionToSession(raw: RawSessionData): Session {
     is_recurring: raw.is_recurring || false,
     recurrence_pattern: raw.recurrence_pattern,
     max_participants: raw.max_participants || 6,
+    booked_participants: raw.booked_participants || [],
   };
 }
 
-// Utility function to map raw participant data
-export function mapRawParticipant(raw: RawParticipantData): SessionParticipant {
+// Utility function to transform BookedParticipant to SessionParticipant for compatibility
+export function mapBookedParticipantToSessionParticipant(
+  bookedParticipant: BookedParticipant
+): SessionParticipant {
   return {
-    participant_id: raw.participant_id,
+    participant_id: bookedParticipant.user_id,
     user_info: {
-      user_id: raw.user_info?.user_id || "",
-      email: raw.user_info?.email || "",
-      name: raw.user_info?.name || "",
-      role: raw.user_info?.role || "",
+      user_id: bookedParticipant.user_id,
+      email: bookedParticipant.email,
+      name: bookedParticipant.name,
+      role: "participant", // Default role since we don't store it in JSON
     },
   };
 }
 
-// Utility function to convert raw data with participants
-export function mapRawSessionWithParticipants(
-  raw: RawSessionWithParticipantsData
+// Utility function to convert session with JSON participants to SessionWithParticipants
+export function mapSessionToSessionWithParticipants(
+  session: Session
 ): SessionWithParticipants {
-  const baseSession = mapRawSessionToSession(raw);
+  const participants = (session.booked_participants || []).map(
+    mapBookedParticipantToSessionParticipant
+  );
+
   return {
-    ...baseSession,
-    session_participants: (raw.session_participants || []).map(
-      mapRawParticipant
-    ),
+    ...session,
+    session_participants: participants,
   };
 }

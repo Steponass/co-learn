@@ -3,13 +3,12 @@ import { createClient } from "@/utils/supabase/server";
 import { DateTime } from "luxon";
 import {
   mapRawSessionToSession,
-  mapRawSessionWithParticipants,
+  mapSessionToSessionWithParticipants,
   type RawSessionData,
-  type RawSessionWithParticipantsData,
 } from "./types/sessions";
 
-/**
- * Helper for consistent error handling and logging.
+/*
+ * Helper for error handling and logging
  */
 function handleError(context: string, error: unknown) {
   const errorMessage =
@@ -20,8 +19,8 @@ function handleError(context: string, error: unknown) {
   return { error: errorMessage || "Unknown error" };
 }
 
-/**
- * Create a new session.
+/*
+ * Create a new session
  */
 export async function createSession(
   previousState: unknown,
@@ -75,14 +74,15 @@ export async function createSession(
       max_participants,
       is_recurring: is_recurring || false,
       recurrence_pattern,
+      booked_participants: [], // Initialize with empty array
     },
   ]);
   if (error) return handleError("createSession", error);
   return { message: "Session created!", data };
 }
 
-/**
- * Book a session for a participant.
+/*
+ * Participant books a session
  */
 export async function bookSession(previousState: unknown, formData: FormData) {
   const supabase = await createClient();
@@ -90,24 +90,20 @@ export async function bookSession(previousState: unknown, formData: FormData) {
   const participant_id = formData.get("participant_id") as string;
 
   try {
-    // Use a database function that handles the entire booking logic atomically
-    const { data, error } = await supabase.rpc("book_session_safe", {
+    // Call the new book_session function
+    const { data, error } = await supabase.rpc("book_session", {
       p_session_id: session_id,
       p_participant_id: participant_id,
     });
 
     if (error) {
-      // Handle specific error cases based on the error message
       if (error.message?.includes("Session not found")) {
         return { error: "Session not found." };
       }
       if (error.message?.includes("Already booked")) {
         return { error: "You have already booked this session." };
       }
-      if (
-        error.message?.includes("Session is full") ||
-        error.message?.includes("capacity exceeded")
-      ) {
+      if (error.message?.includes("Session is full")) {
         return { error: "Session is full." };
       }
       return handleError("bookSession", error);
@@ -142,6 +138,7 @@ export async function getFacilitatorSessions(facilitatorId: string) {
         is_recurring,
         recurrence_pattern,
         max_participants,
+        booked_participants,
         facilitator:user_info!facilitator_id(name, email)
       `
       )
@@ -159,7 +156,8 @@ export async function getFacilitatorSessions(facilitatorId: string) {
 }
 
 /**
- * Facilitator views their sessions AND participants.
+ * Facilitator views their sessions with participant information.
+ * Now much simpler since participant data is in the JSON field.
  */
 export async function getFacilitatorSessionParticipants(facilitatorId: string) {
   try {
@@ -181,30 +179,23 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
         is_recurring,
         recurrence_pattern,
         max_participants,
-        facilitator:user_info!facilitator_id(name, email),
-        session_participants (
-          participant_id,
-          user_info (
-            user_id,
-            email,
-            name,
-            role
-          )
-        )
+        booked_participants,
+        facilitator:user_info!facilitator_id(name, email)
       `
       )
       .eq("facilitator_id", facilitatorId)
-      .gt("session_participants.count", 0);
+      .neq("booked_participants", "[]"); // Only sessions with participants
 
     if (error) return handleError("getFacilitatorSessionParticipants", error);
     if (!data || data.length === 0) return { data: [], error: null };
 
-    const mappedSessions = data.map((sessionRaw) =>
-      mapRawSessionWithParticipants(
-        sessionRaw as RawSessionWithParticipantsData
-      )
-    );
-    return { data: mappedSessions, error: null };
+    // Transform the data using the utility functions from types
+    const sessionsWithParticipants = data.map((sessionRaw) => {
+      const baseSession = mapRawSessionToSession(sessionRaw as RawSessionData);
+      return mapSessionToSessionWithParticipants(baseSession);
+    });
+
+    return { data: sessionsWithParticipants, error: null };
   } catch (err) {
     return handleError("getFacilitatorSessionParticipants", err);
   }
@@ -212,47 +203,43 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
 
 /**
  * Participant views their sessions.
+ * Now queries sessions table directly with JSON contains operation.
  */
 export async function getParticipantSessions(participantId: string) {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
-      .from("session_participants")
+      .from("sessions")
       .select(
         `
-        session_id,
-        joined_at,
-        sessions (
-          id,
-          facilitator_id,
-          start_time,
-          end_time,
-          time_zone,
-          room_code,
-          created_at,
-          updated_at,
-          title,
-          description,
-          is_recurring,
-          recurrence_pattern,
-          max_participants,
-          facilitator:user_info!facilitator_id(name, email)
-        )
+        id,
+        facilitator_id,
+        start_time,
+        end_time,
+        time_zone,
+        room_code,
+        created_at,
+        updated_at,
+        title,
+        description,
+        is_recurring,
+        recurrence_pattern,
+        max_participants,
+        booked_participants,
+        facilitator:user_info!facilitator_id(name, email)
       `
       )
-      .eq("participant_id", participantId);
+       .filter("booked_participants", "cs", `[{"user_id":"${participantId}"}]`);
 
     if (error) return handleError("getParticipantSessions", error);
 
-    const participantSessions = (data || []).map((item) => {
-      const sessionObj = Array.isArray(item.sessions)
-        ? item.sessions[0]
-        : item.sessions;
+    // Transform to match your existing ParticipantSession structure
+    const participantSessions = (data || []).map((sessionRaw) => {
       const mappedSession = mapRawSessionToSession(
-        sessionObj as RawSessionData
+        sessionRaw as RawSessionData
       );
       return {
-        session_id: item.session_id,
+        session_id: sessionRaw.id,
         sessions: mappedSession,
       };
     });
@@ -265,24 +252,30 @@ export async function getParticipantSessions(participantId: string) {
 
 /**
  * Participant cancels their booking.
+ * Now uses the cancel_booking database function instead of deleting rows.
  */
 export async function cancelBooking(
   session_id: string,
   participant_id: string
 ) {
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("session_participants")
-    .delete()
-    .eq("session_id", session_id)
-    .eq("participant_id", participant_id);
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.rpc("cancel_booking", {
+      p_session_id: session_id,
+      p_participant_id: participant_id,
+    });
 
-  if (error) return handleError("cancelBooking", error);
-  return { message: "Booking cancelled" };
+    if (error) return handleError("cancelBooking", error);
+    return { message: "Booking cancelled" };
+  } catch (err) {
+    return handleError("cancelBooking", err);
+  }
 }
 
 /**
- * Facilitator cancels a session (deletes session and all participant bookings).
+ * Facilitator cancels a session.
+ * Much simpler now since we only need to delete the session -
+ * participant data is embedded so it gets deleted automatically.
  */
 export async function cancelSession(
   previousState: unknown,
@@ -304,15 +297,7 @@ export async function cancelSession(
     return { error: "Unauthorized to cancel this session" };
   }
 
-  // Delete all participant bookings for this session
-  const { error: participantsError } = await supabase
-    .from("session_participants")
-    .delete()
-    .eq("session_id", session_id);
-
-  if (participantsError) return handleError("cancelSession", participantsError);
-
-  // Delete the session itself
+  // Delete the session - participant data is automatically removed since it's embedded
   const { error: sessionDeleteError } = await supabase
     .from("sessions")
     .delete()

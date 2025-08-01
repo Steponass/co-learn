@@ -11,20 +11,15 @@ export function useAvailableSessions() {
     availableSessions,
     participantCounts,
     sessionsLoading,
-    participantCountsLoading,
     sessionsError,
-    participantCountsError,
     refetchAll,
   } = useSessionStore();
-
-  const loading = sessionsLoading || participantCountsLoading;
-  const error = sessionsError || participantCountsError;
 
   return {
     sessions: availableSessions,
     participantCounts,
-    loading,
-    error,
+    loading: sessionsLoading,
+    error: sessionsError,
     refetch: refetchAll,
   };
 }
@@ -38,26 +33,21 @@ export function useFacilitatorSessions() {
     facilitatorSessions,
     participantCounts,
     sessionsLoading,
-    participantCountsLoading,
     sessionsError,
-    participantCountsError,
     refetchAll,
   } = useSessionStore();
 
-  const loading = sessionsLoading || participantCountsLoading;
-  const error = sessionsError || participantCountsError;
-
   console.log("[useFacilitatorSessions] Hook called with:", {
     facilitatorSessionsCount: facilitatorSessions.length,
-    loading,
-    error,
+    loading: sessionsLoading,
+    error: sessionsError,
   });
 
   return {
     sessions: facilitatorSessions,
     participantCounts,
-    loading,
-    error,
+    loading: sessionsLoading,
+    error: sessionsError,
     refetch: refetchAll,
   };
 }
@@ -96,9 +86,9 @@ export function useParticipantSessions() {
 export function useSessionParticipants(sessionId?: string) {
   const {
     participantCounts,
-    participantCountsLoading,
-    participantCountsError,
-    refetchParticipantCounts,
+    sessionsLoading,
+    sessionsError,
+    refetchAll,
   } = useSessionStore();
 
   const participantCount = sessionId ? participantCounts[sessionId] || 0 : 0;
@@ -106,9 +96,9 @@ export function useSessionParticipants(sessionId?: string) {
   return {
     participantCount,
     participantCounts,
-    loading: participantCountsLoading,
-    error: participantCountsError,
-    refetch: refetchParticipantCounts,
+    loading: sessionsLoading,
+    error: sessionsError,
+    refetch: refetchAll,
   };
 }
 
@@ -121,55 +111,35 @@ export function useAllSessions() {
     allSessions,
     participantCounts,
     sessionsLoading,
-    participantCountsLoading,
     sessionsError,
-    participantCountsError,
     refetchAll,
   } = useSessionStore();
-
-  const loading = sessionsLoading || participantCountsLoading;
-  const error = sessionsError || participantCountsError;
 
   return {
     sessions: allSessions,
     participantCounts,
-    loading,
-    error,
+    loading: sessionsLoading,
+    error: sessionsError,
     refetch: refetchAll,
   };
 }
 
 /**
  * Hook for getting facilitator sessions with participants
- * This is a simplified version for now - it returns the basic sessions
- * and participant counts. For full participant details, components can
- * use the detailed hooks separately.
+ * Uses the pre-computed facilitatorSessionsWithParticipants from the store
  */
 export function useFacilitatorSessionParticipants() {
   const {
-    facilitatorSessions,
-    participantCounts,
+    facilitatorSessionsWithParticipants,
     sessionsLoading,
-    participantCountsLoading,
     sessionsError,
-    participantCountsError,
     refetchAll,
   } = useSessionStore();
 
-  const loading = sessionsLoading || participantCountsLoading;
-  const error = sessionsError || participantCountsError;
-
-  // Transform basic sessions into sessions with participant counts
-  const sessionsWithParticipants = facilitatorSessions.map((session) => ({
-    ...session,
-    session_participants: [], // Empty for now, can be enhanced later
-    participant_count: participantCounts[session.id] || 0,
-  }));
-
   return {
-    sessions: sessionsWithParticipants,
-    loading,
-    error,
+    sessions: facilitatorSessionsWithParticipants,
+    loading: sessionsLoading,
+    error: sessionsError,
     refetch: refetchAll,
   };
 }

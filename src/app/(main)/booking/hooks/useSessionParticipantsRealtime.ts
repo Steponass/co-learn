@@ -26,18 +26,18 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
   const channelRef = useRef<RealtimeChannel | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch participant counts for all sessions
+  // Fetch participant counts from the JSON field in sessions table
   const fetchParticipantCounts = useCallback(async () => {
     try {
       setError(null);
 
       console.log(
-        "[useSessionParticipantsRealtime] Fetching participant counts..."
+        "[useSessionParticipantsRealtime] Fetching participant counts from sessions table..."
       );
 
       const { data, error: fetchError } = await supabase
-        .from("session_participants")
-        .select("session_id");
+        .from("sessions")
+        .select("id, booked_participants");
 
       console.log("[useSessionParticipantsRealtime] Raw data:", data);
       console.log("[useSessionParticipantsRealtime] Error:", fetchError);
@@ -46,11 +46,12 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
         throw new Error(fetchError.message);
       }
 
-      // Count participants per session
+      // Count participants per session from JSON array
       const counts: ParticipantCounts = {};
-      (data || []).forEach((participant) => {
-        const sessionId = participant.session_id;
-        counts[sessionId] = (counts[sessionId] || 0) + 1;
+      (data || []).forEach((session) => {
+        const sessionId = session.id;
+        const bookedParticipants = session.booked_participants || [];
+        counts[sessionId] = Array.isArray(bookedParticipants) ? bookedParticipants.length : 0;
       });
 
       console.log("[useSessionParticipantsRealtime] Computed counts:", counts);
@@ -86,11 +87,11 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
     }
   }, []);
 
-  // Setup real-time subscription
+  // Setup real-time subscription on sessions table
   useEffect(() => {
     fetchParticipantCounts();
 
-    console.log("[useSessionParticipantsRealtime] Setting up subscription...");
+    console.log("[useSessionParticipantsRealtime] Setting up subscription on sessions table...");
 
     const channel = supabase
       .channel("session-participants-realtime")
@@ -99,18 +100,18 @@ export function useSessionParticipantsRealtime(): UseSessionParticipantsRealtime
         {
           event: "*", // INSERT, UPDATE, DELETE
           schema: "public",
-          table: "session_participants",
+          table: "sessions", // Listen to sessions table instead of session_participants
         },
         (payload) => {
           console.log(
-            "[useSessionParticipantsRealtime] Real-time change:",
+            "[useSessionParticipantsRealtime] Real-time change on sessions:",
             payload.eventType,
             payload
           );
           // Force immediate refetch on any change
           setTimeout(() => {
             console.log(
-              "[useSessionParticipantsRealtime] Forcing immediate refetch after change"
+              "[useSessionParticipantsRealtime] Forcing immediate refetch after sessions change"
             );
             fetchParticipantCounts();
           }, 100); // Small delay to ensure database transaction is committed
