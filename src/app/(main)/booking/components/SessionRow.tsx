@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import classes from "./(participant)/BookingList.module.css";
 import ParticipantBookSessionButton from "./(participant)/ParticipantBookSessionButton";
 
@@ -22,6 +22,8 @@ export interface SessionRowProps {
     facilitatorName: string;
     onBookingSuccess?: () => void; // Add callback
   };
+  isRemoving?: boolean; // Add prop to handle removal animation
+  onRemovalComplete?: () => void; // Callback when fade-out completes
 }
 
 export const SessionRow: React.FC<SessionRowProps> = ({
@@ -38,9 +40,29 @@ export const SessionRow: React.FC<SessionRowProps> = ({
   rowKey,
   showBookButton,
   bookButtonProps,
+  isRemoving = false,
+  onRemovalComplete,
 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (isRemoving) {
+      setIsVisible(false);
+      onRemovalComplete?.();
+    } else {
+      setIsVisible(true);
+    }
+  }, [isRemoving, onRemovalComplete]);
+
+  const getRowClassName = () => {
+    if (isRemoving) {
+      return `${classes.booking_row} ${classes.fade_out}`;
+    }
+    return `${classes.booking_row} ${isVisible ? classes.fade_in : ""}`;
+  };
+
   return (
-    <li className={classes.booking_row} key={rowKey}>
+    <li className={getRowClassName()} key={rowKey}>
       <div className={classes.booking_row_details}>
         <div className={classes.session_title_and_facilitator}>
           <h5>{title}</h5>

@@ -38,7 +38,22 @@
   padding-inline: var(--space-12-16px);
   flex-wrap: wrap;
   gap: var(--space-8-12px);
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
 }
+
+.booking_row.fade_in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.booking_row.fade_out {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+
 
 .booking_row_details {
   display: flex;

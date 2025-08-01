@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { cancelBooking } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
@@ -14,15 +15,36 @@ export default function ParticipantSessionList({
   participantId,
 }: ParticipantSessionListProps) {
   const { sessions, loading, error } = useParticipantSessions();
+  const [removingSessions, setRemovingSessions] = useState<Set<string>>(
+    new Set()
+  );
 
   const handleCancel = async (sessionId: string) => {
+    // Start the fade-out animation
+    setRemovingSessions((prev) => new Set(prev).add(sessionId));
+
     try {
       await cancelBooking(sessionId, participantId);
       // The SessionStore will automatically update via real-time subscriptions
     } catch (err) {
       console.error("[ParticipantSessionList] Cancel error:", err);
+      // Remove from removing set if error occurs
+      setRemovingSessions((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(sessionId);
+        return newSet;
+      });
       // Could add error toast notification here
     }
+  };
+
+  const handleRemovalComplete = (sessionId: string) => {
+    // Clean up the removing state after animation completes
+    setRemovingSessions((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(sessionId);
+      return newSet;
+    });
   };
 
   // Show loading state
@@ -69,6 +91,8 @@ export default function ParticipantSessionList({
               description={session.description}
               dateDisplay={getSessionDateDisplay(session)}
               facilitatorName={session.facilitator_name || "Unknown"}
+              isRemoving={removingSessions.has(session.id)}
+              onRemovalComplete={() => handleRemovalComplete(session.id)}
               actions={
                 <div className={classes.session_actions}>
                   <button
