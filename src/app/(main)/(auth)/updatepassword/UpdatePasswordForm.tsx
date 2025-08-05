@@ -4,6 +4,7 @@ import { useEffect, useActionState } from "react";
 import { updatePassword } from "../login/actions";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import MessageDisplay from "../../components/MessageDisplay";
 import classes from "./UpdatePassword.module.css";
 
 export default function UpdatePasswordForm() {
@@ -47,18 +48,11 @@ export default function UpdatePasswordForm() {
             minLength={6}
           />
         </div>
-        {formData?.error && (
-          <div className="error_msg">
-            <p>{formData.error}</p>
-          </div>
-        )}
-        {formData?.message && (
-          <div className="error_msg">
-            <p>{formData.message}</p>
-          </div>
-        )}
-        <button className="primary_button"
-        disabled={isPending}>Update Password</button>
+        <MessageDisplay message={formData?.error} type="error" />
+        <MessageDisplay message={formData?.message} type="success" />
+        <button className="primary_button" disabled={isPending}>
+          Update Password
+        </button>
       </form>
     </div>
   );

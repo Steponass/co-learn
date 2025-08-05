@@ -188,8 +188,8 @@ export default function LiveKitRoomWrapper({
     <div className="livekit_room_container">
       {!joined ? (
         <div className="join_session_button_container">
-          <button className="join_session_button" onClick={() => setJoined(true)}>
-            Join Session
+          <button className="primary_button" onClick={() => setJoined(true)}>
+            Start Video Session
           </button>
         </div>
       ) : (

@@ -6,6 +6,7 @@ import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import { useFacilitatorSessions } from "../../hooks/useSessionStore";
 import { useSessionStore } from "../../store/SessionStore";
+import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
 
@@ -99,12 +100,10 @@ export default function FacilitatorSessionList({
     return (
       <div className={classes.booking_list}>
         <h4 className={classes.list_heading}>Open Sessions</h4>
-        <div className="error_msg">
-          <p>{error}</p>
-          <button className="secondary_button" onClick={refetchAll}>
-            Retry
-          </button>
-        </div>
+        <MessageDisplay message={error} type="error" />
+        <button className="secondary_button" onClick={refetchAll}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -154,16 +153,14 @@ export default function FacilitatorSessionList({
                         ? "Cancelling..."
                         : "Cancel Session"}
                     </button>
-                    {sessionCancelState?.error && (
-                      <div className="error_msg">
-                        <p>{sessionCancelState.error}</p>
-                      </div>
-                    )}
-                    {sessionCancelState?.message && (
-                      <div className="success_msg">
-                        <p>{sessionCancelState.message}</p>
-                      </div>
-                    )}
+                    <MessageDisplay
+                      message={sessionCancelState?.error}
+                      type="error"
+                    />
+                    <MessageDisplay
+                      message={sessionCancelState?.message}
+                      type="success"
+                    />
                   </div>
                 }
               />

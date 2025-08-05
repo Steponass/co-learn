@@ -13,12 +13,10 @@ export default function AuthContainer() {
 
   return (
     <div className={classes.auth_container}>
-      {/* Render the current form */}
       {currentForm === "login" && <LoginForm />}
       {currentForm === "signup" && <SignupForm />}
       {currentForm === "reset" && <ResetPasswordForm />}
 
-      {/* Render the appropriate action buttons */}
       <div className={classes.signup_forgot_container}>
         {currentForm === "login" && (
           <>

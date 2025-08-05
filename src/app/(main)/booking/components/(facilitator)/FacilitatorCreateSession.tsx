@@ -4,6 +4,7 @@ import { useState, useActionState, useEffect } from "react";
 import { createSession } from "../../actions";
 import { useSessionStore } from "../../store/SessionStore";
 import { timeZones } from "../../utils/timezones";
+import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "../(participant)/BookingList.module.css";
 
 interface FacilitatorCreateSessionProps {
@@ -220,17 +221,16 @@ export default function FacilitatorCreateSession({
           {isPending ? "Creating..." : "Create Session"}
         </button>
 
-        {formData && "error" in formData && (
-          <div className="error_msg">
-            <p>{formData.error}</p>
-          </div>
-        )}
-
-        {formData && "message" in formData && (
-          <div className="success_msg">
-            <p>{formData.message}</p>
-          </div>
-        )}
+        <MessageDisplay
+          message={formData && "error" in formData ? formData.error : undefined}
+          type="error"
+        />
+        <MessageDisplay
+          message={
+            formData && "message" in formData ? formData.message : undefined
+          }
+          type="success"
+        />
       </form>
     </div>
   );

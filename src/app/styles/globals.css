@@ -12,9 +12,10 @@ body {
 }
 
 * {
-  transition-property: background-color, color, border-color, fill, stroke, box-shadow, -webkit-box-shadow, -webkit-text-fill-color;
+  transition-property: background-color, color, border-color, opacity, fill, stroke, box-shadow, -webkit-box-shadow, -webkit-text-fill-color;
   transition-duration: 300ms;
   transition-timing-function: ease-in-out;
+  animation: fadeIn 0.2s ease-out;
 
   accent-color: var(--clr-brand);
   caret-color: var(--clr-txt-strong);
@@ -23,6 +24,8 @@ body {
     outline: 3px solid var(--clr-brand);
   }
 }
+
+@keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
 
 main {
   flex: 1 0 auto;
@@ -33,6 +36,27 @@ main {
   padding-block: var(--space-4-8px);
 }
 
+input[type=radio] {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--clr-stroke-strong);
+  border-radius: 50%;
+  position: relative;
+
+  &:focus-visible {
+    outline: 3px solid var(--clr-brand);
+    outline-offset: 2px;
+  }
+}
+
+input[type="radio"]:checked {
+  border-color: var(--clr-brand);
+  background-color: var(--clr-brand);
+}
 
 .explain_info {
   color: var(--clr-txt-weak);

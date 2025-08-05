@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { bookSession } from "../../actions";
+import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "./BookingList.module.css";
 
 interface ParticipantBookSessionButtonProps {
@@ -46,17 +47,16 @@ export default function ParticipantBookSessionButton({
           {isPending ? "Booking..." : "Book Session"}
         </button>
 
-        {formData && "error" in formData && (
-          <div className="error_msg">
-            <p>{formData.error}</p>
-          </div>
-        )}
-
-        {formData && "message" in formData && (
-          <div className="success_msg">
-            <p>{formData.message}</p>
-          </div>
-        )}
+        <MessageDisplay
+          message={formData && "error" in formData ? formData.error : undefined}
+          type="error"
+        />
+        <MessageDisplay
+          message={
+            formData && "message" in formData ? formData.message : undefined
+          }
+          type="success"
+        />
       </div>
     </form>
   );

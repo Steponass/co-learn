@@ -3,6 +3,7 @@
 import { useEffect, useActionState } from "react";
 import { signup } from "../login/actions";
 import { useRouter } from "next/navigation";
+import MessageDisplay from "../../components/MessageDisplay";
 import classes from "../login/login.module.css";
 
 export default function SignupForm() {
@@ -21,10 +22,10 @@ export default function SignupForm() {
 
   return (
     <div className="stack">
-      <h2>Sign Up</h2>
+      <h2>Sign up</h2>
       <form className="stack" action={formAction}>
         <div className={classes.input_container}>
-          <label htmlFor="name">Name:</label>
+          <label htmlFor="name">Name</label>
           <input
             className={classes.input}
             id="name"
@@ -35,7 +36,7 @@ export default function SignupForm() {
           />
         </div>
         <div className={classes.input_container}>
-          <label htmlFor="email">Email:</label>
+          <label htmlFor="email">Email</label>
           <input
             className={classes.input}
             id="email"
@@ -46,7 +47,7 @@ export default function SignupForm() {
           />
         </div>
         <div className={classes.input_container}>
-          <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password</label>
           <input
             className={classes.input}
             id="password"
@@ -56,28 +57,20 @@ export default function SignupForm() {
           />
         </div>
         <div>
-          <p>Role:</p>
+          <p>Role</p>
           <label>
-            <input type="radio" name="role" value="facilitator" required />
-            Facilitator
+            <input type="radio" name="role" value="participant" required />
+            Learner (Participant)
           </label>
           <br />
           <label>
-            <input type="radio" name="role" value="participant" required />
-            Learner / Participant
+            <input type="radio" name="role" value="facilitator" required />
+            Trainer (Facilitator)
           </label>
         </div>
 
-        {formData?.error && (
-          <div className="error_msg">
-            <p>{formData?.error}</p>
-          </div>
-        )}
-        {formData?.message && (
-          <div className="success_msg">
-            <p>{formData?.message}</p>
-          </div>
-        )}
+        <MessageDisplay message={formData?.error} type="error" />
+        <MessageDisplay message={formData?.message} type="success" />
         <button className="primary_button" disabled={isPending}>
           Sign up
         </button>

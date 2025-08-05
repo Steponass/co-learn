@@ -5,6 +5,7 @@ import { cancelSession } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import { useFacilitatorSessionParticipantsRealtime } from "../../hooks/useFacilitatorSessionParticipantsRealtime";
+import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "../(participant)/BookingList.module.css";
 import SessionRow from "../SessionRow";
 import ListViewToggleButton from "../ListViewToggleButton";
@@ -108,16 +109,8 @@ export default function FacilitatorSessionParticipants({
         >
           {sessionCancelState?.isPending ? "Cancelling..." : "Cancel Session"}
         </button>
-        {sessionCancelState?.error && (
-          <div className="error_msg">
-            <p>{sessionCancelState.error}</p>
-          </div>
-        )}
-        {sessionCancelState?.message && (
-          <div className="success_msg">
-            <p>{sessionCancelState.message}</p>
-          </div>
-        )}
+        <MessageDisplay message={sessionCancelState?.error} type="error" />
+        <MessageDisplay message={sessionCancelState?.message} type="success" />
       </div>
     );
   };
@@ -145,12 +138,10 @@ export default function FacilitatorSessionParticipants({
         <div className={classes.list_header_with_toggle}>
           <h4 className={classes.list_heading}>Booked Sessions</h4>
         </div>
-        <div className="error_msg">
-          <p>{error}</p>
-          <button className="secondary_button" onClick={refetch}>
-            Retry
-          </button>
-        </div>
+        <MessageDisplay message={error} type="error" />
+        <button className="secondary_button" onClick={refetch}>
+          Retry
+        </button>
       </div>
     );
   }

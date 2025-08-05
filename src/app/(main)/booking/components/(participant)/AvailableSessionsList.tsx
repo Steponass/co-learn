@@ -2,6 +2,7 @@
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import { useAvailableSessions } from "../../hooks/useSessionStore";
+import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
 
@@ -34,9 +35,7 @@ export default function AvailableSessionsList({
     return (
       <div className={classes.booking_list}>
         <h4 className={classes.list_heading}>Available Sessions</h4>
-        <div className="error_msg">
-          <p>{error}</p>
-        </div>
+        <MessageDisplay message={error} type="error" />
       </div>
     );
   }

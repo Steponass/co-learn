@@ -4,6 +4,7 @@ import { cancelBooking } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import { useParticipantSessions } from "../../hooks/useSessionStore";
+import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "./BookingList.module.css";
 import SessionRow from "../SessionRow";
 
@@ -62,9 +63,7 @@ export default function ParticipantSessionList({
     return (
       <div className={classes.booking_list}>
         <h4 className={classes.list_heading}>My Bookings</h4>
-        <div className="error_msg">
-          <p>{error}</p>
-        </div>
+        <MessageDisplay message={error} type="error" />
       </div>
     );
   }

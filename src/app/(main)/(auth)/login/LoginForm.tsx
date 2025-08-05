@@ -3,6 +3,7 @@
 import { useEffect, useActionState } from "react";
 import { login } from "./actions";
 import { useRouter } from "next/navigation";
+import MessageDisplay from "../../components/MessageDisplay";
 import classes from "./login.module.css";
 
 export default function LoginForm() {
@@ -45,16 +46,8 @@ export default function LoginForm() {
             required
           />
         </div>
-        {formData?.error && (
-          <div className="error_msg">
-            <p>{formData?.error}</p>
-          </div>
-        )}
-        {formData?.message && (
-          <div className="success_msg">
-            <p>{formData?.message}</p>
-          </div>
-        )}
+        <MessageDisplay message={formData?.error} type="error" />
+        <MessageDisplay message={formData?.message} type="success" />
         <button className="primary_button" disabled={isPending}>
           Log in
         </button>

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
+import MessageDisplay from "@/app/(main)/components/MessageDisplay";
 import classes from "./Dictionary.module.css";
 import { PlayAudioIcon } from "@/app/components/Icon";
 
-// TypeScript interfaces for the API response
 interface PronunciationSound {
   audio: string;
 }
@@ -54,11 +54,9 @@ const stripHtml = (html: string): string => {
   }
 };
 
-// Utility function to construct audio URL
 const constructAudioUrl = (audioFilename: string): string => {
   const baseUrl = "https://media.merriam-webster.com/audio/prons/en/us/mp3";
 
-  // Determine subdirectory based on filename
   let subdirectory: string;
   if (audioFilename.startsWith("bix")) {
     subdirectory = "bix";
@@ -73,7 +71,6 @@ const constructAudioUrl = (audioFilename: string): string => {
   return `${baseUrl}/${subdirectory}/${audioFilename}.mp3`;
 };
 
-// Main Dictionary component
 export default function Dictionary() {
   const [input, setInput] = useState("");
   const [dictionaryData, setDictionaryData] = useState<DictionaryData | null>(
@@ -88,9 +85,7 @@ export default function Dictionary() {
   const searchWord = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !apiKey) {
-      setError(
-        apiKey ? "Please enter a word to search" : "API key not configured"
-      );
+      setError(apiKey ? "Enter a word to search" : "API key not configured");
       return;
     }
 
@@ -111,7 +106,7 @@ export default function Dictionary() {
 
       const data: DictionaryResponse = await response.json();
 
-      // Handle case where no exact matches found (returns array of suggestions)
+      // Handle case where no exact matches found
       if (
         Array.isArray(data) &&
         data.length > 0 &&
@@ -131,7 +126,6 @@ export default function Dictionary() {
       ) {
         const entry = data[0] as DictionaryEntry;
 
-        // Extract definitions from the complex structure
         const definitions: string[] = [];
 
         // Try shortdef first (simpler)
@@ -175,7 +169,7 @@ export default function Dictionary() {
         }
 
         setDictionaryData({
-          word: entry.hwi.hw.replace(/\*/g, "·"), // Replace asterisks with dots for syllable separation
+          word: entry.hwi.hw.replace(/\*/g, ""), // Replace asterisks with nothingnessss
           pronunciations: entry.hwi.prs || [],
           partOfSpeech: entry.fl,
           definitions:
@@ -206,107 +200,97 @@ export default function Dictionary() {
   };
 
   return (
-      <div className={classes.dictionary_wrapper + " stack"}>
-        <h5>Dictionary</h5>
+    <div className={classes.dictionary_wrapper + " stack"}>
+      <h5>Dictionary</h5>
 
-        {/* Search Form */}
-        <form className={classes.search_container} onSubmit={searchWord}>
-          <input
-            className={classes.search_input}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="…"
-            disabled={isLoading}
-            aria-label="Enter word to search in dictionary"
-          />
-          <button
-            className="primary_button"
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            aria-label="Search dictionary"
-          >
-            {isLoading ? "Searching..." : "Search"}
-          </button>
-        </form>
-
-        {/* Results Area */}
-        <div
-          className={classes.results_window}
-          aria-live="polite"
-          aria-busy={isLoading}
+      <form className={classes.search_container} onSubmit={searchWord}>
+        <input
+          className={classes.search_input}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="…"
+          disabled={isLoading}
+          aria-label="Enter word to search in dictionary"
+        />
+        <button
+          className="primary_button"
+          type="submit"
+          disabled={isLoading || !input.trim()}
+          aria-label="Search dictionary"
         >
-          {/* Loading State */}
-          {isLoading && (
-            <div className={classes.loading_message}>
-              <p>Looking up definition…</p>
-            </div>
-          )}
+          {isLoading ? "Searching..." : "Search"}
+        </button>
+      </form>
 
-          {/* Error State */}
-          {error && (
-            <div className="error_msg">
-              <p>{error}</p>
-            </div>
-          )}
+      <div
+        className={classes.results_window}
+        aria-live="polite"
+        aria-busy={isLoading}
+      >
+        {isLoading && (
+          <div className={classes.loading_message}>
+            <p>Looking up definition…</p>
+          </div>
+        )}
 
-          {/* Dictionary Results */}
-          {dictionaryData && !isLoading && (
-            <div className={classes.definition_content}>
-              {/* Word and Pronunciation */}
-              <div className={classes.word_header}>
-                <h5 className={classes.word_title}>{dictionaryData.word}</h5>
-                {dictionaryData.partOfSpeech && (
-                  <span className={classes.part_of_speech}>
-                    {dictionaryData.partOfSpeech}
+        {error && (
+          <MessageDisplay message={error} type="error" isPermanent={true} />
+        )}
+
+        {dictionaryData && !isLoading && (
+          <div className={classes.definition_content}>
+            {/* Word and Pronunciation */}
+            <div className={classes.word_header}>
+              <h5 className={classes.word_title}>{dictionaryData.word}</h5>
+              {dictionaryData.partOfSpeech && (
+                <span className={classes.part_of_speech}>
+                  {dictionaryData.partOfSpeech}
+                </span>
+              )}
+            </div>
+
+            {dictionaryData.pronunciations.length > 0 && (
+              <div className={classes.pronunciation_section}>
+                {dictionaryData.pronunciations[0].ipa && (
+                  <span className={classes.pronunciation_text}>
+                    /{dictionaryData.pronunciations[0].ipa}/
                   </span>
                 )}
+                {dictionaryData.audioUrl && (
+                  <button
+                    className={classes.audio_button}
+                    onClick={playAudio}
+                    aria-label={`Play pronunciation of ${dictionaryData.word}`}
+                  >
+                    {" "}
+                    <PlayAudioIcon size="sm" />
+                  </button>
+                )}
               </div>
+            )}
 
-              {/* Pronunciation */}
-              {dictionaryData.pronunciations.length > 0 && (
-                <div className={classes.pronunciation_section}>
-                  {dictionaryData.pronunciations[0].ipa && (
-                    <span className={classes.pronunciation_text}>
-                      /{dictionaryData.pronunciations[0].ipa}/
-                    </span>
-                  )}
-                  {dictionaryData.audioUrl && (
-                    <button
-                      className={classes.audio_button}
-                      onClick={playAudio}
-                      aria-label={`Play pronunciation of ${dictionaryData.word}`}
-                    >
-                      {" "}
-                      <PlayAudioIcon size="sm" />
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {/* Definitions */}
-              <div className={classes.definitions_section}>
-                <h6>Definitions:</h6>
-                <ol className={classes.definitions_list}>
-                  {dictionaryData.definitions.map((definition, index) => (
-                    <li key={index} className={classes.definition_item}>
-                      {definition}
-                    </li>
-                  ))}
-                </ol>
-              </div>
+            <div className={classes.definitions_section}>
+              <h6>Definitions:</h6>
+              <ol className={classes.definitions_list}>
+                {dictionaryData.definitions.map((definition, index) => (
+                  <li key={index} className={classes.definition_item}>
+                    {definition}
+                  </li>
+                ))}
+              </ol>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Empty State */}
-          {!dictionaryData && !error && !isLoading && (
-            <div className={classes.empty_state}>
-              <p>Enter a word above to see its definition</p>
-            </div>
-          )}
-        </div>
-
-        {/* Hidden audio element for pronunciation */}
-        <audio ref={audioRef} preload="none" />
+        {!dictionaryData && !error && !isLoading && (
+          <div className={classes.empty_state}>
+            <p>Enter a word above to see its definition</p>
+          </div>
+        )}
       </div>
+
+      {/* Hidden audio element for pronunciation */}
+      <audio ref={audioRef} preload="none" />
+    </div>
   );
 }
