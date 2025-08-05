@@ -105,26 +105,28 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
     try {
       setSessionsError(null);
 
-      const { data, error } = await supabase.from("sessions").select(`
-  id,
-  facilitator_id,
-  start_time,
-  end_time,
-  time_zone,
-  room_code,
-  created_at,
-  updated_at,
-  title,
-  description,
-  is_recurring,
-  recurrence_pattern,
-  max_participants,
-  booked_participants,
-  status,
-  facilitator:user_info!facilitator_id(name, email)
-`);
+      const { data, error: fetchError } = await supabase
+        .from("sessions")
+        .select(`
+          id,
+          facilitator_id,
+          start_time,
+          end_time,
+          time_zone,
+          room_code,
+          created_at,
+          updated_at,
+          title,
+          description,
+          is_recurring,
+          recurrence_pattern,
+          max_participants,
+          booked_participants,
+          status,
+          facilitator:user_info!facilitator_id(name, email)
+        `);
 
-      if (error) throw new Error(error.message);
+      if (fetchError) throw new Error(fetchError.message);
 
       const mappedSessions = (data || []).map((sessionRaw) =>
         mapRawSessionToSession(sessionRaw as RawSessionData)

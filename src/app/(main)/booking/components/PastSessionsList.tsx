@@ -1,10 +1,12 @@
 "use client";
+import { useState } from "react";
 import { formatSessionTimeOnly } from "../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../utils/sessionHelpers";
 import { useSessionStore } from "../store/SessionStore";
 import MessageDisplay from "../../components/MessageDisplay";
 import classes from "./(participant)/BookingList.module.css";
 import SessionRow from "./SessionRow";
+import ListViewToggleButton from "./ListViewToggleButton";
 import type { Session } from "../types/sessions";
 
 interface PastSessionsListProps {
@@ -25,6 +27,8 @@ export default function PastSessionsList({
     sessionsLoading,
     sessionsError,
   } = useSessionStore();
+
+  const [showList, setShowList] = useState(true);
 
   // Get the current user ID based on role
   const currentUserId =
@@ -61,12 +65,19 @@ export default function PastSessionsList({
 
   return (
     <div className={classes.booking_list}>
-      <h4 className={classes.list_heading}>Past Sessions</h4>
+      <div className={classes.list_header_with_toggle}>
+        <h4 className={classes.list_heading}>Past Sessions</h4>
+        <ListViewToggleButton
+          showList={showList}
+          onClick={() => setShowList((v) => !v)}
+          className={classes.list_view_toggle_button}
+        />
+      </div>
 
       {relevantPastSessions.length === 0 ? (
         <p>No completed sessions yet.</p>
       ) : (
-        <ul className="stack">
+        <ul className={"stack" + (showList ? "" : " stackCollapsed")}>
           {relevantPastSessions.map((session: Session) => (
             <SessionRow
               key={session.id}
