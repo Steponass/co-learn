@@ -61,7 +61,7 @@ export default function AvailableSessionsList({
               timeZone={session.time_zone}
               description={session.description}
               dateDisplay={getSessionDateDisplay(session)}
-              facilitatorName={session.facilitator_name}
+              facilitatorName={session.facilitator_name || "Unknown"}
               maxParticipants={session.max_participants}
               currentParticipantCount={participantCounts[session.id] || 0}
               showBookButton={true}

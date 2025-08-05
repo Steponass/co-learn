@@ -24,6 +24,9 @@ export interface SessionRowProps {
   };
   isRemoving?: boolean; // Add prop to handle removal animation
   onRemovalComplete?: () => void; // Callback when fade-out completes
+  mode?: "active" | "past";
+  sessionStatus?: "scheduled" | "active" | "completed" | "cancelled";
+  completedAt?: string;
 }
 
 export const SessionRow: React.FC<SessionRowProps> = ({
@@ -67,7 +70,7 @@ export const SessionRow: React.FC<SessionRowProps> = ({
         <div className={classes.session_title_and_facilitator}>
           <h5>{title}</h5>
           <div className={classes.facilitator_name}>
-            <p>Hosted by {facilitatorName}</p>
+            <p>Hosted by {facilitatorName || "Unknown"}</p>
           </div>
         </div>
 

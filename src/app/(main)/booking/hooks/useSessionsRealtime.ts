@@ -45,6 +45,7 @@ export function useSessionsRealtime(): UseSessionsRealtimeReturn {
           recurrence_pattern,
           max_participants,
           booked_participants,
+          status,
           facilitator:user_info!facilitator_id(name, email)
         `);
 

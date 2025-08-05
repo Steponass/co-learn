@@ -1,6 +1,7 @@
 "use client";
 import AvailableSessionsList from "./AvailableSessionsList";
 import ParticipantSessionList from "./ParticipantSessionList";
+import PastSessionsList from "../PastSessionsList";
 
 interface ParentBookingListsProps {
   participantId: string;
@@ -28,11 +29,16 @@ export default function ParentBookingLists({
   return (
     <>
       <AvailableSessionsList
+      
         participantId={participantId}
         participantName={participantName}
         onBookingSuccess={handleBookingSuccess}
       />
       <ParticipantSessionList participantId={participantId} />
+      <PastSessionsList
+        participantId={participantId}
+        userRole="participant"
+      />
     </>
   );
 }

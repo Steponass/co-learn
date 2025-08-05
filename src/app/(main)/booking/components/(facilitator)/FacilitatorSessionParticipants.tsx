@@ -166,6 +166,7 @@ export default function FacilitatorSessionParticipants({
               key={session.id}
               rowKey={session.id}
               title={session.title}
+              facilitatorName={session.facilitator_name}
               startTime={formatSessionTimeOnly(
                 session.start_time,
                 session.end_time,

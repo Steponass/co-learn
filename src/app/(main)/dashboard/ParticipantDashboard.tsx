@@ -19,6 +19,7 @@ export default function ParticipantDashboard({
       <ParentBookingLists
         participantId={participantId}
         participantName={name}
+        
       />
     </div>
   );

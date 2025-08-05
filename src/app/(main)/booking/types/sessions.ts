@@ -49,6 +49,7 @@ export interface Session {
   max_participants: number;
   // JSON participant data from database
   booked_participants?: BookedParticipant[];
+  status: 'scheduled' | 'active' | 'completed' | 'cancelled';
 }
 
 // Session with participants (used in facilitator views)
@@ -128,6 +129,8 @@ export interface RawSessionData {
   recurrence_pattern?: RecurrencePattern;
   max_participants?: number;
   booked_participants?: BookedParticipant[];
+  status?: 'scheduled' | 'active' | 'completed' | 'cancelled';
+
   facilitator?: Array<{
     name: string;
     email: string;
@@ -154,6 +157,7 @@ export function mapRawSessionToSession(raw: RawSessionData): Session {
     recurrence_pattern: raw.recurrence_pattern,
     max_participants: raw.max_participants || 6,
     booked_participants: raw.booked_participants || [],
+    status: raw.status || 'scheduled',
   };
 }
 

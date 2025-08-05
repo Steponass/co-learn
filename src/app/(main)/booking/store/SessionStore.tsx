@@ -45,6 +45,7 @@ interface SessionStoreState {
   availableSessions: Session[];
   facilitatorSessions: Session[];
   participantSessions: Session[];
+  pastSessions: Session[]; // NEW: Past sessions for both users
   facilitatorSessionsWithParticipants: SessionWithParticipants[];
 }
 
@@ -105,22 +106,23 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
       setSessionsError(null);
 
       const { data, error } = await supabase.from("sessions").select(`
-          id,
-          facilitator_id,
-          start_time,
-          end_time,
-          time_zone,
-          room_code,
-          created_at,
-          updated_at,
-          title,
-          description,
-          is_recurring,
-          recurrence_pattern,
-          max_participants,
-          booked_participants,
-          facilitator:user_info!facilitator_id(name, email)
-        `);
+  id,
+  facilitator_id,
+  start_time,
+  end_time,
+  time_zone,
+  room_code,
+  created_at,
+  updated_at,
+  title,
+  description,
+  is_recurring,
+  recurrence_pattern,
+  max_participants,
+  booked_participants,
+  status,
+  facilitator:user_info!facilitator_id(name, email)
+`);
 
       if (error) throw new Error(error.message);
 
@@ -234,8 +236,18 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
     {} as ParticipantCounts
   );
 
-  // Computed data based on raw data
+  // NEW: Past sessions - completed sessions for any user
+  const pastSessions = allSessions.filter((session) => {
+    return session.status === "completed";
+  });
+
+  // UPDATED: Available sessions - only show scheduled/active sessions that aren't full
   const availableSessions = allSessions.filter((session) => {
+    // Only show active sessions (exclude completed and cancelled)
+    if (session.status === "completed" || session.status === "cancelled") {
+      return false;
+    }
+
     // Skip if user already booked this session
     if (userBookings[session.id]) {
       return false;
@@ -247,11 +259,20 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
     return currentCount < maxParticipants;
   });
 
+  // UPDATED: Facilitator sessions - exclude completed and cancelled
   const facilitatorSessions =
     currentUserRole === "facilitator"
       ? allSessions.filter((session) => {
           // Must be facilitator's session
           if (session.facilitator_id !== currentUserId) return false;
+
+          // Exclude completed and cancelled sessions
+          if (
+            session.status === "completed" ||
+            session.status === "cancelled"
+          ) {
+            return false;
+          }
 
           // Must not be full
           const currentCount = participantCounts[session.id] || 0;
@@ -260,9 +281,13 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
         })
       : [];
 
+  // UPDATED: Participant sessions - exclude completed sessions from active bookings
   const participantSessions = Object.keys(userBookings)
     .map((sessionId) => allSessions.find((session) => session.id === sessionId))
-    .filter((session): session is Session => session !== undefined);
+    .filter((session): session is Session => {
+      // Must exist and not be completed
+      return session !== undefined && session.status !== "completed";
+    });
 
   // Convert facilitator sessions to sessions with participant details
   const facilitatorSessionsWithParticipants: SessionWithParticipants[] =
@@ -300,6 +325,7 @@ export function SessionStoreProvider({ children }: SessionStoreProviderProps) {
     availableSessions,
     facilitatorSessions,
     participantSessions,
+    pastSessions, // NEW: Past sessions array
     facilitatorSessionsWithParticipants,
 
     // Actions

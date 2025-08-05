@@ -1,9 +1,9 @@
-// src/app/(main)/dashboard/FacilitatorDashboard.tsx
 "use client";
 
 import FacilitatorSessionList from "../booking/components/(facilitator)/FacilitatorSessionList";
 import FacilitatorCreateSession from "../booking/components/(facilitator)/FacilitatorCreateSession";
 import FacilitatorSessionParticipants from "../booking/components/(facilitator)/FacilitatorSessionParticipants";
+import PastSessionsList from "../booking/components/PastSessionsList";
 import classes from "./Dashboard.module.css";
 
 interface FacilitatorDashboardProps {
@@ -26,6 +26,11 @@ export default function FacilitatorDashboard({
       <FacilitatorSessionList facilitatorId={facilitatorId} />
       
       <FacilitatorCreateSession facilitatorId={facilitatorId} />
+
+      <PastSessionsList 
+  facilitatorId={facilitatorId}
+  userRole="facilitator" 
+/>
     </div>
   );
 }
