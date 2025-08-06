@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import classes from "./(participant)/BookingList.module.css";
+import classes from "../BookingList.module.css";
 import ParticipantBookSessionButton from "./(participant)/ParticipantBookSessionButton";
 
 export interface SessionRowProps {

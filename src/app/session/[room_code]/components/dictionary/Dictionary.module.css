@@ -157,6 +157,10 @@
   margin-bottom: 0;
 }
 
+.entry_separator {
+  margin-block: var(--space-12-16px);
+}
+
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .search_container {

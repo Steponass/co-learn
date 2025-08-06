@@ -6,7 +6,7 @@ import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import { useFacilitatorSessionParticipantsRealtime } from "../../hooks/useFacilitatorSessionParticipantsRealtime";
 import MessageDisplay from "../../../components/MessageDisplay";
-import classes from "../(participant)/BookingList.module.css";
+import classes from "../../BookingList.module.css";
 import SessionRow from "../SessionRow";
 import ListViewToggleButton from "../ListViewToggleButton";
 import type { SessionWithParticipants } from "../../types/sessions";

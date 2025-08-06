@@ -5,7 +5,7 @@ import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
 import { useParticipantSessions } from "../../hooks/useSessionStore";
 import MessageDisplay from "../../../components/MessageDisplay";
-import classes from "./BookingList.module.css";
+import classes from "../../BookingList.module.css";
 import SessionRow from "../SessionRow";
 
 interface ParticipantSessionListProps {

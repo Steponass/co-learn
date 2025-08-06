@@ -5,7 +5,7 @@ import { createSession } from "../../actions";
 import { useSessionStore } from "../../store/SessionStore";
 import { timeZones } from "../../utils/timezones";
 import MessageDisplay from "../../../components/MessageDisplay";
-import classes from "../(participant)/BookingList.module.css";
+import classes from "../../BookingList.module.css";
 
 interface FacilitatorCreateSessionProps {
   facilitatorId: string;

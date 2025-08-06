@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from "react";
 import { bookSession } from "../../actions";
 import MessageDisplay from "../../../components/MessageDisplay";
-import classes from "./BookingList.module.css";
+import classes from "../../BookingList.module.css";
 
 interface ParticipantBookSessionButtonProps {
   sessionId: string;
