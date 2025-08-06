@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/server";
 export async function signup(previousState: unknown, formData: FormData) {
   const supabase = await createClient();
 
-  const name = formData.get('name') as string
+  const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const role = formData.get("role") as "participant" | "facilitator";
@@ -21,7 +21,7 @@ export async function signup(previousState: unknown, formData: FormData) {
     password,
     options: {
       data: {
-        user_role: role, 
+        user_role: role,
         name,
       },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
@@ -29,15 +29,16 @@ export async function signup(previousState: unknown, formData: FormData) {
   });
 
   if (error) {
-    return { 
+    return {
       error: error.message,
       email: email,
       name: name,
-     };
+    };
   }
 
   return {
-    message: "Signup successful! Please check your email to confirm your account.",
+    message:
+      "Signup successful! Please check your email to confirm your account.",
     redirectTo: "/login",
     delay: 1500,
   };
@@ -54,17 +55,14 @@ export async function login(previousState: unknown, formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    return { 
+    return {
       error: error.message,
       email: data.email,
     };
   }
 
-  return {
-    message: "Login successful! Redirecting to your dashboard...",
-    redirectTo: "/dashboard",
-    delay: 1000,
-  };
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
 }
 
 export async function resetPassword(

@@ -94,7 +94,6 @@ export default function SessionBroadcast({
           <Dictionary />
         </div>
 
-        {/* The toggle button */}
         <label htmlFor="chat-toggle" className={classes.chat_toggle_button}>
           <span className={classes.arrow_right}>
             <ChevronRightIcon size="lg" />

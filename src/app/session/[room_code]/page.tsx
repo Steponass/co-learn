@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import SessionPageClient from "./components/SessionPageClient";
@@ -11,18 +11,17 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const supabase = await createClient();
-  
+
   const { data: session, error } = await supabase
     .from("sessions")
     .select("title, description")
     .eq("room_code", resolvedParams.room_code)
     .single();
 
-  // If session not found, return basic metadata
   if (!session || error) {
     return {
-      title: 'Session Not Found | Co~Learn',
-      description: 'The requested session could not be found.'
+      title: "Session Not Found | Co~Learn",
+      description: "The requested session could not be found.",
     };
   }
 
@@ -31,14 +30,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${sessionTitle} | Co~Learn`,
-    description: sessionDescription
+    description: sessionDescription,
   };
 }
 
 export default async function SessionRoomPage({ params }: Props) {
   const resolvedParams = await params;
   const supabase = await createClient();
-  
+
   const { data: session, error } = await supabase
     .from("sessions")
     .select("*")
@@ -49,7 +48,6 @@ export default async function SessionRoomPage({ params }: Props) {
     notFound();
   }
 
-  // Fetch user and name for presence/chat
   const { user, name } = await getUserWithRole();
   if (!user) {
     notFound();

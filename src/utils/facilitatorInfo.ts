@@ -25,7 +25,7 @@ export function parseFacilitatorData(facilitatorData: unknown): FacilitatorInfo 
     };
   }
   
-  // Handle object format (legacy/fallback)
+  // Handle object format (legacy/fallback) - Currently always used
   if (typeof facilitatorData === 'object' && facilitatorData !== null) {
     const facilitator = facilitatorData as { name?: string; email?: string };
     return {

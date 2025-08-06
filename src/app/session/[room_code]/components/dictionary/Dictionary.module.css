@@ -1,21 +1,3 @@
-/* .dictionary_wrapper {
-  margin-left: auto;
-  margin-right: 0;
-  min-width: 240px;
-  max-width: 360px;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  background-color: var(--clr-bg-raised);
-  padding-inline: var(--space-8-12px);
-  padding-block: var(--space-16-24px);
-  border-radius: var(--border-radius-8px);
-  box-shadow: var(--shadow-elevation-2);
-  box-shadow: var(--shadow-elevation-2);
-  background-color: var(--clr-bg-raised);
-  transition: transform 0.3s ease-in-out;
-} */
 
 .dictionary_wrapper {
   margin-top: var(--space-16-24px);
@@ -45,7 +27,7 @@
 }
 
 .search_input:disabled {
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -70,79 +52,48 @@
   text-align: center;
   padding: var(--space-16-24px);
   color: var(--clr-txt-weak);
-  font-style: italic;
 }
 
 .definition_content {
   padding: var(--space-4px);
-  line-height: 1.6;
 }
 
 .word_header {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-12px);
-  margin-bottom: var(--space-8px);
-  flex-wrap: wrap;
-}
-
-.word_title {
-  margin: 0;
-  color: var(--clr-txt-strong);
-  font-weight: 600;
+  gap: var(--space-16px);
+  margin-bottom: var(--space-4px);
 }
 
 .part_of_speech {
   background-color: var(--clr-brand-opacity-25);
-  color: var(--clr-txt-strong);
+  color: var(--clr-txt-weak);
   padding: var(--space-4px) var(--space-8px);
   border-radius: var(--border-radius-4px);
   font-size: var(--fontsize-s);
-  font-style: italic;
   align-self: center;
 }
 
 .pronunciation_section {
   display: flex;
-  align-items: center;
-  gap: var(--space-8px);
+  gap: var(--space-16px);
   margin-bottom: var(--space-12px);
   padding: var(--space-4px);
-}
-
-.pronunciation_text {
-  font-family: serif;
-  color: var(--clr-txt-weak);
-  font-size: var(--fontsize-p);
 }
 
 .audio_button {
   background: none;
   border: none;
-  font-size: 18px;
   cursor: pointer;
   padding: var(--space-4px);
   border-radius: var(--border-radius-4px);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
-.audio_button:hover {
-  background-color: var(--clr-bg-raised);
-}
-
-.audio_button:focus {
-  outline: 2px solid var(--clr-brand);
-  outline-offset: 2px;
-}
-
-.definitions_section h4 {
-  margin: 0 0 var(--space-8px) 0;
-  color: var(--clr-txt-strong);
-  font-size: var(--fontsize-h6);
+.definitions_section h6 {
+  margin-bottom: var(--space-8px);
 }
 
 .definitions_list {
-  margin: 0;
   padding-left: var(--space-16px);
   list-style-type: decimal;
 }
@@ -150,7 +101,7 @@
 .definition_item {
   margin-bottom: var(--space-8px);
   color: var(--clr-txt-strong);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .definition_item:last-child {
@@ -158,7 +109,58 @@
 }
 
 .entry_separator {
-  margin-block: var(--space-12-16px);
+  margin-block: var(--space-16px);
+}
+
+.examples {
+  margin-top: var(--space-4px);
+}
+
+.example_item {
+  color: var(--clr-txt-weak);
+  margin-left: -9px;
+}
+
+.phrases_section {
+  margin-top: var(--space-12px);
+  padding-top: var(--space-12px);
+  border-top: 1px solid var(--clr-stroke-weak);
+}
+
+.phrases_section h6 {
+  margin: 0 0 var(--space-8px) 0;
+  color: var(--clr-txt-strong);
+  font-size: var(--fontsize-h6);
+}
+
+.phrases_list {
+  margin: 0;
+  padding-left: var(--space-16px);
+  list-style-type: disc;
+}
+
+.phrase_item {
+  margin-bottom: var(--space-8px);
+}
+
+.phrase_item:last-child {
+  margin-bottom: 0;
+}
+
+.phrase_example {
+  margin-top: var(--space-4px);
+  color: var(--clr-txt-weak);
+  margin-left: -9px;
+}
+
+.synonyms_section {
+  margin-top: var(--space-12px);
+  padding-top: var(--space-12px);
+  border-top: 1px solid var(--clr-stroke-weak);
+}
+
+.synonyms_section h6 {
+  margin-bottom: var(--space-8px);
 }
 
 /* Responsive adjustments */
@@ -167,13 +169,13 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .word_header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-4px);
   }
-  
+
   .pronunciation_section {
     flex-direction: column;
     align-items: flex-start;

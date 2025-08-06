@@ -35,7 +35,7 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  // IMPORTANT: DO NOT REMOVE auth.getUser()
+  // Also: DO NOT REMOVE auth.getUser()
 
   const {
     data: { user },
@@ -82,7 +82,7 @@ export async function updateSession(request: NextRequest) {
   }
 
 
-  // Supabase comment below:
+  // Supabase comment:
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:

@@ -33,7 +33,6 @@ export default function Chat({
   const INITIAL_MESSAGE_LIMIT = 50;
   const HISTORY_BATCH_SIZE = 25;
 
-  // Fetch recent messages when component mounts
   useEffect(() => {
     const fetchMessages = async () => {
       if (!roomCode) return;
@@ -70,7 +69,6 @@ export default function Chat({
     fetchMessages();
   }, [roomCode]);
 
-  // Load older messages
   const loadMoreHistory = async () => {
     if (
       !roomCode ||
@@ -119,7 +117,6 @@ export default function Chat({
     }
   }, [chatMessages, isLoadingHistory]);
 
-  // Handle real-time message broadcasts
   useEffect(() => {
     if (!channel) return;
 
@@ -148,7 +145,6 @@ export default function Chat({
     }
   };
 
-  // Send message
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || !subscribed || !channel) {
@@ -174,7 +170,6 @@ export default function Chat({
     };
 
     try {
-      // Save to Supabase
       await supabase.from("chat_messages").insert([msg]);
       await channel.send({
         type: "broadcast",
@@ -207,21 +202,18 @@ export default function Chat({
         ref={chatWindowRef}
         onScroll={handleScroll}
       >
-        {/* Show loading indicator when fetching history */}
         {isLoadingHistory && (
           <div className={classes.chat_history_msg}>
             Loading older messages…
           </div>
         )}
 
-        {/* Show when we've reached the beginning */}
         {!hasMoreHistory && chatMessages.length > 0 && (
           <div className={classes.chat_history_msg}>
-            Conversation started here
+            Conversation starts here
           </div>
         )}
 
-        {/* Messages with linkified text */}
         {chatMessages.map((msg) => (
           <div className={classes.chat_msg} key={msg.id}>
             <strong className={classes.chat_msg_username}>

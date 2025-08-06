@@ -10,33 +10,29 @@ export async function createLiveKitToken({
   roomName: string;
   userName: string;
 }) {
-  console.log("[Token Creation] Starting token generation for:", { roomName, userName });
   
   if (!LIVEKIT_API_KEY || !LIVEKIT_API_SECRET) {
     throw new Error("Missing LiveKit credentials in environment variables");
   }
 
   try {
-    // Create AccessToken with TTL (time-to-live) - expires in 6 hours
+    // Create AccessToken with TTL (time-to-live): expires in 6 hrs, can be adjusted)
     const at = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET, {
       identity: userName,
-      ttl: "6h", // Token expires in 6 hours (can be "1h", "24h", or seconds as number)
+      ttl: "6h",
     });
 
-    // Add explicit VideoGrant with all required permissions
+    // Add explicit VideoGrant with all permissions
     at.addGrant({
       roomJoin: true,
       room: roomName,
-      canPublish: true,      // Allow publishing audio/video tracks
-      canSubscribe: true,    // Allow subscribing to other tracks  
-      canPublishData: true,  // Allow publishing data messages
+      canPublish: true,
+      canSubscribe: true,
+      canPublishData: true,
     });
 
-    // Generate JWT token (async in SDK v2)
+    // Generate JWT token
     const token = await at.toJwt();
-    
-    console.log("[Token Creation] Token generated successfully");
-    console.log("[Token Creation] Token preview:", token.substring(0, 50) + "...");
     
     return token;
   } catch (error) {

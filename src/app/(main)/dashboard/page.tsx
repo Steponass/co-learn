@@ -1,4 +1,3 @@
-// src/app/(main)/dashboard/page.t
 import { Metadata } from "next";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 import AdminDashboard from "./AdminDashboard";
@@ -7,7 +6,7 @@ import ParticipantDashboard from "./ParticipantDashboard";
 
 export const metadata: Metadata = {
   title: "Dashboard | Co~Learn",
-  description: "Access your sessions and resources on Co~Learn"
+  description: "Access your sessions and resources on Co~Learn",
 };
 
 export default async function DashboardPage() {
@@ -20,22 +19,12 @@ export default async function DashboardPage() {
   }
 
   if (role === "facilitator") {
-    return (
-      <FacilitatorDashboard
-        name={name ?? ""}
-        facilitatorId={user.id}
-      />
-    );
+    return <FacilitatorDashboard name={name ?? ""} facilitatorId={user.id} />;
   }
 
   if (role === "participant") {
-    return (
-      <ParticipantDashboard
-        name={name ?? ""}
-        participantId={user.id}
-      />
-    );
+    return <ParticipantDashboard name={name ?? ""} participantId={user.id} />;
   }
 
-  return <p>Unknown role.</p>;
+  return <p>You sure you are logged in?</p>;
 }

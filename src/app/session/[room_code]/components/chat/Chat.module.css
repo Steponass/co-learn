@@ -27,7 +27,7 @@
 .chat_link {
   color: var(--clr-brand);
   text-decoration: underline;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
 }
 
 .chat_link:hover {

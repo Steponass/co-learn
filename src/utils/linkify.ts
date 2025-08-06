@@ -1,9 +1,8 @@
-// Enhanced version with better URL detection
 export function linkifyText(text: string, linkClassName?: string): string {
   const urlRegex = /((?:https?:\/\/|www\.)[^\s]+)/g;
 
   return text.replace(urlRegex, (match) => {
-    // Clean up trailing punctuation
+
     const cleanUrl = match.replace(/[.,;:!?)]$/, "");
     const trailingPunctuation = match.slice(cleanUrl.length);
 

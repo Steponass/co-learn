@@ -1,23 +1,12 @@
 "use client";
 
-import { useEffect, useActionState } from "react";
+import { useActionState } from "react";
 import { login } from "./actions";
-import { useRouter } from "next/navigation";
 import MessageDisplay from "../../components/MessageDisplay";
 import classes from "./login.module.css";
 
 export default function LoginForm() {
-  const router = useRouter();
   const [formData, formAction, isPending] = useActionState(login, undefined);
-
-  useEffect(() => {
-    if (formData?.redirectTo) {
-      const timeout = setTimeout(() => {
-        router.push(formData.redirectTo);
-      }, formData.delay || 1000);
-      return () => clearTimeout(timeout);
-    }
-  }, [formData, router]);
 
   return (
     <div className="stack">
@@ -47,7 +36,6 @@ export default function LoginForm() {
           />
         </div>
         <MessageDisplay message={formData?.error} type="error" />
-        <MessageDisplay message={formData?.message} type="success" />
         <button className="primary_button" disabled={isPending}>
           Log in
         </button>

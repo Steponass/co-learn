@@ -11,9 +11,9 @@ interface FacilitatorDashboardProps {
   facilitatorId: string;
 }
 
-export default function FacilitatorDashboard({ 
-  name, 
-  facilitatorId 
+export default function FacilitatorDashboard({
+  name,
+  facilitatorId,
 }: FacilitatorDashboardProps) {
   return (
     <div className={classes.dashboard + " stack"}>
@@ -22,15 +22,12 @@ export default function FacilitatorDashboard({
       </div>
 
       <FacilitatorSessionParticipants facilitatorId={facilitatorId} />
-      
+
       <FacilitatorSessionList facilitatorId={facilitatorId} />
-      
+
       <FacilitatorCreateSession facilitatorId={facilitatorId} />
 
-      <PastSessionsList 
-  facilitatorId={facilitatorId}
-  userRole="facilitator" 
-/>
+      <PastSessionsList facilitatorId={facilitatorId} userRole="facilitator" />
     </div>
   );
 }
