@@ -1,46 +1,47 @@
 "use client";
+
 import { useState } from "react";
-import { cancelBooking } from "../../actions";
 import { formatSessionTimeOnly } from "../../utils/formatSessionTime";
 import { getSessionDateDisplay } from "../../utils/sessionHelpers";
-import { useParticipantSessions } from "../../hooks/useSessionStore";
 import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "../../BookingList.module.css";
 import SessionRow from "../SessionRow";
+import type { Session } from "../../types/sessions";
 
 interface ParticipantSessionListProps {
-  participantId: string;
+  sessions: Session[];
+  onCancel: (sessionId: string) => Promise<boolean>;
+  loading: boolean;
+  error: string | null;
 }
 
 export default function ParticipantSessionList({
-  participantId,
+  sessions,
+  onCancel,
+  loading,
+  error,
 }: ParticipantSessionListProps) {
-  const { sessions, loading, error } = useParticipantSessions();
-  const [removingSessions, setRemovingSessions] = useState<Set<string>>(
-    new Set()
-  );
+  const [removingSessions, setRemovingSessions] = useState<Set<string>>(new Set());
 
   const handleCancel = async (sessionId: string) => {
-    // Start the fade-out animation
-    setRemovingSessions((prev) => new Set(prev).add(sessionId));
+    if (window.confirm("Sure you want to cancel this session?")) {
+      // Start the fade-out animation
+      setRemovingSessions((prev) => new Set(prev).add(sessionId));
 
-    try {
-      await cancelBooking(sessionId, participantId);
-      // The SessionStore will automatically update via real-time subscriptions
-    } catch (err) {
-      console.error("[ParticipantSessionList] Cancel error:", err);
-      // Remove from removing set if error occurs
-      setRemovingSessions((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(sessionId);
-        return newSet;
-      });
-      // Could add error toast notification here
+      const success = await onCancel(sessionId);
+      
+      if (!success) {
+        // Remove from removing set if error occurs
+        setRemovingSessions((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(sessionId);
+          return newSet;
+        });
+      }
     }
   };
 
   const handleRemovalComplete = (sessionId: string) => {
-    // Clean up the removing state after animation completes
     setRemovingSessions((prev) => {
       const newSet = new Set(prev);
       newSet.delete(sessionId);
@@ -48,29 +49,11 @@ export default function ParticipantSessionList({
     });
   };
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className={classes.booking_list}>
-        <h4 className={classes.list_heading}>My Bookings</h4>
-        <p>Loading your bookings...</p>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className={classes.booking_list}>
-        <h4 className={classes.list_heading}>My Bookings</h4>
-        <MessageDisplay message={error} type="error" />
-      </div>
-    );
-  }
-
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>My Bookings</h4>
+
+      {error && <MessageDisplay message={error} type="error" />}
 
       {sessions.length === 0 ? (
         <p>You haven&#39;t booked any sessions yet.</p>
@@ -107,15 +90,10 @@ export default function ParticipantSessionList({
                   </button>
                   <button
                     className="secondary_button"
-                    onClick={() => {
-                      if (
-                        window.confirm("Sure you want to cancel this session?")
-                      ) {
-                        handleCancel(session.id);
-                      }
-                    }}
+                    onClick={() => handleCancel(session.id)}
+                    disabled={loading}
                   >
-                    Cancel
+                    {loading ? "Cancelling..." : "Cancel"}
                   </button>
                 </div>
               }

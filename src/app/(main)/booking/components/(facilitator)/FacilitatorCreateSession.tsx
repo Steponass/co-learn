@@ -1,26 +1,25 @@
 "use client";
 
-import { useState, useActionState, useEffect } from "react";
-import { createSession } from "../../actions";
-import { useSessionStore } from "../../store/SessionStore";
+import { useState, useRef } from "react";
 import { timeZones } from "../../utils/timezones";
 import MessageDisplay from "../../../components/MessageDisplay";
 import classes from "../../BookingList.module.css";
+import type { CreateSessionFormData } from "../../types/sessions";
 
 interface FacilitatorCreateSessionProps {
   facilitatorId: string;
+  onCreate: (sessionData: CreateSessionFormData) => Promise<boolean>;
+  loading: boolean;
+  error: string | null;
 }
 
 export default function FacilitatorCreateSession({
   facilitatorId,
+  onCreate,
+  loading,
+  error,
 }: FacilitatorCreateSessionProps) {
-  const [formData, formAction, isPending] = useActionState(
-    createSession,
-    undefined
-  );
-
-  const { refetchAll } = useSessionStore();
-
+  const formRef = useRef<HTMLFormElement>(null);
   const [selectedTimeZone, setSelectedTimeZone] = useState("UTC");
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
@@ -41,35 +40,59 @@ export default function FacilitatorCreateSession({
     );
   };
 
-  // Reset form state and refresh store on successful creation
-  useEffect(() => {
-    if (formData && "message" in formData) {
-      console.log(
-        "[FacilitatorCreateSession] Session created successfully, refreshing store"
-      );
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formRef.current) return;
+    
+    const formData = new FormData(formRef.current);
+    
+      // Helper function to convert empty strings to undefined
+  const getStringOrUndefined = (value: FormDataEntryValue | null): string | undefined => {
+    if (!value || typeof value !== 'string') return undefined;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  };
+
+    // Build session data object
+  const sessionData: CreateSessionFormData = {
+    facilitator_id: facilitatorId,
+    title: getStringOrUndefined(formData.get("title")),
+    description: getStringOrUndefined(formData.get("description")),
+    start_time: formData.get("start_time") as string,
+    end_time: formData.get("end_time") as string,
+    time_zone: selectedTimeZone,
+    max_participants: parseInt(formData.get("max_participants") as string) || 6,
+    is_recurring: isRecurring,
+    recurrence_pattern: isRecurring ? {
+      frequency: formData.get("frequency") as "weekly" | "biweekly" | "monthly",
+      daysOfWeek: selectedDays,
+      endDate: getStringOrUndefined(formData.get("endDate")),
+      maxOccurrences: formData.get("maxOccurrences") ? 
+        parseInt(formData.get("maxOccurrences") as string) : undefined,
+    } : undefined,  // Changed from null to undefined
+  };
+
+    const success = await onCreate(sessionData);
+    
+    if (success) {
+      // Reset form on success
+      formRef.current.reset();
       setSelectedTimeZone("UTC");
       setIsRecurring(false);
       setSelectedDays([]);
-      // Trigger store refresh to ensure new session appears immediately
-      refetchAll();
     }
-  }, [formData, refetchAll]);
+  };
 
   return (
     <div className={classes.booking_list}>
       <h4 className={classes.list_heading}>Create New Session</h4>
 
       <form
+        ref={formRef}
         className={classes.book_session_form + " stack"}
-        action={formAction}
+        onSubmit={handleSubmit}
       >
-        <input type="hidden" name="facilitator_id" value={facilitatorId} />
-        <input
-          type="hidden"
-          name="is_recurring"
-          value={isRecurring.toString()}
-        />
-
         {/* Title field */}
         <div className={classes.session_input_container}>
           <label htmlFor="title">Session Title:</label>
@@ -217,20 +240,11 @@ export default function FacilitatorCreateSession({
           )}
         </div>
 
-        <button className="primary_button" disabled={isPending} type="submit">
-          {isPending ? "Creating..." : "Create Session"}
+        <button className="primary_button" disabled={loading} type="submit">
+          {loading ? "Creating..." : "Create Session"}
         </button>
 
-        <MessageDisplay
-          message={formData && "error" in formData ? formData.error : undefined}
-          type="error"
-        />
-        <MessageDisplay
-          message={
-            formData && "message" in formData ? formData.message : undefined
-          }
-          type="success"
-        />
+        {error && <MessageDisplay message={error} type="error" />}
       </form>
     </div>
   );

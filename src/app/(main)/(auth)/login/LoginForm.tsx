@@ -14,7 +14,7 @@ export default function LoginForm() {
 
       <form className="stack" action={formAction}>
         <div className={classes.input_container}>
-          <label htmlFor="email">Email:</label>
+          <label htmlFor="email">Email</label>
           <input
             className={classes.input}
             id="email"
@@ -26,7 +26,7 @@ export default function LoginForm() {
         </div>
 
         <div className={classes.input_container}>
-          <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password</label>
           <input
             className={classes.input}
             id="password"

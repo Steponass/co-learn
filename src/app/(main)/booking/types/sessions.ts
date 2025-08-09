@@ -88,15 +88,19 @@ export function hasParticipants(
 // Helper type for session creation form data
 export interface CreateSessionFormData {
   facilitator_id: string;
-  facilitator_name: string;
-  title?: string;
+  title?: string | null;
   description?: string;
   start_time: string;
   end_time: string;
   time_zone: string;
   max_participants: number;
   is_recurring: boolean;
-  recurrence_pattern?: RecurrencePattern;
+  recurrence_pattern?: {
+    frequency: "weekly" | "biweekly" | "monthly";
+    daysOfWeek: number[];
+    endDate?: string;
+    maxOccurrences?: number;
+  };
 }
 
 // Response types for API actions
