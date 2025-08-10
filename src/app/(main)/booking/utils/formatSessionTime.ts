@@ -1,11 +1,10 @@
-// src/app/booking/utils/formatSessionTime.ts - MODIFY existing function
 import { DateTime } from "luxon";
 
 export function formatSessionTimeWithZone(
   startUTC: string,
   endUTC: string,
   timeZone: string,
-  includeWeekday: boolean = false // NEW parameter
+  includeWeekday: boolean = false
 ): string {
   const start = DateTime.fromISO(startUTC, { zone: "utc" }).setZone(timeZone);
   const end = DateTime.fromISO(endUTC, { zone: "utc" }).setZone(timeZone);

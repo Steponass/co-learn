@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSubtitle } from "@/contexts/SubtitleContext";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import Chat from "./chat/Chat";
@@ -16,16 +17,34 @@ interface Props {
   roomCode: string;
   userId: string;
   userName: string;
+  sessionTitle?: string;
+  facilitatorName: string;
 }
 
 export default function SessionBroadcast({
   roomCode,
   userId,
   userName,
+  sessionTitle,
+  facilitatorName,
 }: Props) {
+  const { setSubtitle } = useSubtitle();
   const [onlineUsers, setOnlineUsers] = useState<PresenceState[]>([]);
   const [channel, setChannel] = useState<RealtimeChannel | null>(null);
   const [subscribed, setSubscribed] = useState(false);
+
+  useEffect(() => {
+    const title = sessionTitle || `Session by ${facilitatorName}`;
+    const subtitle = sessionTitle 
+      ? "" 
+      : undefined;
+    
+    const fullSubtitle = subtitle ? `${title} • ${subtitle}` : title;
+    setSubtitle(fullSubtitle);
+
+    // Clean up subtitle when leaving the page
+    return () => setSubtitle(undefined);
+  }, [sessionTitle, facilitatorName, setSubtitle]);
 
   useEffect(() => {
     const supabase = createClient();

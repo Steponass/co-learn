@@ -89,7 +89,6 @@
   transform: translateX(-1px);
 }
 
-/* Arrow icons */
 .arrow_right,
 .arrow_left {
   position: absolute;
@@ -131,8 +130,6 @@
   width: calc(var(--space-24-32px) + var(--space-12-16px));
   min-width: calc(var(--space-24-32px) + var(--space-12-16px));
 }
-
-
 
 .session_participants_list ul {
   color: var(--clr-txt-weak);

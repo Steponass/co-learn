@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import SessionPageClient from "./components/SessionPageClient";
+import SessionBroadcast from "./components/SessionBroadcast";
 import { getUserWithRole } from "@/utils/supabase/getUserWithRole";
 
 interface Props {
@@ -54,12 +54,12 @@ export default async function SessionRoomPage({ params }: Props) {
   }
 
   return (
-    <SessionPageClient
-      roomCode={resolvedParams.room_code}
-      userId={user.id}
-      userName={name || user.email || user.id}
-      sessionTitle={session.title}
-      facilitatorName={session.facilitator_name}
-    />
+      <SessionBroadcast
+        roomCode={resolvedParams.room_code}
+        userId={user.id}
+        userName={name || user.email || user.id}
+        sessionTitle={session.title}
+        facilitatorName={session.facilitator_name}
+      />
   );
 }

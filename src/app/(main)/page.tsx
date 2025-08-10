@@ -6,9 +6,6 @@ export const metadata: Metadata = {
   description: "Welcome to Co~Learn, your collaborative learning platform"
 };
 
-
-
-
 export default function HomePage() {
   return (
     <div>

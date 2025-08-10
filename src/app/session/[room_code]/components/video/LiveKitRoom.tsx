@@ -16,7 +16,6 @@ interface LiveKitRoomWrapperProps {
   hideSelfView?: boolean;
 }
 
-// Video Controls Component - now accepts the initial hideSelfView prop
 function VideoControls({
   initialHideSelfView = false,
 }: {
@@ -24,20 +23,15 @@ function VideoControls({
 }) {
   const { localParticipant } = useLocalParticipant();
 
-  // State for all three toggles - now uses the prop as initial value
   const [userHideSelfView, setUserHideSelfView] = useState(initialHideSelfView);
-  // Change default state to false
-  const [backgroundBlurEnabled, setBackgroundBlurEnabled] = useState(false); // Default blur off
+  const [backgroundBlurEnabled, setBackgroundBlurEnabled] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  // Add error state for video track/processor
   const [videoError, setVideoError] = useState<string | null>(null);
 
-  // Ref to store the current blur processor instance
   const blurProcessorRef = useRef<ReturnType<typeof BackgroundBlur> | null>(
     null
   );
 
-  // Background blur toggle handler
   const toggleBackgroundBlur = useCallback(async () => {
     if (!localParticipant) return;
 
@@ -54,11 +48,9 @@ function VideoControls({
 
     try {
       if (backgroundBlurEnabled) {
-        // Disable blur
         await videoTrack.stopProcessor();
         blurProcessorRef.current = null;
       } else {
-        // Enable blur
         const blurProcessor = BackgroundBlur(30);
         await videoTrack.setProcessor(blurProcessor);
         blurProcessorRef.current = blurProcessor;
@@ -138,7 +130,7 @@ function VideoControls({
           {isMinimized ? "Restore" : "Minimize"}
         </button>
       </div>
-      {/* Show video error if present */}
+
       {videoError && (
         <div className="video_error_msg">
           <p>{videoError}</p>
@@ -198,11 +190,6 @@ export default function LiveKitRoomWrapper({
           serverUrl={serverUrl}
           connect={true}
           data-lk-theme="default"
-          options={{
-            videoCaptureDefaults: {
-              // Remove default processor so blur is not on by default
-            },
-          }}
         >
           <VideoControls initialHideSelfView={hideSelfView} />
           <VideoConference />

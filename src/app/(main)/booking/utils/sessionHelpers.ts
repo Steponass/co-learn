@@ -1,4 +1,3 @@
-// src/app/booking/utils/sessionHelpers.ts
 import { DateTime } from "luxon";
 import type { Session } from "../types/sessions";
 
@@ -71,7 +70,7 @@ export function isRecurringSession(session: Session): boolean {
 export function getSessionDateDisplay(session: Session): string {
   const recurring = getRecurringDisplayText(session);
   if (recurring) return recurring;
-  // One-time: show date in readable format
+  // Show date in readable format
   const dt = DateTime.fromISO(session.start_time, { zone: session.time_zone });
   return dt.toFormat("MMM dd, yyyy");
 }

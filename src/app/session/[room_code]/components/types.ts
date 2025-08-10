@@ -15,13 +15,3 @@ export interface PresenceState {
   userId: string;
   userName: string;
 }
-
-export type SignalData =
-  | { sdp: RTCSessionDescriptionInit }
-  | { candidate: RTCIceCandidateInit };
-
-export interface SignalPayload {
-  from: string;
-  to: string;
-  data: SignalData;
-}
