@@ -26,7 +26,6 @@ export const sessionService = {
     }
   },
 
-  // REPLACE THIS FUNCTION:
   async createSession(sessionData: CreateSessionFormData) {
     const supabase = createClient();
     

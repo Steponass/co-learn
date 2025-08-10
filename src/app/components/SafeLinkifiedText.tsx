@@ -1,4 +1,3 @@
-// src/components/SafeLinkifiedText.tsx
 import { useMemo } from "react";
 import { linkifyText } from "@/utils/linkify";
 
@@ -19,7 +18,6 @@ export function SafeLinkifiedText({
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
-    // Use the improved linkifyText utility
     return linkifyText(escapedText, linkClassName);
   }, [text, linkClassName]);
 

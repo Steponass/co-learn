@@ -1,6 +1,4 @@
-import { parseFacilitatorData } from "@/utils/facilitatorInfo";
-
-// User info for a participant or facilitator
+// User info for participant or facilitator
 export type UserInfo = {
   user_id: string;
   email: string;
@@ -16,7 +14,7 @@ export type BookedParticipant = {
   joined_at: string;
 };
 
-// Participant in a session (transformed from BookedParticipant for compatibility)
+// Participant in a session
 export type SessionParticipant = {
   participant_id: string;
   user_info: UserInfo;
@@ -41,13 +39,11 @@ export interface Session {
   room_code: string;
   created_at: string;
   updated_at: string;
-  // Enhanced session properties
   title?: string;
   description?: string;
   is_recurring: boolean;
   recurrence_pattern?: RecurrencePattern;
   max_participants: number;
-  // JSON participant data from database
   booked_participants?: BookedParticipant[];
   status: 'scheduled' | 'active' | 'completed' | 'cancelled';
 }
@@ -135,20 +131,22 @@ export interface RawSessionData {
   booked_participants?: BookedParticipant[];
   status?: 'scheduled' | 'active' | 'completed' | 'cancelled';
 
-  facilitator?: Array<{
+  facilitator?: {
     name: string;
     email: string;
-  }> | null;
+  } | null;
 }
 
 // Utility function to convert raw database data to Session
 export function mapRawSessionToSession(raw: RawSessionData): Session {
-  const facilitatorInfo = parseFacilitatorData(raw.facilitator);
 
+  const facilitator = raw.facilitator;
+  const facilitatorName = facilitator?.name || 'Unknown';
+  
   return {
     id: raw.id,
     facilitator_id: raw.facilitator_id,
-    facilitator_name: facilitatorInfo.facilitator_name,
+    facilitator_name: facilitatorName,
     start_time: raw.start_time,
     end_time: raw.end_time,
     time_zone: raw.time_zone,

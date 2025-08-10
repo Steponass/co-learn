@@ -105,7 +105,7 @@ export function useBookingSessions({
       if (fetchError) throw new Error(fetchError.message);
 
       const mappedSessions = (data || []).map((sessionRaw) =>
-        mapRawSessionToSession(sessionRaw as RawSessionData)
+        mapRawSessionToSession(sessionRaw as unknown as RawSessionData)
       );
 
       setAllSessions(mappedSessions);
