@@ -147,7 +147,7 @@ export async function getFacilitatorSessions(facilitatorId: string) {
     if (error) return handleError("getFacilitatorSessions", error);
 
     const mappedData = (data || []).map((sessionRaw) =>
-      mapRawSessionToSession(sessionRaw as RawSessionData)
+      mapRawSessionToSession(sessionRaw as unknown as RawSessionData)
     );
     return { data: mappedData, error: null };
   } catch (err) {
@@ -191,7 +191,7 @@ export async function getFacilitatorSessionParticipants(facilitatorId: string) {
 
     // Transform the data using the utility functions from types
     const sessionsWithParticipants = data.map((sessionRaw) => {
-      const baseSession = mapRawSessionToSession(sessionRaw as RawSessionData);
+      const baseSession = mapRawSessionToSession(sessionRaw as unknown as RawSessionData);
       return mapSessionToSessionWithParticipants(baseSession);
     });
 
@@ -236,7 +236,7 @@ export async function getParticipantSessions(participantId: string) {
     // Transform to match your existing ParticipantSession structure
     const participantSessions = (data || []).map((sessionRaw) => {
       const mappedSession = mapRawSessionToSession(
-        sessionRaw as RawSessionData
+        sessionRaw as unknown as RawSessionData
       );
       return {
         session_id: sessionRaw.id,
