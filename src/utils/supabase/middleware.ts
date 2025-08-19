@@ -1,10 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtDecode } from "jwt-decode";
 
-type DecodedJWT = {
+type JwtClaims = {
+  sub?: string;
+  email?: string;
   user_role?: string;
   user_metadata?: { user_role?: string };
+  role?: string;
 };
 
 export async function updateSession(request: NextRequest) {
@@ -31,15 +33,11 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  // Also: DO NOT REMOVE auth.getUser()
-
+  // Use getClaims for faster JWT verification [Added 19.8.2025]
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: claimsData,
+    error: claimsError
+  } = await supabase.auth.getClaims();
 
   const {
     data: { session },
@@ -59,23 +57,19 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  if (!user) {
+  // Check if we have valid claims (user is authenticated)
+  if (claimsError || !claimsData?.claims) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  const token = session?.access_token;
-  let userRole: string | undefined;
-  if (token) {
-    try {
-      const decoded = jwtDecode<DecodedJWT>(token);
-      userRole = decoded.user_role || decoded.user_metadata?.user_role;
-    } catch (err) {
-      console.error("[Middleware] Failed to decode JWT:", err);
-    }
-  }
-  if (!token || !userRole) {
+  const claims = claimsData.claims as JwtClaims;
+
+  // Extract user role from JWT claims (faster than re-decoding)
+  const userRole = claims.user_role || claims.user_metadata?.user_role || claims.role;
+  
+  if (!session?.access_token || !userRole) {
     const url = request.nextUrl.clone();
     url.pathname = "/unauthorized";
     return NextResponse.redirect(url);
