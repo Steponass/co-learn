@@ -17,12 +17,13 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  // Default to 'light' for SSR consistency
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    
+    // access browser APIs AFTER mounting
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme) {
       setThemeState(savedTheme);
@@ -46,10 +47,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
   };
-
-  if (!mounted) {
-    return <div style={{ visibility: 'hidden' }}>{children}</div>;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>

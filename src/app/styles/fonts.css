@@ -60,5 +60,12 @@
 .logotype {
   font-weight: 555;
   letter-spacing: -1.5px;
+}
+
+[data-theme="light"] .logotype {
+  font-variation-settings: "GRAD" 0;
+}
+
+[data-theme="dark"] .logotype {
   font-variation-settings: "GRAD" -15;
 }

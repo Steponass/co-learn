@@ -90,6 +90,8 @@ align-self: center;
     flex-wrap: nowrap;
     align-items: stretch;
     justify-content: flex-start;
+    gap: var(--space-8px);
+    padding: var(--space-4px);
   }
 }
 
@@ -115,7 +117,11 @@ align-self: center;
   .lk-participant-tile {
     min-width: 100%;
     max-width: 100%;
-    flex-basis: 100%;
+    flex-basis: auto;
+    flex: 0 0 auto;
+    aspect-ratio: 16/9;
+    min-height: 180px;
+    max-height: 250px;
   }
 }
 

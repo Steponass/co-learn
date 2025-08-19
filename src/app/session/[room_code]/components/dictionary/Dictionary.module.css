@@ -42,6 +42,7 @@
   scrollbar-color: var(--clr-stroke-strong) var(--clr-stroke-weak);
 }
 
+
 .loading_message {
   text-align: center;
   padding: var(--space-16-24px);
