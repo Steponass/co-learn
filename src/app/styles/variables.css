@@ -12,7 +12,6 @@
 --clr-disabled:     oklch(0.8637 0.0042 91.45);
 --clr-success:      oklch(0.451  0.0912 163.34);
 --clr-error:        oklch(0.4472 0.1612 29.84);
-/* The 2 below must be tested to confirm if they work */
 --clr-brand-opacity-75: oklch(0.8464 0.1577 86.1 / 0.75);
 --clr-brand-opacity-25: oklch(0.8464 0.1577 86.1 / 0.25);
 }
@@ -31,7 +30,6 @@
 --clr-disabled:     oklch(0.4435 0.0089 80.7);
 --clr-success:      oklch(0.7784 0.1766 159.68);
 --clr-error:        oklch(0.72   0.1721 27.17);
-/* The 2 below must be tested to confirm if they work */
 --clr-brand-opacity-75: oklch(0.8464 0.1577 86.1 / 0.75);
 --clr-brand-opacity-25: oklch(0.8464 0.1577 86.1 / 0.25);
 }

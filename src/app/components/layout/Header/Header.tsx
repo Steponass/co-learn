@@ -1,6 +1,6 @@
 import classes from "./Header.module.css";
 import Link from "next/link";
-import HeaderClient from "./HeaderClient";
+import { ThemeToggle } from "./ThemeToggle";
 import SignOutButton from "./SignOutButton";
 import type { User } from "@supabase/supabase-js";
 
@@ -21,7 +21,7 @@ export default function Header({ subtitle, user }: ClientHeaderProps) {
         )}
       </div>
       <div className={classes.header_panel_right}>
-        <HeaderClient />
+        <ThemeToggle />
         {user && <SignOutButton />}
       </div>
     </header>

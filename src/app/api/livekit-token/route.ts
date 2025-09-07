@@ -6,8 +6,6 @@ export async function GET(req: NextRequest) {
   const room = searchParams.get("room");
   const user = searchParams.get("user");
 
-  console.log("[LiveKit Token API] Request received:", { room, user });
-
   if (!room || !user) {
     console.error("[LiveKit Token API] Missing required parameters");
     return NextResponse.json(

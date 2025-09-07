@@ -1,4 +1,3 @@
-// hooks/useBookingSessions.ts
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -16,15 +15,13 @@ interface UseBookingSessionsReturn {
   allSessions: Session[];
   userBookings: Set<string>;
   
-  availableSessions: Session[]; // For participants: sessions they can book
+  availableSessions: Session[];
   userSessions: Session[]; // For participants: their bookings, For facilitators: their sessions
   sessionsWithParticipants: Session[]; // For facilitators: sessions that have participants
   pastSessions: Session[];
   
-  // Participant counts
   participantCounts: Record<string, number>;
   
-  // Loading states
   loading: boolean;
   actionLoading: {
     booking: boolean;
@@ -32,7 +29,6 @@ interface UseBookingSessionsReturn {
     creating: boolean;
   };
   
-  // Error states
   error: string | null;
   actionErrors: {
     booking: string | null;
@@ -40,7 +36,6 @@ interface UseBookingSessionsReturn {
     creating: string | null;
   };
   
-  // Actions
   bookSession: (sessionId: string) => Promise<boolean>;
   cancelBooking: (sessionId: string) => Promise<boolean>;
   createSession: (sessionData: CreateSessionFormData) => Promise<boolean>;
