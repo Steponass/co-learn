@@ -108,8 +108,6 @@ export const sessionService = {
     console.log('🔍 Starting sendInvitations with:', { sessionId: session.id, inviteesCount: invitees.length });
     
     try {
-      const supabase = createClient();
-
       console.log('📧 Creating invitation tokens...');
       // Create invitation tokens for all invitees
       const tokens = await Promise.all(
@@ -120,47 +118,14 @@ export const sessionService = {
       );
       console.log(`✅ Created ${tokens.length} invitation tokens`);
 
-      // Prepare data for the Edge Function
-      const emailData = {
-        session: {
-          id: session.id,
-          title: session.title,
-          description: session.description,
-          start_time: session.start_time,
-          time_zone: session.time_zone,
-          facilitator_name: session.user_info?.name || 'Unknown'
-        },
-        invitees: invitees,
-        tokens: tokens
-      };
-
-      console.log('📤 Calling send-invitations API with data:', {
-        ...emailData,
-        tokens: `[${tokens.length} tokens]` // Don't log actual tokens for security
+      // For now, just log the tokens - we'll add email sending later
+      console.log('📧 Invitation tokens created successfully. Manual invitation URLs:');
+      invitees.forEach((invitee, index) => {
+        const invitationUrl = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/invitation/${tokens[index]}`;
+        console.log(`  - ${invitee.name} (${invitee.email}): ${invitationUrl}`);
       });
       
-      const response = await fetch('/api/send-invitations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailData),
-      });
-
-      console.log('📨 API Response status:', response.status);
-      
-      const result = await response.json();
-      console.log('📨 API Response data:', result);
-
-      if (!response.ok) {
-        throw new Error(`API error (${response.status}): ${result.error || 'Unknown error'}`);
-      }
-
-      if (!result.success) {
-        throw new Error(`Email sending failed: ${result.error || 'Unknown error'}`);
-      }
-
-      console.log('✅ Email sending completed successfully:', result);
+      console.log('✅ Invitations ready! Email sending will be implemented next.');
       
     } catch (error) {
       console.error('❌ sendInvitations error:', error);
