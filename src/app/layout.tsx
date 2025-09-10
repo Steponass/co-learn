@@ -11,6 +11,18 @@ import LayoutContent from "@/app/components/layout/LayoutContent";
 export const metadata: Metadata = {
   title: "Co-Learn",
   description: "Is good. I like, much.",
+  icons: {
+    icon: "/favicon.png",
+  },
+  openGraph: {
+    images: [
+      { url: "/og-icon.png",
+        width: 192,
+        height: 192,
+        alt: 'Co~Learn, your online tutoring platform',
+      }
+    ],
+  },
 };
 
 const signika = Signika({
