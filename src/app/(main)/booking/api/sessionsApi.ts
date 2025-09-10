@@ -1,5 +1,19 @@
 import { createClient } from "@/utils/supabase/client";
-import type { CreateSessionFormData } from "../types/sessions";
+import { createInvitationToken } from "@/utils/invitation-tokens";
+import type { CreateSessionFormData, SessionInvitee } from "../types/sessions";
+
+interface SessionWithFacilitatorInfo {
+  id: string;
+  title?: string;
+  description?: string;
+  start_time: string;
+  time_zone: string;
+  facilitator_id: string;
+  user_info?: {
+    name: string;
+    email: string;
+  };
+}
 
 export const sessionService = {
   async bookSession(sessionId: string, userId: string) {
@@ -42,19 +56,82 @@ export const sessionService = {
       recurrence_pattern: sessionData.recurrence_pattern ?? null,
       room_code: crypto.randomUUID(),
       booked_participants: [],
+      is_invite_only: sessionData.is_invite_only,
+      invitees: sessionData.invitees ?? null,
     };
     
-    const { data, error } = await supabase
+    const { data: session, error } = await supabase
       .from('sessions')
-      .insert([dbSessionData])  // Use transformed data instead of raw sessionData
-      .select()
+      .insert([dbSessionData])
+      .select(`
+        *,
+        user_info:facilitator_id (
+          name,
+          email
+        )
+      `)
       .single();
     
     if (error) {
       throw new Error(error.message);
     }
+
+    // If this is an invite-only session with invitees, handle invitations
+    if (sessionData.is_invite_only && sessionData.invitees && sessionData.invitees.length > 0) {
+      try {
+        await this.sendInvitations(session, sessionData.invitees);
+        console.log('✅ Invitations sent successfully');
+      } catch (invitationError) {
+        // Log the error but don't fail session creation
+        console.error('❌ Failed to send invitations:', invitationError);
+        
+        // Create tokens anyway for manual access
+        try {
+          const tokens = await Promise.all(
+            sessionData.invitees.map(invitee => 
+              createInvitationToken(session.id, invitee.email, session.facilitator_id)
+            )
+          );
+          console.log('📧 Invitation tokens created:', tokens.length);
+        } catch (tokenError) {
+          console.error('Failed to create tokens:', tokenError);
+        }
+        
+        // Don't throw - session was created successfully, just emails failed
+      }
+    }
     
-    return data;
+    return session;
+  },
+
+  async sendInvitations(session: SessionWithFacilitatorInfo, invitees: SessionInvitee[]) {
+    console.log('🔍 Starting sendInvitations with:', { sessionId: session.id, inviteesCount: invitees.length });
+    
+    try {
+      console.log('📧 Creating invitation tokens...');
+      // Create invitation tokens for all invitees
+      const tokens = await Promise.all(
+        invitees.map(async (invitee, index) => {
+          console.log(`Creating token ${index + 1}/${invitees.length} for ${invitee.email}`);
+          return await createInvitationToken(session.id, invitee.email, session.facilitator_id);
+        })
+      );
+      console.log(`✅ Created ${tokens.length} invitation tokens`);
+
+      // For now, just log the tokens - we'll add email sending later
+      console.log('📧 Invitation tokens created successfully. Manual invitation URLs:');
+      invitees.forEach((invitee, index) => {
+        const invitationUrl = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/invitation/${tokens[index]}`;
+        console.log(`  - ${invitee.name} (${invitee.email}): ${invitationUrl}`);
+      });
+      
+      console.log('✅ Invitations ready! Email sending will be implemented next.');
+      
+    } catch (error) {
+      console.error('❌ sendInvitations error:', error);
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      throw error; // Re-throw to be caught by the calling function
+    }
   },
 
   async cancelSession(sessionId: string, facilitatorId: string) {

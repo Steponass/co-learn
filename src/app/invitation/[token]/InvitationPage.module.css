@@ -1,0 +1,35 @@
+.page_container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.error_container {
+  max-width: 32rem;
+  width: 100%;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.error_title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+
+.error_message {
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.home_link {
+  display: inline-block;
+  text-decoration: none;
+}
