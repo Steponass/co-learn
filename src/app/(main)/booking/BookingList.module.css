@@ -188,38 +188,3 @@ textarea.datetime_picker {
   resize: vertical;
   min-height: 3lh;
 }
-
-/* Invitation Section Styles */
-.invitation_section {
-  border-top: 1px solid var(--clr-stroke-weak);
-  padding-top: var(--space-12-16px);
-  margin-top: var(--space-12-16px);
-}
-
-.invitation_checkbox {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8px);
-  cursor: pointer;
-  font-weight: 500;
-  color: var(--clr-text-secondary);
-}
-
-.invitation_checkbox input[type="checkbox"] {
-  width: 1.2em;
-  height: 1.2em;
-}
-
-.invitation_options {
-  margin-top: var(--space-12-16px);
-}
-
-.invitation_warning {
-  color: var(--clr-accent-warning);
-  font-size: 0.9em;
-  margin-top: var(--space-8px);
-  padding: var(--space-8px);
-  background-color: var(--clr-warning-bg);
-  border: 1px solid var(--clr-warning-stroke);
-  border-radius: var(--border-radius-4px);
-}

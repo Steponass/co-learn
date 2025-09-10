@@ -6,17 +6,6 @@ export type UserInfo = {
   role: string;
 };
 
-// Session invitation data structure
-export interface SessionInvitee {
-  user_id: string | null; // null for external invitees who don't have accounts yet
-  email: string;
-  name: string;
-  role: "participant" | "facilitator";
-  acceptedInvite: boolean;
-  invitedAt: string;
-  invitedBy: string;
-}
-
 // JSON participant data as stored in the database
 export type BookedParticipant = {
   user_id: string;
@@ -57,8 +46,6 @@ export interface Session {
   max_participants: number;
   booked_participants?: BookedParticipant[];
   status: 'scheduled' | 'active' | 'completed' | 'cancelled';
-  is_invite_only: boolean;
-  invitees?: SessionInvitee[];
 }
 
 // Session with participants (used in facilitator views)
@@ -110,8 +97,6 @@ export interface CreateSessionFormData {
     endDate?: string;
     maxOccurrences?: number;
   };
-  is_invite_only: boolean;
-  invitees?: SessionInvitee[];
 }
 
 // Response types for API actions
@@ -145,9 +130,6 @@ export interface RawSessionData {
   max_participants?: number;
   booked_participants?: BookedParticipant[];
   status?: 'scheduled' | 'active' | 'completed' | 'cancelled';
-  is_invite_only?: boolean;
-  invitees?: SessionInvitee[];
-
   facilitator?: {
     name: string;
     email: string;
@@ -177,8 +159,6 @@ export function mapRawSessionToSession(raw: RawSessionData): Session {
     max_participants: raw.max_participants || 6,
     booked_participants: raw.booked_participants || [],
     status: raw.status || 'scheduled',
-    is_invite_only: raw.is_invite_only || false,
-    invitees: raw.invitees || [],
   };
 }
 
@@ -209,29 +189,4 @@ export function mapSessionToSessionWithParticipants(
     ...session,
     session_participants: participants,
   };
-}
-
-// User picker component types
-export interface SelectedUser {
-  user_id: string | null; // null for external users
-  email: string;
-  name: string;
-  role: "participant" | "facilitator";
-  isExternal: boolean; // true if user doesn't exist in system yet
-}
-
-// Type guard to check if session is invite-only
-export function isInviteOnlySession(session: Session): boolean {
-  return session.is_invite_only === true;
-}
-
-// Helper function to get accepted invitees count
-export function getAcceptedInviteesCount(session: Session): number {
-  if (!session.invitees) return 0;
-  return session.invitees.filter(invite => invite.acceptedInvite).length;
-}
-
-// Helper function to check if session has any accepted invitations
-export function hasAcceptedInvitations(session: Session): boolean {
-  return getAcceptedInviteesCount(session) > 0;
 }

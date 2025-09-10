@@ -3,9 +3,8 @@
 import { useState, useRef } from "react";
 import { timeZones } from "../../utils/timezones";
 import MessageDisplay from "../../../components/MessageDisplay";
-import UserPicker from "../UserPicker";
 import classes from "../../BookingList.module.css";
-import type { CreateSessionFormData, SelectedUser } from "../../types/sessions";
+import type { CreateSessionFormData } from "../../types/sessions";
 
 interface FacilitatorCreateSessionProps {
   facilitatorId: string;
@@ -24,8 +23,6 @@ export default function FacilitatorCreateSession({
   const [selectedTimeZone, setSelectedTimeZone] = useState("UTC");
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [isInviteOnly, setIsInviteOnly] = useState(false);
-  const [selectedInvitees, setSelectedInvitees] = useState<SelectedUser[]>([]);
 
   const weekdays = [
     { value: 1, label: "Monday" },
@@ -57,17 +54,6 @@ export default function FacilitatorCreateSession({
     return trimmed.length > 0 ? trimmed : undefined;
   };
 
-    // Convert selected users to invitees format
-    const invitees = isInviteOnly ? selectedInvitees.map(user => ({
-      user_id: user.user_id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      acceptedInvite: false,
-      invitedAt: new Date().toISOString(),
-      invitedBy: facilitatorId,
-    })) : undefined;
-
     // Build session data object
   const sessionData: CreateSessionFormData = {
     facilitator_id: facilitatorId,
@@ -84,9 +70,7 @@ export default function FacilitatorCreateSession({
       endDate: getStringOrUndefined(formData.get("endDate")),
       maxOccurrences: formData.get("maxOccurrences") ? 
         parseInt(formData.get("maxOccurrences") as string) : undefined,
-    } : undefined,  // Changed from null to undefined
-    is_invite_only: isInviteOnly,
-    invitees: invitees,
+    } : undefined,
   };
 
     const success = await onCreate(sessionData);
@@ -97,8 +81,6 @@ export default function FacilitatorCreateSession({
       setSelectedTimeZone("UTC");
       setIsRecurring(false);
       setSelectedDays([]);
-      setIsInviteOnly(false);
-      setSelectedInvitees([]);
     }
   };
 
@@ -258,36 +240,8 @@ export default function FacilitatorCreateSession({
           )}
         </div>
 
-        {/* Invitation Section */}
-        <div className={classes.invitation_section}>
-          <label className={classes.invitation_checkbox}>
-            <input
-              type="checkbox"
-              checked={isInviteOnly}
-              onChange={(e) => setIsInviteOnly(e.target.checked)}
-            />
-            Invite-only session
-          </label>
 
-          {isInviteOnly && (
-            <div className={classes.invitation_options}>
-              <UserPicker
-                selectedUsers={selectedInvitees}
-                onUsersChange={setSelectedInvitees}
-                maxUsers={24}
-                facilitatorId={facilitatorId}
-              />
-              
-              {selectedInvitees.length === 0 && (
-                <p className={classes.invitation_warning}>
-                  ⚠️ You must invite at least one person for an invite-only session
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        <button className="primary_button" disabled={loading || (isInviteOnly && selectedInvitees.length === 0)} type="submit">
+        <button className="primary_button" type="submit">
           {loading ? "Creating..." : "Create Session"}
         </button>
 
