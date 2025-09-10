@@ -1,0 +1,184 @@
+/* Custom Control Bar - Desktop-First Design */
+
+.custom_control_bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--space-4-8px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12-16px);
+  padding: var(--space-8px);
+  box-shadow: var(--shadow-elevation-2);
+  border-radius: var(--border-radius-12px);
+  width: min(99%, 920px);
+  background-color: var(--clr-bg-raised);
+  z-index: 100;
+  flex-wrap: nowrap;
+  overflow: visible;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.custom_control_bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Essential controls group - LiveKit built-in controls with device selection */
+.essential_controls {
+  display: flex;
+  gap: var(--space-8px);
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: visible;
+}
+
+/* Custom controls group - Your custom buttons */
+.custom_controls {
+  display: flex;
+  gap: var(--space-4px);
+  align-items: center;
+}
+
+/* Mobile menu toggle - hidden on desktop */
+.mobile_menu_toggle {
+  display: none;
+}
+
+/* Common button styling for consistency */
+.control_button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  color: var(--clr-txt-strong);
+  background-color: var(--clr-bg-overlay);
+  border: 1px solid var(--clr-stroke-weak);
+  border-radius: var(--border-radius-8px);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.control_button:not(:disabled):hover {
+  background-color: var(--clr-bg-base);
+  border-color: var(--clr-stroke-strong);
+}
+
+.control_button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* LiveKit button overrides to match your design */
+.custom_control_bar .lk-button,
+.custom_control_bar .lk-disconnect-button {
+  background-color: var(--clr-bg-overlay);
+  border: 1px solid var(--clr-stroke-weak);
+  color: var(--clr-txt-strong);
+  transition: all 0.3s ease;
+}
+
+.custom_control_bar .lk-button:not(:disabled):hover,
+.custom_control_bar .lk-disconnect-button:not(:disabled):hover {
+  background-color: var(--clr-bg-base);
+  border-color: var(--clr-stroke-strong);
+}
+
+/* Active/pressed state for LiveKit buttons */
+.custom_control_bar .lk-button[aria-pressed="true"] {
+  background-color: var(--clr-brand-opacity-75);
+  border-color: var(--clr-brand);
+  color: var(--clr-txt-strong);
+}
+
+.custom_control_bar .lk-button[aria-pressed="true"]:hover {
+  background-color: var(--clr-brand-opacity-25);
+}
+
+/* Disconnect button styling */
+.custom_control_bar .lk-disconnect-button {
+  background-color: var(--clr-error);
+  border-color: var(--clr-error);
+  color: white;
+}
+
+.custom_control_bar .lk-disconnect-button:not(:disabled):hover {
+  background-color: var(--clr-error);
+  opacity: 0.8;
+}
+
+/* Mobile Safeguards - Compact layout */
+@media (max-width: 768px) {
+  .custom_control_bar {
+    width: min(95%, 600px);
+    padding: var(--space-6px);
+    gap: var(--space-6px);
+  }
+  
+  .essential_controls {
+    gap: var(--space-4px);
+  }
+  
+  /* Show mobile menu toggle on mobile */
+  .mobile_menu_toggle {
+    display: flex;
+  }
+  
+  /* Hide secondary controls on mobile initially */
+  .custom_controls {
+    display: none;
+  }
+  
+  /* Show custom controls when mobile menu is active */
+  .custom_controls.mobile_active {
+    display: flex;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: var(--space-8px);
+    background-color: var(--clr-bg-raised);
+    padding: var(--space-8px);
+    border-radius: var(--border-radius-8px);
+    box-shadow: var(--shadow-elevation-3);
+    gap: var(--space-4px);
+  }
+  
+  .control_button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Extra small mobile - even more compact */
+@media (max-width: 480px) {
+  .custom_control_bar {
+    width: 95%;
+    padding: var(--space-4px);
+    gap: var(--space-6px);
+  }
+  
+  .control_button {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+  
+  .essential_controls {
+    gap: var(--space-4px);
+  }
+}
+
+/* Touch-friendly button sizing on mobile */
+@media (max-width: 768px) {
+  .control_button {
+    min-height: 44px; /* iOS recommended touch target */
+    min-width: 44px;
+  }
+}

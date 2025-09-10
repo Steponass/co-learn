@@ -7,7 +7,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import Chat from "./chat/Chat";
 import type { PresenceState } from "./types";
 import classes from "../SessionPage.module.css";
-import LiveKitRoom from "./video/LiveKitRoom";
+import EnhancedLiveKitRoom from "./video/EnhancedLiveKitRoom";
 import SessionParticipantsList from "./SessionParticipantsList";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@/app/components/Icon";
@@ -84,7 +84,7 @@ export default function SessionBroadcast({
   return (
     <div className={classes.video_and_chat_container}>
       <div className={classes.video_container}>
-        <LiveKitRoom roomName={roomCode} userName={userName} />
+        <EnhancedLiveKitRoom roomName={roomCode} userName={userName} />
       </div>
 
       <div className={classes.chat_wrapper}>
