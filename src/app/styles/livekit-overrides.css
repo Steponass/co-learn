@@ -56,8 +56,8 @@
 }
 
 .join_session_button {
-justify-self: center;
-align-self: center;
+  justify-self: center;
+  align-self: center;
 
 }
 
@@ -282,15 +282,25 @@ align-self: center;
   bottom: var(--space-4-8px);
   margin: 0 auto;
   display: flex;
-  gap: var(--space-12-16px);
+  gap: var(--space-8px);
   align-items: center;
   justify-content: center;
   padding: var(--space-8px);
   box-shadow: var(--shadow-elevation-2);
   border-radius: var(--border-radius-12px);
-  width: min(99%, 720px);
+  width: min(99%, 864px);
   background-color: var(--clr-bg-raised);
   z-index: 100;
+}
+
+@media (max-width: 840px) {
+
+  .lk-control-bar,
+  .lk-agent-control-bar {
+    flex-wrap: wrap;
+    max-height: 192px;
+    max-width: 66%;
+  }
 }
 
 /* Optional: for vertical centering inside LiveKitRoom, add this modifier class in dev tools if needed */
@@ -529,8 +539,6 @@ align-self: center;
   opacity: .9
 }
 
-
-
 /* Disable display - prefab so can't disable completely */
 
 .lk-start-audio-button {
@@ -540,31 +548,6 @@ align-self: center;
 .lk-chat-toggle {
   display: none !important;
 }
-
-
-
-
-/* Video Controls Panel at the top */
-.video_controls_panel {
-  position: fixed;
-  top: var(--space-48-64px);
-  left: var(--space-12-16px);
-  display: flex;
-  /* flex-direction: column; */
-  gap: var(--space-4px);
-  z-index: 10;
-}
-
-.video_control_button {
-  padding: var(--space-8px) var(--space-12px);
-  background-color: var(--clr-bg-overlay);
-  color: var(--clr-txt-strong);
-  border: 1px solid var(--clr-stroke-weak);
-  border-radius: var(--border-radius-8px);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
 
 /* Enhanced self-view when minimized */
 [data-lk-local-participant="true"].minimized {

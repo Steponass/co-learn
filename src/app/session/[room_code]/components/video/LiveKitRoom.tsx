@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   LiveKitRoom,
   VideoConference,
@@ -100,36 +101,37 @@ function VideoControls({
       {/* Inject dynamic styles */}
       <style>{videoControlStyles}</style>
 
-      {/* Video control buttons */}
-      <div className="video_controls_panel">
+      {/* Render custom buttons into the main LiveKit control bar */}
+      <ControlBarPortal>
         <button
-          className="video_control_button"
+          className="lk-button"
           onClick={() => setUserHideSelfView(!userHideSelfView)}
           title={userHideSelfView ? "Show my video" : "Hide my video"}
+          aria-pressed={userHideSelfView}
         >
-          {userHideSelfView ? "Show Self View" : "Hide Self View"}
+          {userHideSelfView ? "Show Self" : "Hide Self"}
         </button>
-
         <button
-          className="video_control_button"
+          className="lk-button"
+          onClick={() => setIsMinimized(!isMinimized)}
+          title={isMinimized ? "Restore self view size" : "Minimize self view"}
+          aria-pressed={isMinimized}
+        >
+          {isMinimized ? "Restore" : "Minimize"}
+        </button>
+        <button
+          className="lk-button"
           onClick={toggleBackgroundBlur}
           title={
             backgroundBlurEnabled
               ? "Disable background blur"
               : "Enable background blur"
           }
+          aria-pressed={backgroundBlurEnabled}
         >
-          {backgroundBlurEnabled ? "Disable Blur" : "Enable Blur"}
+          {backgroundBlurEnabled ? "Blur on" : "Blur off"}
         </button>
-
-        <button
-          className="video_control_button"
-          onClick={() => setIsMinimized(!isMinimized)}
-          title={isMinimized ? "Restore self view size" : "Minimize self view"}
-        >
-          {isMinimized ? "Restore" : "Minimize"}
-        </button>
-      </div>
+      </ControlBarPortal>
 
       {videoError && (
         <div className="video_error_msg">
@@ -138,6 +140,46 @@ function VideoControls({
       )}
     </>
   );
+}
+
+function ControlBarPortal({ children }: { children: React.ReactNode }) {
+  const [container, setContainer] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const findContainer = () => {
+      const el = document.querySelector(".lk-control-bar");
+      if (el instanceof HTMLElement) {
+        setContainer(el);
+      }
+    };
+
+    // Try immediately
+    findContainer();
+    if (container) return;
+
+    // Observe DOM until control bar appears
+    const observer = new MutationObserver(() => {
+      const el = document.querySelector(".lk-control-bar");
+      if (el instanceof HTMLElement) {
+        setContainer(el);
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [container]);
+
+  if (!container) return null;
+
+  // Group custom buttons to match LK layout
+  const group = (
+    <div className="lk-button-group" style={{ gap: ".5rem" }}>
+      {children}
+    </div>
+  );
+
+  return createPortal(group, container);
 }
 
 export default function LiveKitRoomWrapper({
