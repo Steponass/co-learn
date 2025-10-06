@@ -196,7 +196,7 @@
 }
 
 .lk-participant-tile .lk-participant-placeholder svg {
-  height: 70%;
+  max-height: 70%;
   width: auto;
   padding: 10%;
 }
@@ -208,6 +208,10 @@
   border-radius: var(--border-radius-8px);
   fill: red;
   fill-opacity: 1;
+}
+
+.lk-participant-tile {
+  max-height: 500px;
 }
 
 .lk-participant-tile[data-lk-video-muted=true][data-lk-source=camera] .lk-participant-placeholder {
